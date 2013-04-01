@@ -6,7 +6,7 @@ The scripts are for use with **[PtokaX Direct Connect][1]** hub.
 [PtokaX Direct Connect Hub][1] is a multi-platform server application for Neo-Modus Direct Connect(NMDC) Peer-To-Peer sharing network.
 
 ### Overview
-The hub HiT Hi FiT Hai is for local usage inside the IIT Kharagpur campus, and hence the scripts are not to be used without prior permissions. The scripts work well with *PtokaX Lua 5 API version 2* and *Lua 5.1* as well as *Lua 5.2*.
+The hub HiT Hi FiT Hai is for local usage inside the IIT Kharagpur campus, and hence the scripts are not to be used without prior permissions. The scripts work well with *PtokaX Lua 5 API version 2* and [*Lua 5.1*][2] as well as [*Lua 5.2*][3].
 
 Features
 --------
@@ -19,3 +19,5 @@ Currently, the scripts in the repository are for following operations:
 
 
   [1]: http://www.ptokax.org/ "PtokaX Direct Connect Hub"
+  [2]: http://www.lua.org/versions.html#5.1 "Lua 5.1"
+  [3]: http://www.lua.org/versions.html#5.2 "Lua 5.2"
