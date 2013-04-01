@@ -1,0 +1,13 @@
+Currently following commands are there
+
+help(or h)
+readall(or rall), readreq(or rreq), readgst(or rgst), readnws(or rn), readsug(or rsg)
+areq(or ar), anws(or an), agst(or ag), adel(or ad), asug(or asg)
+delreq(or dr), delsug(or dsg), delnws(or dn)
+
+Better documentation of commands shall soon be made available.
+
+areq and asug require a category supplied with them.
+Delete commands need a valid ID.
+
+Please inform hjpotter92 in case of any problems you face related to newer Infobot
