@@ -2,7 +2,7 @@
 
 The scripts are for use with **[PtokaX Direct Connect][1]** hub.
 
-### Introduction 
+### Introduction
 [PtokaX Direct Connect Hub][1] is a multi-platform server application for Neo-Modus Direct Connect(NMDC) Peer-To-Peer sharing network.
 
 ### Overview
