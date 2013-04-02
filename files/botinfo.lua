@@ -47,7 +47,7 @@ _G.tFunction = {
 	end,
 
 	FetchRow = function( sTable, iID )
-		local sFields, sQuery, tReturn = "`id`, `msg`, `nick`", "SELECT %s FROM `%s` WHERE `id` = %d LIMIT 1", {}
+		local sFields, sQuery, tReturn = "`msg`, `nick`", "SELECT %s FROM `%s` WHERE `id` = %d LIMIT 1", {}
 		if sTable == "requests" or sTable == "suggestions" then
 			sFields = "`ctg`, "..sFields
 		end
@@ -147,7 +147,7 @@ _G.tInfobot = {
 			end
 
 		elseif sTable == "requests" then
-			sFields = sFields..", `ctg`, CASE `filled` WHEN 'Y' THEN UPPER('filled') WHEN 'N' THEN UPPER('empty') END `filled`"
+			sFields = sFields..", `ctg`, CASE `filled` WHEN 'Y' THEN UPPER('filled') WHEN 'N' THEN UPPER('empty') WHEN 'C' THEN UPPER('closed') END `filled`"
 			sReadQuery = sReadQuery:format( sFields, sTable, iLimit )
 			SQLCur = assert( SQLCon:execute(sReadQuery) )
 			local tRow = SQLCur:fetch( {}, "a" )
@@ -168,7 +168,7 @@ _G.tInfobot = {
 	end,
 
 	add = function( tUser, tInput )
-		local sFields, sValues = "`msg`, `nick`, `dated`", ("'%s', '%s', NOW()"):format( SQLCon:escape(tUser.sNick), SQLCon:escape(tInput.sMsg) )
+		local sFields, sValues = "`msg`, `nick`, `dated`", ("'%s', '%s', NOW()"):format( SQLCon:escape(tInput.sMsg), SQLCon:escape(tUser.sNick) )
 		if tInput.sTable:lower() == "requests" or tInput.sTable:lower() == "suggestions" then
 			sFields, sValues = "`ctg`, "..sFields, ("'%s', %s"):format( SQLCon:escape(tInput.sCtg), sValues )
 		end
@@ -189,7 +189,6 @@ _G.tInfobot = {
 			VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
---~ 		Core.SendPmToNick( sSender, tConfig.sBotName, "The message has been stored with ID: #"..tostring(SQLCon:getlastautoid())..". It'll be delivered to "..sRecipient.." when they connect to hub." )
 		return SQLCon:getlastautoid()
 	end,
 
@@ -200,14 +199,14 @@ _G.tInfobot = {
 		return true
 	end,
 
-	fill = function( tUser, iID )
+	fill = function( tUser, iID, bClosure )
 		local sUpdateQuery = [[UPDATE `requests`
-			SET `filled` = 'Y',
+			SET `filled` = '%s',
 				`filldate` = NOW(),
 				`filledby` = '%s'
 			WHERE `id` = %d
 			LIMIT 1]]
-		sUpdateQuery = sUpdateQuery:format( SQLCon:escape(tUser.sNick), iID )
+		sUpdateQuery = sUpdateQuery:format( (bClosure and 'C') or 'Y', SQLCon:escape(tUser.sNick), iID )
 		local SQLCur = assert( SQLCon:execute(sUpdateQuery) )
 		if type(SQLCur) ~= "number" then
 			SQLCur:close()

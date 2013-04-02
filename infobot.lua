@@ -17,21 +17,14 @@ function OnStartup()
 			[0] = true,			-- Admin
 			[1] = true,			-- God
 			[2] = true,			-- OP
-			[3] = true,			-- VIP
-			[4] = false,		-- Mods
-			[5] = false,		-- Reg
-			[6] = false,		-- sVIP
-			[7] = false			-- gymkhana
+			[3] = true			-- VIP
 		},
-		AllowAdmin = {
+		AllowMods = {
 			[0] = true,			-- Admin
-			[1] = false,			-- God
+			[1] = true,			-- God
 			[2] = true,			-- OP
-			[3] = false,			-- VIP
-			[4] = false,		-- Mods
-			[5] = false,		-- Reg
-			[6] = false,		-- sVIP
-			[7] = false			-- gymkhana
+			[3] = true,			-- VIP
+			[4] = true			-- Mods
 		}
 	}
 	dofile( tCfg.sPath..tCfg.sFunctionsFile )
@@ -127,7 +120,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 	end
 
-	local tInsertData, iLastID = { sMsg = sData, sTable = "all" }, 0
+	local tInsertData, iLastID, sAdditionNotify = { sMsg = sData, sTable = "all" }, 0, "New %s has been added to [ %s ] table. Use %s for more information."
 
 	if sCommand == "areq" or sCommand == "ar" then
 		local tBreak = tFunction.Explode( sData )
@@ -148,6 +141,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not iLastID then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 		end
+		local sChatMessage = sAdditionNotify:format( ("%s: %s"):format(tInsertData.sCtg:upper(), tInsertData.sMsg), tInsertData.sTable:upper(), tCfg.sBotName )
+		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
+		tFunction.SendToAll( tUser.sNick, sChatMessage )
+		sChatMessage = nil
 		Core.SendPmToUser( tUser, tCfg.sBotName, "Request has been added at ID #"..tostring(iLastID).."." )
 		return true
 
@@ -170,6 +167,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not iLastID then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 		end
+		local sChatMessage = sAdditionNotify:format( ("%s: %s"):format(tInsertData.sCtg:upper(), tInsertData.sMsg), tInsertData.sTable:upper(), tCfg.sBotName )
+		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
+		tFunction.SendToAll( tUser.sNick, sChatMessage )
+		sChatMessage = nil
 		Core.SendPmToUser( tUser, tCfg.sBotName, "Suggestion has been added at ID #"..tostring(iLastID).."." )
 		return true
 
@@ -186,6 +187,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not iLastID then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 		end
+		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
+		tFunction.SendToAll( tUser.sNick, sChatMessage )
+		sChatMessage = nil
 		Core.SendPmToUser( tUser, tCfg.sBotName, "News has been added at ID #"..tostring(iLastID).."." )
 		return true
 
@@ -202,6 +207,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not iLastID then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 		end
+		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
+		tFunction.SendToAll( tUser.sNick, sChatMessage )
+		sChatMessage = nil
 		Core.SendPmToUser( tUser, tCfg.sBotName, "Your comment has been recorded at ID #"..tostring(iLastID).."." )
 		return true
 
@@ -218,11 +227,15 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not iLastID then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 		end
+		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
+		tFunction.SendToAll( tUser.sNick, sChatMessage )
+		sChatMessage = nil
 		Core.SendPmToUser( tUser, tCfg.sBotName, "Deletion info has been added at ID #"..tostring(iLastID).."." )
 		return true
 
-	elseif sCommand == "fill" then
-		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request #%d - %s. The requesting user will be notified with message ID#%d when they connect."
+	elseif sCommand == "fill" or sCommand == "freq" then
+		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
 		end
@@ -231,8 +244,23 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
 		end
-		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tRow.id).." - "..tRow.msg.."." ), tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
-		Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tonumber(tRow.id), tRow.msg, tonumber(iOfflineMessageID)) )
+		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." ), tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
+		Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+		return true
+
+	elseif tProfiles.AllowMods[tUser.iProfile] and ( sCommand == "close" or sCommand == "creq" ) then
+		local tBreak, sReply = tFunction.Explode( sData ), "You closed the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
+		if not tonumber( tBreak[1], 10 ) then
+			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+		end
+		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
+		local tRow = tFunction.FetchRow( "requests", tInsertData.iID )
+		if not tRow then
+			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+		end
+		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've closed your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
+		tInfobot.fill( tUser, tInsertData.iID, true )
+		Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
 		return true
 
 	elseif sCommand == "delreq" or sCommand == "dr" then
@@ -241,11 +269,17 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "requests"
-		local tRow = tFunction.FetchRow( "requests", tInsertData.iID )
+		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
 		end
-		tInfobot.del( tUser, "requests", tInsertData )
+		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
+			local sTemporary = "The following entry has been deleted:\n\tID#%d. [%s] - %s (Added by %s)"
+			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick) )
+			tInfobot.del( tUser, tInsertData )
+		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that request." )
+		end
 		return true
 
 	elseif sCommand == "delsug" or sCommand == "dsg" then
@@ -254,11 +288,17 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "suggestions"
-		local tRow = tFunction.FetchRow( "suggestions", tInsertData.iID )
+		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
 		end
-		tInfobot.del( tUser, tInsertData )
+		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
+			local sTemporary = "The following entry has been deleted:\n\t%d. [%s] - %s (Added by %s)"
+			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick) )
+			tInfobot.del( tUser, tInsertData )
+		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that suggestion field." )
+		end
 		return true
 
 	elseif sCommand == "delnws" or sCommand == "dn" then
@@ -267,11 +307,17 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "news"
-		local tRow = tFunction.FetchRow( "news", tInsertData.iID )
+		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
 		end
-		tInfobot.del( tUser, tInsertData )
+		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
+			local sTemporary = "The following entry has been deleted:\n\t%d. %s (Added by %s)"
+			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.msg, tRow.nick) )
+			tInfobot.del( tUser, tInsertData )
+		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that news content." )
+		end
 		return true
 
 	end
