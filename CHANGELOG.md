@@ -1,3 +1,9 @@
+2013-04-03
+----------
+
+- Added SQL table schema for latest and chat stats.
+- Created web-page and web-branch.
+
 2013-04-02
 ----------
 
