@@ -1,3 +1,10 @@
+2013-04-04
+----------
+
+- Shorten infobot.lua
+  1. Change logic.
+  2. Remove redundancy.
+
 2013-04-03
 ----------
 
