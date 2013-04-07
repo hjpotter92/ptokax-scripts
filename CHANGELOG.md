@@ -12,11 +12,6 @@
   1. Change logic.
   2. Remove redundancy.
 
-2013-04-04
-----------
-
-- Web-branch updated to use jQuery 1.9.1 now.
-
 2013-04-05
 ----------
 
