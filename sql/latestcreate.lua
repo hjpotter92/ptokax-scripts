@@ -150,6 +150,36 @@ CreateTables = function()
 		COLLATE='utf8_general_ci'
 		ENGINE=MyISAM ]]
 	local SQLCur = assert( SQLCon:execute(sCreateCode) )
+	local sCreateCode = [[CREATE TABLE `buynsell` (
+			`id` INT(10) NOT NULL AUTO_INCREMENT,
+			`type` ENUM('B','S','D','H','T') NOT NULL DEFAULT 'B',
+			`msg` VARCHAR(250) NOT NULL,
+			`nick` VARCHAR(32) NOT NULL,
+			`dated` DATETIME NOT NULL,
+			PRIMARY KEY (`id`),
+			UNIQUE INDEX `msg_nick` (`msg`, `nick`),
+			INDEX `type` (`type`),
+			FULLTEXT INDEX `msg` (`msg`)
+		)
+		COMMENT='The table storing information about users selling/buying/hiring things etc.'
+		COLLATE='utf8_general_ci'
+		ENGINE=MyISAM ]]
+	local SQLCur = assert( SQLCon:execute(sCreateCode) )
+	local sCreateCode = [[CREATE TABLE `replies` (
+			`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+			`bns_id` INT(10) UNSIGNED NOT NULL,
+			`msg` VARCHAR(250) NOT NULL,
+			`nick` VARCHAR(32) NOT NULL,
+			`dated` DATETIME NOT NULL,
+			PRIMARY KEY (`id`),
+			UNIQUE INDEX `bns_id_msg` (`bns_id`, `msg`),
+			INDEX `bns_id` (`bns_id`),
+			FULLTEXT INDEX `msg` (`msg`)
+		)
+		COMMENT='Replies to buynsell messages from interested users.'
+		COLLATE='utf8_general_ci'
+		ENGINE=MyISAM ]]
+	local SQLCur = assert( SQLCon:execute(sCreateCode) )
 end
 
 CreateTables()
