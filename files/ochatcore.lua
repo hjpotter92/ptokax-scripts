@@ -1,7 +1,7 @@
 local chatroom = {'Modz-Chat','Vip-Chat','Hub-Feed'}
 local profiles =  { ["Modz-Chat"] = 4,
 			["Vip-Chat"] = 3,
-			["Hub-Feed"] = 3 
+			["Hub-Feed"] = 3
 			}
 
 local modz = RegMan.GetRegsByProfile(4)
@@ -15,7 +15,7 @@ local list = { [4]= modz,
 		  [2] = ops,
 		  [1] =gawds,
 		   [0] = master }
-		   
+
 function Chatroomsend( user, chatz, message)
 	local k = profiles[chatz]
 	for i = 0,k,1 do
