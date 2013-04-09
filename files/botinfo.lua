@@ -225,7 +225,7 @@ _G.tInfobot = {
 
 	del = function( tUser, tInput )
 		if tInput.sTable == "buynsell" then
-			local sDeleteQuery = string.format( "DELETE b.*, r.* FROM `buynsell` b LEFT JOIN `replies` r ON r.`bns_id` = b.`id` WHERE b.`id` = %d", SQLCon:escape(tInput.sTable), tInput.iID )
+			local sDeleteQuery = string.format( "DELETE b.*, r.* FROM `buynsell` b LEFT JOIN `replies` r ON r.`bns_id` = b.`id` WHERE b.`id` = %d", tInput.iID )
 			local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 			if type(SQLCur) ~= "number" then SQLCur:close() end
 			return true
