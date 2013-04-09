@@ -1,16 +1,17 @@
 Currently following commands are there
 
 help(or h)
-readall(or rall), readreq(or rreq), readgst(or rgst), readnws(or rn), readsug(or rsg)
-areq(or ar), anws(or an), agst(or ag), adel(or ad), asug(or asg)
-delreq(or dr), delsug(or dsg), delnws(or dn)
-fill(or freq), close(or creq)
+readall(or rall), readreq(or rreq), readgst(or rgst), readnws(or rn), readsug(or rsg), readbns(or rbsell)
+areq(or ar), anws(or an), agst(or ag), adel(or ad), asug(or asg), addbns(or absell), addreply(or amsg)
+delreq(or dr), delsug(or dsg), delnws(or dn), delbns(or dbsell)
+fill(or freq), close(or creq), switch
 
 Better documentation of commands shall soon be made available.
 
-areq and asug require a category supplied with them.
+areq and asug require a category supplied with them. absell has a separate list of valid categories.
 Delete commands need a valid ID.
-Filling and closing is applicable(currently) only to reuqests.
+Filling and closing is applicable only to reuqests.
+Switch command is applicable to buy and sell threads to set items as bought or sold.
 
 Closure commands are available to use by moderators only.
 

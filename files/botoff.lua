@@ -263,7 +263,7 @@ _G.tOffliner = {
 	end,
 
 	dl = function( tUser, iID )
-		local sDeleteQuery, sModNick = string.format( "DELETE e.*, m.* FROM `entries` e INNER JOIN `magnets` m ON m.`eid` = e.`id` WHERE e.`id` = %d", tonumber(iID) ), tFunction.FetchRow(iID).nick
+		local sDeleteQuery, sModNick = string.format( "DELETE e.*, m.* FROM `entries` e LEFT JOIN `magnets` m ON m.`eid` = e.`id` WHERE e.`id` = %d", tonumber(iID) ), tFunction.FetchRow(iID).nick
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
 			local SQLCur = assert( SQLCon:execute("UPDATE `modtable` SET `deletions` = `deletions` + 1 WHERE `nick`='"..SQLCon:escape(sModNick).."'") )
