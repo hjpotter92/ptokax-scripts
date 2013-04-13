@@ -290,9 +290,8 @@ function ExecuteCommand( tUser, sCmd, sData )
 		elseif tFunction.CheckModerator( tBreak[1] ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is already a moderator.|" )
 			return true
-		elseif not tProfiles.AllowVIP[tUser.iProfile] then
-			RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iModProfile )
 		end
+		RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iModProfile )
 		if tOffliner.addmod( tUser, tBreak[1] ) then
 			sAllModerators, sAllCategories = tFunction.Connect()
 			local sChatMessage = "New moderator: "..tBreak[1].." ."
