@@ -1,3 +1,8 @@
+2013-04-13
+----------
+
+- Moderators; when newly added will have their profile changed too, if they are registered. Previously, the if-else logic failed to do so.
+
 2013-04-09
 ----------
 
