@@ -1,3 +1,8 @@
+2013-04-15
+----------
+
+- A `string.find()` condition removed from if-else block. Will implement if spammers detected.
+
 2013-04-13
 ----------
 

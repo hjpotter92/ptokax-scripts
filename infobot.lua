@@ -243,10 +243,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "buynsell"
-		if tInsertData.sMsg:lower():find( "[%[buy|sell%]]" ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You don't need to separately tag the thread." )
-			return false
-		end
+--~ 		if tInsertData.sMsg:lower():find( "[%[buy|sell%]]" ) then
+--~ 			Core.SendPmToUser( tUser, tCfg.sBotName, "You don't need to separately tag the thread." )
+--~ 			return false
+--~ 		end
 		iLastID = tInfobot.add( tUser, tInsertData )
 		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
