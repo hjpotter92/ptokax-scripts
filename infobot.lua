@@ -326,7 +326,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
 			return false
 		end
-		if tRow.type:lower() ~= "buy" or tRow.type:lower() ~= "sell" then
+		if tRow.type:lower() ~= "buy" and tRow.type:lower() ~= "sell" then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The thread is of [ "..tRow.type.." ] type. Can not switch its status." )
 			return false
 		end
