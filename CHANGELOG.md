@@ -1,3 +1,8 @@
+2013-04-25
+----------
+
+- `if`-`else` logic for the *switch* command corrected.
+
 2013-04-15
 ----------
 
