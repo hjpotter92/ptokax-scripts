@@ -262,7 +262,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "addreply" or sCommand == "amsg" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = table.concat( tBreak, " ", 2 ), tonumber( tBreak[1], 10 ), "replies"
@@ -284,7 +284,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "fill" or sCommand == "freq" then
 		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
@@ -300,7 +300,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif tProfiles.AllowMods[tUser.iProfile] and ( sCommand == "close" or sCommand == "creq" ) then
 		local tBreak, sReply = tFunction.Explode( sData ), "You closed the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
@@ -317,7 +317,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "switch" then
 		local tBreak, sReply = tFunction.Explode( sData ), "You switched the status of thread \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
@@ -347,7 +347,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "delreq" or sCommand == "dr" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "requests"
@@ -368,7 +368,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "delsug" or sCommand == "dsg" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "suggestions"
@@ -390,7 +390,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "delnws" or sCommand == "dn" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "news"
 		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
@@ -411,7 +411,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "delbns" or sCommand == "dbsell" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "buynsell"
@@ -432,7 +432,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 	elseif sCommand == "delmsg" or sCommand == "dmsg" then
 		local tBreak = tFunction.Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The ID must be numerical!" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "replies"
