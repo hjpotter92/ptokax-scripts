@@ -1,3 +1,9 @@
+2013-04-29
+----------
+
+- Added a `Report` function.
+- Changed some of the error reports to use `Report()`. The error codes are defined in database.
+
 2013-04-25
 ----------
 

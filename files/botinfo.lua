@@ -5,16 +5,16 @@ local tConfig = {
 	sBotName = "[BOT]Info",
 	sHub = SetMan.GetString( 2 ) or "localhost"
 }
-tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%s"
+tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sErrorCode )
-	local _, _, sCode, sNum = sErrorCode:find( "^(%w+)%#(%w+)$" )
 	Core.SendPmToNick( "hjpotter92", "lol", "INFO: "..sErrorCode )
 end
 
 _G.tFunction = {
 	Connect = function()
+		local luasql
 		if not luasql then
 			luasql = require "luasql.mysql"
 		end
@@ -32,6 +32,10 @@ _G.tFunction = {
 			table.insert( tReturn, sGrab )
 		end )
 		return tReturn
+	end,
+
+	Report = function( sErrorCode, iErrorNumber )
+		return tConfig.sHubFAQ:format( sErrorCode:upper(), iErrorNumber )
 	end,
 
 	CheckBnS = function( sInput )
@@ -159,7 +163,7 @@ _G.tInfobot = {
 			end
 
 		elseif sTable == "requests" then
-			sFields = sFields..", `ctg`, CASE `filled` WHEN 'Y' THEN UPPER('filled') WHEN 'N' THEN UPPER('empty') WHEN 'C' THEN UPPER('closed') END `filled`"
+			sFields = sFields:gsub( "`msg`", "CASE `filled` WHEN 'Y' THEN CONCAT(`msg`, ' (Filled by ', `filledby`, ' on ', filldate, ')') WHEN 'C' THEN CONCAT(`msg`, ' (Closed by ', `filledby`, ' on ', filldate, ')') WHEN 'N' THEN `msg` END `msg`" )..", `ctg`, CASE `filled` WHEN 'Y' THEN UPPER('filled') WHEN 'N' THEN UPPER('empty') WHEN 'C' THEN UPPER('closed') END `filled`"
 			sReadQuery = sReadQuery:format( sFields, sTable, iLimit )
 			SQLCur = assert( SQLCon:execute(sReadQuery) )
 			local tRow = SQLCur:fetch( {}, "a" )
