@@ -221,6 +221,10 @@ _G.tInfobot = {
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )
+		if Core.GetUser( sRecipient ) then
+			Core.SendPmToNick( sSender, sRecipient, sMessage )
+			return 0, "Message delivered"
+		end
 		local sStorageQuery = [[INSERT INTO `messages`(`message`, `from`, `to`, `dated`)
 			VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )

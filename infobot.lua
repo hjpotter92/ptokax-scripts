@@ -302,8 +302,13 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
-		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." ), tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
-		Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+		local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
+		tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
+		if iOfflineMessageID ~= 0 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
+		end
 		return true
 
 	elseif tProfiles.AllowMods[tUser.iProfile] and ( sCommand == "close" or sCommand == "creq" ) then
@@ -318,9 +323,13 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
-		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've closed your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
+		local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've closed your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
 		tInfobot.fill( tUser, tInsertData.iID, true )
-		Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+		if iOfflineMessageID ~= 0 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
+		end
 		return true
 
 	elseif sCommand == "switch" then
@@ -342,14 +351,18 @@ function ExecuteCommand( tUser, sCommand, sData )
 		if tUser.sNick:lower() == tRow.nick:lower() or tProfiles.AllowMods[tUser.iProfile] then
 			tInfobot.switch( tInsertData.iID )
 			if tUser.sNick:lower() ~= tRow.nick:lower() then
-				local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've switched your buy and sell thread ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
-				Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.type, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+				local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've switched your buy and sell thread ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
+				if iOfflineMessageID ~= 0 then
+					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+				else
+					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
+				end
 			else
 				Core.SendPmToUser( tUser, tCfg.sBotName, "Status switched successfully." )
 			end
 			return true
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You do not have sufficient privileges or you didn't start the thread." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 			return false
 		end
 
