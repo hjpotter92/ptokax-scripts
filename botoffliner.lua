@@ -81,7 +81,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 				tOffliner.l( tUser, 20, tBreak[1] )
 				return true
 			else
-				Core.SendPmToUser( tUser, tCfg.sBotName, OnError("GEN#1") )
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 1 ) )
 				return true
 			end
 			return true
@@ -113,7 +113,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! No search string was given.|" )
 			return true
 		elseif sData:len() < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#1") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 1 ) )
 			return true
 		else
 			tOffliner.s( tUser, sData )
@@ -131,25 +131,25 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	if tUser.iProfile == -1 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, OnError("GEN#2") )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 2 ) )
 		return true
 	end
 
 	if (not sData) or sData:len() == 0 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, OnError("GEN#4") )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 4 ) )
 		return true
 	end
 	local tBreak = tFunction.Explode( sData )
 
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("GEN#4") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 4 ) )
 			return true
 		elseif not tFunction.CheckCategory( tBreak[1] ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! That category doesn't exist.|" )
 			return true
 		elseif not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#120")..sAllModerators )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 )..sAllModerators )
 			return true
 		end
 		if tOffliner.al( tUser, tBreak ) then
@@ -183,7 +183,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "ul" or sCmd == "updatelatest" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#120") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
 			return true
 		end
 		if not tonumber( tBreak[1] ) then
@@ -210,7 +210,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "am" or sCmd == "addmagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#120") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then
@@ -233,7 +233,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "em" or sCmd == "editmagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#120") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then
@@ -257,7 +257,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "rm" or sCmd == "removemagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, OnError("OFF#120") )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then

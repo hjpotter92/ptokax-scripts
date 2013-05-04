@@ -10,6 +10,7 @@ function OnStartup()
 		sReportBot = "#[Hub-Feed]",
 		sHelp = "",
 		sAllCategories = "",
+		iMaxStringLength = 250,
 		iModProfile = 4,
 		iRegProfile = 5
 	}
@@ -44,18 +45,30 @@ function ToArrival( tUser, sMessage )
 	if sTo ~= tCfg.sBotName then return false end
 	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
-	if sData and sData:len() > 250 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, "All command length must be below 250 characters." )
+	if sData and sData:len() > tCfg.iMaxStringLength then
+		Core.SendPmToUser( tUser, tCfg.sBotName, "All command length must be below "..tostring(tCfg.iMaxStringLength).." characters." )
 	end
-	return ExecuteCommand( tUser, sCmd:lower(), sData )
+	if sCmd:lower() == "h" or sCmd:lower() == "help" then
+		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
+		return false
+	else
+		return ExecuteCommand( tUser, sCmd:lower(), sData )
+	end
+end
+
+function ChatArrival( tUser, sMessage )
+	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	if not sCmd then return false end
+	if sCmd:lower() == "ih" or sCmd:lower() == "ihelp" then
+		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
+		return true
+	else
+		return ExecuteCommand( tUser, sCmd:lower(), sData )
+	end
 end
 
 function ExecuteCommand( tUser, sCommand, sData )
-	if sCommand == "h" or sCommand == "help" then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
-		return false
-
-	elseif sCommand == "readall" or sCommand == "rall" then
+	if sCommand == "readall" or sCommand == "rall" then
 		if ( not sData ) or ( sData and not tonumber(sData) ) then
 			iLimit = 15
 		else
@@ -243,10 +256,6 @@ function ExecuteCommand( tUser, sCommand, sData )
 			return false
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "buynsell"
---~ 		if tInsertData.sMsg:lower():find( "[%[buy|sell%]]" ) then
---~ 			Core.SendPmToUser( tUser, tCfg.sBotName, "You don't need to separately tag the thread." )
---~ 			return false
---~ 		end
 		iLastID = tInfobot.add( tUser, tInsertData )
 		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
@@ -268,7 +277,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = table.concat( tBreak, " ", 2 ), tonumber( tBreak[1], 10 ), "replies"
 		local tRow = tFunction.FetchRow( "buynsell", tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		iLastID = tInfobot.add( tUser, tInsertData )
@@ -290,7 +299,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
 		local tRow = tFunction.FetchRow( "requests", tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." ), tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
@@ -306,7 +315,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
 		local tRow = tFunction.FetchRow( "requests", tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		local iOfflineMessageID = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've closed your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
@@ -323,7 +332,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID = nil, tonumber( tBreak[1], 10 )
 		local tRow = tFunction.FetchRow( "buynsell", tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		if tRow.type:lower() ~= "buy" and tRow.type:lower() ~= "sell" then
@@ -353,7 +362,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "requests"
 		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -361,7 +370,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick) )
 			tInfobot.del( tUser, tInsertData )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that request." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 		end
 		return true
 
@@ -374,7 +383,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "suggestions"
 		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -382,7 +391,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick) )
 			tInfobot.del( tUser, tInsertData )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that suggestion field." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 			return false
 		end
 		return true
@@ -395,7 +404,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "news"
 		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -403,7 +412,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.msg, tRow.nick) )
 			tInfobot.del( tUser, tInsertData )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that news content." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 			return false
 		end
 		return true
@@ -417,7 +426,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		tInsertData.sMsg, tInsertData.iID, tInsertData.sTable = nil, tonumber( tBreak[1], 10 ), "buynsell"
 		local tRow = tFunction.FetchRow( tInsertData.sTable, tInsertData.iID )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No entry with that ID." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 2) )
 			return false
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -425,7 +434,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.type, tRow.msg, tRow.nick) )
 			tInfobot.del( tUser, tInsertData )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that thread." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 		end
 		return true
 
@@ -446,9 +455,10 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, sTemporary:format(tInsertData.iID, tRow.msg, tRow.nick) )
 			tInfobot.del( tUser, tInsertData )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, "You are not allowed to delete that reply." )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("info", 1) )
 		end
 		return true
 
 	end
+	return false
 end
