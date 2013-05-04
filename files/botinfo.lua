@@ -35,7 +35,8 @@ _G.tFunction = {
 	end,
 
 	Report = function( sErrorCode, iErrorNumber )
-		return tConfig.sHubFAQ:format( sErrorCode:upper(), iErrorNumber )
+		local sReturn = "ERROR (%s#%04d): You should check %s for more information."
+		return sReturn:format( sErrorCode:upper(), iErrorNumber, tConfig.sHubFAQ:format(sErrorCode:upper(), iErrorNumber) )
 	end,
 
 	CheckBnS = function( sInput )
@@ -196,7 +197,7 @@ _G.tInfobot = {
 
 	add = function( tUser, tInput )
 		if tInput.sMsg:len() < 20 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "The string to be added must be atleast 20 characters." )
+			Core.SendPmToUser( tUser, tConfig.sBotName, "The string to be added must be at least 20 characters." )
 			return false
 		end
 		local sFields, sValues = "`msg`, `nick`, `dated`", ("'%s', '%s', NOW()"):format( SQLCon:escape(tInput.sMsg), SQLCon:escape(tUser.sNick) )

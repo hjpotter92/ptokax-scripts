@@ -1,3 +1,11 @@
+2013-05-04
+----------
+
+- [BOT]Info commands shall work from mainchat too.
+- Help command separated for `ToArrival` and `ChatArrival` to avoid duplicate command.
+- Report function added to [BOT]Offliner too.
+- SQL table schema shared.
+
 2013-04-29
 ----------
 

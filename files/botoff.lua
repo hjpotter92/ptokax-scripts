@@ -8,25 +8,17 @@ local tConfig = {
 tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%s"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
-
-function OnError( sErrorCode )
-	local _, _, sCode, sNum = sErrorCode:find( "^(%w+)%#(%w+)$" )
-	if sCode and sNum then
-		local sReturn = string.format( tConfig.sHubFAQ, sCode, sNum )
-		return "ERROR (Code: "..sErrorCode..") Please check "..sReturn.." for more information."
-	else
-		Core.SendPmToNick( "hjpotter92", "lol", sErrorCode )
-	end
+function OnError( sError )
+	Core.SendPmToNick( "hjpotter92", "lol", "OFF: "..sError )
 end
 
 _G.tFunction = {
 	Connect = function()
-		     --[[
+		local luasql
 		if not luasql then
-			require "luasql.mysql"
+			luasql = require "luasql.mysql"
 		end
-	  ]]
-		_G.SQLEnv = assert( require "luasql.mysql".mysql() )
+		_G.SQLEnv = assert( luasql.mysql() )
 		_G.SQLCon = assert( SQLEnv:connect( tConfig.sDatabase, tConfig.sMySQLUser, tConfig.sMySQLPass, "localhost", "3306") )
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
 	end,
@@ -40,6 +32,11 @@ _G.tFunction = {
 			table.insert( tReturn, sGrab )
 		end )
 		return tReturn
+	end,
+
+	Report = function( sErrorCode, iErrorNumber )
+		local sReturn = "ERROR (%s#%04d): You should check %s for more information."
+		return sReturn:format( sErrorCode:upper(), iErrorNumber, tConfig.sHubFAQ:format(sErrorCode:upper(), iErrorNumber) )
 	end,
 
 	CreateLatestReading = function( tEntry )
