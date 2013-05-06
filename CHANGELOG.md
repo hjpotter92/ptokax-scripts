@@ -3,6 +3,8 @@
 
 - Minor bugfixes
 - More errors added to FAQ.
+- Newer and advanced chatrooms.
+
 
 2013-05-04
 ----------
