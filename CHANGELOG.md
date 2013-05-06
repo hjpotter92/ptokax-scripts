@@ -1,3 +1,9 @@
+2013-05-06
+----------
+
+- Minor bugfixes
+- More errors added to FAQ.
+
 2013-05-04
 ----------
 
