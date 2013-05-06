@@ -245,7 +245,7 @@ _G.tOffliner = {
 		local _, _, sEntry, sTTH = sContent:find( "(.*) magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
 		local _, _, iSize = sContent:find( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, OnError("OFF#80") )
+			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
 		end
 		sEntry, sNick = SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
@@ -330,7 +330,7 @@ _G.tOffliner = {
 		local _, _, sTTH = sContent:find( "tree%:tiger%:(%w+)&" )
 		local _, _, iSize = sContent:find( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, OnError("OFF#80") )
+			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
 		end
 		sMagnetQuery = string.format( sMagnetQuery, iID, sTTH, tonumber(iSize), SQLCon:escape(tUser.sNick) )
@@ -351,7 +351,7 @@ _G.tOffliner = {
 		local _, _, sTTH = sContent:find( "magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
 		local _, _, iSize = sContent:find( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, OnError("OFF#80") )
+			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
 		end
 		sMagnetQuery = string.format( sMagnetQuery, sTTH, tonumber(iSize), SQLCon:escape(tUser.sNick), iMID )

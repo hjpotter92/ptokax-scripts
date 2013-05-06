@@ -81,7 +81,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 				tOffliner.l( tUser, 20, tBreak[1] )
 				return true
 			else
-				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 1 ) )
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 1) )
 				return true
 			end
 			return true
@@ -113,7 +113,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! No search string was given.|" )
 			return true
 		elseif sData:len() < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 1 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 1) )
 			return true
 		else
 			tOffliner.s( tUser, sData )
@@ -149,7 +149,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! That category doesn't exist.|" )
 			return true
 		elseif not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 )..sAllModerators )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120)..sAllModerators )
 			return true
 		end
 		if tOffliner.al( tUser, tBreak ) then
@@ -163,7 +163,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "dl" or sCmd == "dellatest" then
 		if not tonumber( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The ID should be a numeral.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
@@ -183,11 +183,11 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "ul" or sCmd == "updatelatest" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
 		end
 		if not tonumber( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The ID should be a numeral.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
@@ -210,11 +210,11 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "am" or sCmd == "addmagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The ID should be a numeral.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
@@ -233,11 +233,11 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "em" or sCmd == "editmagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The ID should be a numeral.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
 		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
@@ -257,11 +257,11 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "rm" or sCmd == "removemagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "OFF", 120 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
 		end
 		if not tonumber(tBreak[1]) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The ID should be a numeral.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
 		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
@@ -272,7 +272,6 @@ function ExecuteCommand( tUser, sCmd, sData )
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
 			if not tOffliner.rm( tUser, tonumber(tBreak[1]) ) then return true end
 			local sChatMessage = "Magnet removed for magnetID #"..tostring(tBreak[1]).."."
-			tFunction.SendToAll( tUser.sNick, sChatMessage )
 			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 			return true
 		else
