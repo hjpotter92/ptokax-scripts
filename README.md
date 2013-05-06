@@ -17,12 +17,11 @@ Currently, the scripts in the repository are for following operations:
 - Reporting of fake and personal files.
 - Integrating the report commands into right click.
 - Four separate chatrooms; supporting:
-
-    1. Anonymous chats
-    2. User subscription
-    3. Listing subscribed users
-    4. Denying messages from unsubscribed users
-    5. Logs of messages recieved
+  1. Anonymous chats
+  2. User subscription
+  3. Listing subscribed users
+  4. Denying messages from unsubscribed users
+  5. Logs of messages recieved
 
 
   [1]: http://www.ptokax.org/ "PtokaX Direct Connect Hub"
