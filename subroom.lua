@@ -5,7 +5,7 @@ function OnStartup()
 		sLogPath = "/www/ChatLogs/"..os.date( "%Y/" )
 	}
 	tRooms = {
-		["#[GamesRoom]"] = {
+		["#[Gamers]"] = {
 			sBotDescription = "Chatroom for discusssions about games.",
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
@@ -19,14 +19,14 @@ function OnStartup()
 			sSubscribersFile = "quizSub.txt",
 			tSubscribers = {}
 		},
-		["#[AnimeRoom]"] = {
-			sBotDescription = "Chatroom for discusssing anime.",
+		["#[Anime]"] = {
+			sBotDescription = "Chatroom for discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = "animSub.txt",
 			tSubscribers = {}
 		},
-		["#[NSFWRoom]"] = {
+		["#[NSFW]"] = {
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
@@ -105,7 +105,7 @@ end
 
 function SendToSubscribers( sSelfNick, sRoomName, sIncoming )
 	local _, _, sIncoming = sIncoming:find( "%b$$(.*)|" )
-	if sRoomName == "#[NSFWRoom]" then
+	if sRoomName == "#[NSFW]" then
 		sIncoming = "<Anonymous>"..sIncoming:match( "%b<>(.*)" )
 	end
 	for iIndex, sNick in ipairs( tRooms[sRoomName].tSubscribers ) do
