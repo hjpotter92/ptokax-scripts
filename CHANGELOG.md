@@ -1,3 +1,9 @@
+2013-05-09
+----------
+
+- Logging is optional.
+- No logging for `#[QuizRoom]`.
+
 2013-05-06
 ----------
 

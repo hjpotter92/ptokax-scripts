@@ -15,7 +15,7 @@ function OnStartup()
 		["#[QuizRoom]"] = {
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
-			sLogFile = "quiz.txt",
+			sLogFile = nil,
 			sSubscribersFile = "quizSub.txt",
 			tSubscribers = {}
 		},
@@ -96,6 +96,9 @@ function OnExit()
 end
 
 function SaveToFile( sRoomName, sChatMessage )
+	if not tRooms[sRoomName].sLogFile then
+		return false
+	end
 	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tRooms[sRoomName].sLogFile, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
