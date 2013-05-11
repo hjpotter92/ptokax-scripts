@@ -10,28 +10,28 @@ function OnStartup()
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
 			sSubscribersFile = "gameSub.txt",
-			tSubscribers = {}
+			tSubscribers = { tModerators = {} }
 		},
 		["#[QuizRoom]"] = {
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
 			sLogFile = nil,
 			sSubscribersFile = "quizSub.txt",
-			tSubscribers = {}
+			tSubscribers = { tModerators = {} }
 		},
 		["#[Anime]"] = {
 			sBotDescription = "Chatroom for discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = "animSub.txt",
-			tSubscribers = {}
+			tSubscribers = { tModerators = {} }
 		},
 		["#[NSFW]"] = {
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
 			sSubscribersFile = "nsfwSub.txt",
-			tSubscribers = {}
+			tSubscribers = { tModerators = {} }
 		}
 	}
 	dofile( tConfig.sPath.."functions/"..tConfig.sPickleFile )
@@ -50,13 +50,13 @@ function ToArrival( tUser, sMessage )
 	if not tRooms[sTo] then return false end
 	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%!%?%-%*%#](%w+)%s?(.*)|" )
 	SaveToFile( sTo, sMessage:match("%b$$(.*)|") )
-	if FindSubscription( sTo, tUser.sNick ) and not sCmd then
+	if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) and not sCmd then
 		SendToSubscribers( tUser.sNick, sTo, sMessage )
 		return true
 	end
 	if sData and sData:len() == 0 then sData = nil end
 	if sCmd:lower() == "join" or sCmd:lower() == "subscribe" then
-		if FindSubscription( sTo, tUser.sNick ) then
+		if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 			Core.SendPmToUser( tUser, sTo, "You are already subscribed to this chatroom." )
 			return false
 		end
@@ -65,8 +65,8 @@ function ToArrival( tUser, sMessage )
 		pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 		return true
 	elseif sCmd:lower() == "leave" or sCmd:lower() == "unsubscribe" then
-		if FindSubscription( sTo, tUser.sNick ) then
-			table.remove( tRooms[sTo].tSubscribers, FindSubscription(sTo, tUser.sNick) )
+		if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
+			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
 			Core.SendPmToUser( tUser, sTo, "Your unsubscription was successful." )
 			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 		else
@@ -77,6 +77,21 @@ function ToArrival( tUser, sMessage )
 		local sKicked = sData and sData:match( "^(%w+)" )
 		if not sKicked then
 			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
+			return false
+		end
+		if not FindSubscription( tRooms[sTo].tSubscribers, sKicked ) then
+			Core.SendPmToUser( tUser, sTo, sKicked.." is not subscribed to this room."
+			return false
+		end
+		if tUser.iProfile ~= 0 or not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
+			Core.SendPmToUser( tUser, sTo, "You do not have access to this command. Kicked for abusing." )
+			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
+			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
+			return false
+		else
+			Core.SendPmToUser( tUser, sTo, "Kicking "..sKicked.." from "..sTo.." chatroom." )
+			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, sKicked) )
+			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 			return false
 		end
 	elseif sCmd:lower() == "invite" then
@@ -96,9 +111,15 @@ function ToArrival( tUser, sMessage )
 	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
 		Core.SendPmToUser( tUser, sTo, "The current subscribers are:\n\n\t"..table.concat(tRooms[sTo].tSubscribers, ", ") )
 	elseif sCmd:lower() == "h" or sCmd:lower() == "help" then
-		Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite and leave" )
+		if tUser.iProfile ~= 0 or not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
+			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite and leave" )
+			return true
+		else
+			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite, kick and leave" )
+			return true
+		end
 	else
-		if FindSubscription( sTo, tUser.sNick ) then
+		if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 			SendToSubscribers( tUser.sNick, sTo, sMessage )
 			return true
 		else
@@ -139,8 +160,8 @@ function SendToSubscribers( sSelfNick, sRoomName, sIncoming )
 	return true
 end
 
-function FindSubscription( sRoomName, sNick )
-	for iIndex, sName in ipairs( tRooms[sRoomName].tSubscribers ) do
+function FindSubscription( tInputTable, sNick )
+	for iIndex, sName in ipairs( tInputTable ) do
 		if sNick:lower() == sName:lower() then
 			return iIndex
 		end
