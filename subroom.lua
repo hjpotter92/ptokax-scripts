@@ -73,10 +73,30 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "You are not a part of this room yet." )
 		end
 		return true
+	elseif sCmd:lower() == "kick" then
+		local sKicked = sData and sData:match( "^(%w+)" )
+		if not sKicked then
+			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
+			return false
+		end
+	elseif sCmd:lower() == "invite" then
+		local sGuest = sData and sData:match( "^(%w+)" )
+		if not sGuest then
+			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
+			return false
+		end
+		if Core.GetUser( sGuest ) then
+			table.insert( tRooms[sTo].tSubscribers, sGuest )
+			Core.SendPmToUser( tUser, sTo, sGuest.." has been invited to "..sTo.." chatroom."
+			return true
+		else
+			Core.SendPmToUser( tUser, sTo, "User with nick "..sGuest.." is no currently online." )
+			return false
+		end
 	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
 		Core.SendPmToUser( tUser, sTo, "The current subscribers are:\n\n\t"..table.concat(tRooms[sTo].tSubscribers, ", ") )
 	elseif sCmd:lower() == "h" or sCmd:lower() == "help" then
-		Core.SendPmToUser( tUser, sTo, "The commands available are: +help, +list, +join and +leave" )
+		Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite and leave" )
 	else
 		if FindSubscription( sTo, tUser.sNick ) then
 			SendToSubscribers( tUser.sNick, sTo, sMessage )
