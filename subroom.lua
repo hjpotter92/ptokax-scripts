@@ -80,10 +80,10 @@ function ToArrival( tUser, sMessage )
 			return false
 		end
 		if not FindSubscription( tRooms[sTo].tSubscribers, sKicked ) then
-			Core.SendPmToUser( tUser, sTo, sKicked.." is not subscribed to this room."
+			Core.SendPmToUser( tUser, sTo, sKicked.." is not subscribed to this room." )
 			return false
 		end
-		if tUser.iProfile ~= 0 or not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
+		if tUser.iProfile ~= 0 and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
 			Core.SendPmToUser( tUser, sTo, "You do not have access to this command. Kicked for abusing." )
 			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
 			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
@@ -102,7 +102,7 @@ function ToArrival( tUser, sMessage )
 		end
 		if Core.GetUser( sGuest ) then
 			table.insert( tRooms[sTo].tSubscribers, sGuest )
-			Core.SendPmToUser( tUser, sTo, sGuest.." has been invited to "..sTo.." chatroom."
+			Core.SendPmToUser( tUser, sTo, sGuest.." has been invited to "..sTo.." chatroom." )
 			return true
 		else
 			Core.SendPmToUser( tUser, sTo, "User with nick "..sGuest.." is no currently online." )
@@ -111,7 +111,7 @@ function ToArrival( tUser, sMessage )
 	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
 		Core.SendPmToUser( tUser, sTo, "The current subscribers are:\n\n\t"..table.concat(tRooms[sTo].tSubscribers, ", ") )
 	elseif sCmd:lower() == "h" or sCmd:lower() == "help" then
-		if tUser.iProfile ~= 0 or not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
+		if tUser.iProfile ~= 0 and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite and leave" )
 			return true
 		else
