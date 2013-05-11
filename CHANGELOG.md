@@ -1,3 +1,10 @@
+2013-05-11
+----------
+
+- Add `kick` and `invite` commands for chatrooms.
+- Create moderator table for chatrooms.
+- Kicking requires a master profile or user must be a moderator in room.
+
 2013-05-09
 ----------
 
