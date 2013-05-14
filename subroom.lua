@@ -105,7 +105,7 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, sGuest.." has been invited to "..sTo.." chatroom." )
 			return true
 		else
-			Core.SendPmToUser( tUser, sTo, "User with nick "..sGuest.." is no currently online." )
+			Core.SendPmToUser( tUser, sTo, "User with nick "..sGuest.." is not online." )
 			return false
 		end
 	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
