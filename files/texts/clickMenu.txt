@@ -15,69 +15,45 @@ $UserCommand 2 1 Records\Check another's count$<%[mynick]> +see %[line:User's ni
 $UserCommand 2 2 Records\Check count$<%[mynick]> +see %[nick]&#124;|
 $UserCommand 2 3 Records\Top 15 Richest Users $<%[mynick]> +rich 15 &#124;|
 $UserCommand 2 3 Records\Check total toks of Nick $<%[mynick]> +toks %[line:User's nick(Leave Empty to see own)]&#124;|
-$UserCommand 0 7|
-$UserCommand 1 3 InfoBOT\readAll$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rall 10&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rbsell&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\Add BnS$$To: [BOT]Info From: %[mynick] $<%[mynick]> +absell %[line:Type/0/Buy/Sell/Hire/Loan] %[line:Message]&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\Delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dbsell %[line:Buy and Sell ID]&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\Search$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rbsell %[line:Search]&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\Add Reply$$To: [BOT]Info From: %[mynick] $<%[mynick]> +amsg %[line:Buy and Sell ID] %[line:Message]&#124;|
-$UserCommand 1 3 InfoBOT\Buy and Sell\Delete Reply$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dmsg %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\ebooks\View$$To: [BOT]Info From: %[mynick] $<%[mynick]> +re&#124;|
-$UserCommand 1 3 InfoBOT\ebooks\Add ebook$$To: [BOT]Info From: %[mynick] $<%[mynick]> +ae %[line:Add ebook]&#124;|
-$UserCommand 1 3 InfoBOT\ebooks\Delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +de %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\Request\View$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rreq&#124;|
-$UserCommand 1 3 InfoBOT\Request\Add Request $$To: [BOT]Info From: %[mynick] $<%[mynick]> +areq %[line:Category/0/Select One/tv/movie/game/toon/anime/telugu/appz/music/sports/video/sdmovie/book/docu] %[line:Request string, please try to include a wiki-link]&#124;|
-$UserCommand 1 3 InfoBOT\Request\Fill/Close/Delete Request$$To: [BOT]Info From: %[mynick] $<%[mynick]> +%[line:Action/0/Select one/Fill/Delete/Close] %[line:Request ID]&#124;|
-$UserCommand 1 3 InfoBOT\Suggest\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rsug&#124;|
-$UserCommand 1 3 InfoBOT\Suggest\Add Suggest$$To: [BOT]Info From: %[mynick] $<%[mynick]> +asug %[line:Enter Category] %[line:msg]&#124;|
-$UserCommand 1 3 InfoBOT\Suggest\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dsug %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\News\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rn&#124;|
-$UserCommand 1 3 InfoBOT\News\Add News$$To: [BOT]Info From: %[mynick] $<%[mynick]> +an %[line:add News]&#124;|
-$UserCommand 1 3 InfoBOT\News\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dn %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\SeriesInfo\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rsi&#124;|
-$UserCommand 1 3 InfoBOT\SeriesInfo\Add SeriesInfo$$To: [BOT]Info From: %[mynick] $<%[mynick]> +asi %[line:add SeriesInfo]&#124;|
-$UserCommand 1 3 InfoBOT\SeriesInfo\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dsi %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\ThingDelete\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rdel&#124;|
-$UserCommand 1 3 InfoBOT\ThingDelete\Add ThingDelete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +adel %[line:add ThingDelete]&#124;|
-$UserCommand 1 3 InfoBOT\ThingDelete\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +ddel %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\GuestBook\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rgst&#124;|
-$UserCommand 1 3 InfoBOT\GuestBook\Add comment$$To: [BOT]Info From: %[mynick] $<%[mynick]> +agst %[line:your comments]&#124;|
-$UserCommand 1 3 InfoBOT\GuestBook\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dgst %[line:fid]&#124;|
-$UserCommand 1 3 InfoBOT\help$$To: [BOT]Info From: %[mynick] $<%[mynick]> +help&#124;|
-$UserCommand 1 3 latest\view\latest$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l&#124;|
-$UserCommand 1 3 latest\view\latest Appz$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l appz&#124;|
-$UserCommand 1 3 latest\view\latest Anime$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l anime&#124;|
-$UserCommand 1 3 latest\view\latest Book$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l book&#124;|
-$UserCommand 1 3 latest\view\latest Games$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l game&#124;|
-$UserCommand 1 3 latest\view\latest Misc$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l misc&#124;|
-$UserCommand 1 3 latest\view\latest MovieCam$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l moviecam&#124;|
-$UserCommand 1 3 latest\view\latest Movies$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l movie&#124;|
-$UserCommand 1 3 latest\view\latest Music$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l music&#124;|
-$UserCommand 1 3 latest\view\latest Sports$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l sports&#124;|
-$UserCommand 1 3 latest\view\latest Talks$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l talks&#124;|
-$UserCommand 1 3 latest\view\latest Telugu$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l telugu&#124;|
-$UserCommand 1 3 latest\view\latest Toon$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l toon&#124;|
-$UserCommand 1 3 latest\view\latest TV$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l tv&#124;|
-$UserCommand 1 3 latest\view\latest Video$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l video&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\toon $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al toon %[line:Enter movie]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\movie $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al movie %[line:Enter movie]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\tv $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al tv %[line:Enter tv]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\music $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al music %[line:Enter music]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\appz $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al appz %[line:Enter appz]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\anime $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al anime %[line:Enter anime]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\game $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al game %[line:Enter game]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\video $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al video %[line:Enter misc]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\telugu $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al telugu %[line:Enter descriptor]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\misc $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al misc %[line:Enter misc]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\moviecam $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al moviecam %[line:Enter moviecam]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\book $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al book %[line:Enter book]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\Talks $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al talks %[line:Enter Talk]&#124;|
-$UserCommand 1 3 latest\Add(latest mods)\sports $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al sports %[line:Enter sports]&#124;|
-$UserCommand 1 3 latest\delete(latest mods)$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +dl %[line:Enter file id]&#124;|
-$UserCommand 1 3 latest\latest rules(latest mods)$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +lrules&#124;|
-$UserCommand 1 3 latest\latest Search$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +s %[line:Enter Search String]&#124;|
-$UserCommand 1 3 latest\latest help $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +h&#124;|
+$UserCommand 0 3|
+$UserCommand 1 3 [BOT]Info Help$$To: [BOT]Info From: %[mynick] $<%[mynick]> +help&#124;|
+$UserCommand 1 3 Read newest 10 entries from all tables$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rall 10&#124;|
+$UserCommand 1 3 Read newest X entries from all tables$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rall %[line:Enter a number less than 35]&#124;|
+$UserCommand 1 3 GuestBook\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rgst&#124;|
+$UserCommand 1 3 GuestBook\Add comment$$To: [BOT]Info From: %[mynick] $<%[mynick]> +agst %[line:your comments]&#124;|
+$UserCommand 1 3 GuestBook\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dgst %[line:fid]&#124;|
+$UserCommand 1 3 Buy and Sell\View$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rbsell %[line:Enter number below 50; Leave empty for 15]&#124;|
+$UserCommand 1 3 Buy and Sell\Add BnS$$To: [BOT]Info From: %[mynick] $<%[mynick]> +absell %[line:Type/0/Buy/Sell/Hire/Loan] %[line:Message]&#124;|
+$UserCommand 1 3 Buy and Sell\Delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dbsell %[line:Buy and Sell ID]&#124;|
+$UserCommand 1 3 Buy and Sell\Search$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rbsell %[line:Search]&#124;|
+$UserCommand 1 3 Buy and Sell\Add reply$$To: [BOT]Info From: %[mynick] $<%[mynick]> +amsg %[line:Buy and Sell ID] %[line:Message]&#124;|
+$UserCommand 1 3 Buy and Sell\Delete reply$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dmsg %[line:Message ID]&#124;|
+$UserCommand 1 3 Requests\View$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rreq %[line:Enter number below 50; Leave empty for 15]&#124;|
+$UserCommand 1 3 Requests\Add Request $$To: [BOT]Info From: %[mynick] $<%[mynick]> +areq %[line:Enter Category/0/Select One/TV/MOVIE/GAME/TOON/ANIME/TELUGU/APPZ/MUSIC/SPORTS/VIDEO/SDMOVIE/BOOK/DOCU] %[line:Request string, please try to include a wiki-link]&#124;|
+$UserCommand 1 3 Requests\Fill/Close/Delete Request$$To: [BOT]Info From: %[mynick] $<%[mynick]> +%[line:Action/0/Select one/Fill/Delete/Close] %[line:Request ID]&#124;|
+$UserCommand 1 3 Suggestions\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rsug %[line:Enter number below 50; Leave empty for 15]&#124;|
+$UserCommand 1 3 Suggestions\Add Suggest$$To: [BOT]Info From: %[mynick] $<%[mynick]> +asug %[line:Enter Category/0/Select One/TV/MOVIE/GAME/TOON/ANIME/TELUGU/APPZ/MUSIC/SPORTS/VIDEO/SDMOVIE/BOOK/DOCU] %[line:Message]&#124;|
+$UserCommand 1 3 Suggestions\Delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dsug %[line:Numeric ID]&#124;|
+$UserCommand 1 3 News\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rn %[line:Enter number below 50; Leave empty for 15]&#124;|
+$UserCommand 1 3 News\Add News$$To: [BOT]Info From: %[mynick] $<%[mynick]> +an %[line:add News]&#124;|
+$UserCommand 1 3 News\Delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +dn %[line:fid]&#124;|
+$UserCommand 1 3 ThingDelete\view$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rdel&#124;|
+$UserCommand 1 3 ThingDelete\Add ThingDelete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +adel %[line:add ThingDelete]&#124;|
+$UserCommand 1 3 ThingDelete\delete$$To: [BOT]Info From: %[mynick] $<%[mynick]> +ddel %[line:fid]&#124;|
+$UserCommand 0 3|
+$UserCommand 1 3 [BOT]Offliner Help$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +help&#124;|
+$UserCommand 1 3 Show latest moderators$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +sm&#124;|
+$UserCommand 1 3 Show categories$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +sc&#124;|
+$UserCommand 1 3 Latest rules$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +rules&#124;|
+$UserCommand 1 3 Search latest$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +s %[line:Enter search string]&#124;|
+$UserCommand 1 3 view latest$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +l %[line:Choose Category, default choice is all/0/ /TV/MOVIE/GAME/TOON/TELUGU/SPORTS/APPZ/MUSIC/ANIME/VIDEO/SDMOVIE/BOOK/DOCU/MISC] %[line:Limit, number less than 50]&#124;|
+$UserCommand 1 3 Add latest entry$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +al %[line:Choose category/0/TV/MOVIE/GAME/TOON/TELUGU/SPORTS/APPZ/MUSIC/ANIME/VIDEO/SDMOVIE/BOOK/DOCU/MISC] %[line:Message] %[line:Magnet link to file]&#124;|
+$UserCommand 1 3 Attach a magnet to entry$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +am %[line:Enter entry id] %[line:Magnet link]&#124;|
+$UserCommand 1 3 Update an entry$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +ul %[line:Enter entry id] %[line:Updated string]&#124;|
+$UserCommand 1 3 Edit a magnet$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +em %[line:Enter magnet id] [%[line:New magnet link]&#124;|
+$UserCommand 1 3 Delete an entry$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +dl %[line:Enter entry id]&#124;|
+$UserCommand 1 3 Remove a magnet$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +rm %[line:Enter magnet id]&#124;|
+$UserCommand 0 3|
 $UserCommand 1 3 Movie Review\Add\Movie Name$$To: [BOT]Info From: %[mynick] $<%[mynick]> +amn %[line:genre] %[line:Movie Name]&#124;|
 $UserCommand 1 3 Movie Review\Add\Movie Review$$To: [BOT]Info From: %[mynick] $<%[mynick]> +amr %[line:fid] %[line:Movie Review]&#124;|
 $UserCommand 1 3 Movie Review\Read\Read all$$To: [BOT]Info From: %[mynick] $<%[mynick]> +rmr&#124;|
@@ -96,72 +72,45 @@ $UserCommand 1 3 Movie Review\Own delete\Movie Review$$To: [BOT]Info From: %[myn
 $UserCommand 1 3 Movie Review\My review$$To: [BOT]Info From: %[mynick] $<%[mynick]> +myreview&#124;|
 $UserCommand 1 3 Movie Review\Top posters$$To: [BOT]Info From: %[mynick] $<%[mynick]> +top&#124;|
 $UserCommand 1 3 Movie Review\Help$$To: [BOT]Info From: %[mynick] $<%[mynick]> +mrhelp&#124;|
-$UserCommand 1 3 Current Downloads\view\list$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs&#124;|
-$UserCommand 1 3 Current Downloads\view\Anime$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs anime&#124;|
-$UserCommand 1 3 Current Downloads\view\Appz$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs appz&#124;|
-$UserCommand 1 3 Current Downloads\view\Books$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs book&#124;|
-$UserCommand 1 3 Current Downloads\view\Games$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs game&#124;|
-$UserCommand 1 3 Current Downloads\view\Misc$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs misc&#124;|
-$UserCommand 1 3 Current Downloads\view\Movie Cam$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs moviecam&#124;|
-$UserCommand 1 3 Current Downloads\view\Movies$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs movie&#124;|
-$UserCommand 1 3 Current Downloads\view\Music$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs music&#124;|
-$UserCommand 1 3 Current Downloads\view\Sports$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs sports&#124;|
-$UserCommand 1 3 Current Downloads\view\Talks$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs talks&#124;|
-$UserCommand 1 3 Current Downloads\view\Telugu$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs telugu&#124;|
-$UserCommand 1 3 Current Downloads\view\TV$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs tv&#124;|
-$UserCommand 1 3 Current Downloads\view\Video$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +cs video&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Appz $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs appz %[line:Enter Appz]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Anime $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs anime %[line:Enter Anime&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Game $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs game %[line:Enter Game]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Misc $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs misc %[line:Enter misc]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Movie $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs movie %[line:Enter Movie]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Movie Cam $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs moviecam %[line:Enter MovieCam]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Music $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs music %[line:Enter Music&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Sports $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs sports %[line:Enter Sports]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Talks $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs talks %[line:Enter Talks]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Telugu $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs telugu %[line:Enter Telugu]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\TV $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs tv %[line:Enter TV]&#124;|
-$UserCommand 1 3 Current Downloads\Add (latest mods)\Video $$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +acs video %[line:Enter Video]&#124;|
-$UserCommand 1 3 Current Downloads\delete (latest mods)$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +dcs %[line:Enter file id]&#124;|
-$UserCommand 1 3 Current Downloads\delAndAdd2latest(latest mods)$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +d-al %[line:Enter file id]&#124;|
-$UserCommand 1 3 Current Downloads\Search$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +scs %[line:Enter Search String]&#124;|
-$UserCommand 1 3 Current Downloads\help$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +hcs&#124;|
+$UserCommand 0 3|
 $UserCommand 1 3 [BOT]Offliner\Sub to Gamesroom$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +sub&#124;|
 $UserCommand 1 3 [BOT]Offliner\Unsub from Gamesroom$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +unsub&#124;|
 $UserCommand 1 3 [BOT]Offliner\Games Sub List$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +ssu&#124;|
 $UserCommand 1 3 [BOT]Offliner\Show Latest Mods$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +sm&#124;|
 $UserCommand 1 3 [BOT]Offliner\Show Category$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +sc&#124;|
 $UserCommand 1 3 [BOT]Offliner\help$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +h&#124;|
+$UserCommand 0 3|
 $UserCommand 1 3 Online\http$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +vws http&#124;|
 $UserCommand 1 3 Online\ftp$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +vws ftp&#124;|
 $UserCommand 1 3 Online\radio$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +vws radio&#124;|
 $UserCommand 1 3 Online\game$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +vws game&#124;|
 $UserCommand 1 3 Online\help$$To: [BOT]Offliner From: %[mynick] $<%[mynick]> +gs&#124;|
-$UserCommand 1 3 Game Server\MADN\play$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite comp&#124;|
-$UserCommand 1 3 Game Server\MADN\invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite %[nick]&#124;|
-$UserCommand 1 3 Game Server\MADN\invite Nicks$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite %[line:nicks seperated by comma]&#124;|
-$UserCommand 1 3 Game Server\MADN\quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
-$UserCommand 1 3 Game Server\TicTacToe\invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +ttt invite %[nick]&#124;|
-$UserCommand 1 3 Game Server\TicTacToe\invite Nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +ttt invite %[line:Enter the Nick]&#124;|
-$UserCommand 1 3 Game Server\TicTacToe\quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
-$UserCommand 1 3 Game Server\Chess\invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +chess invite %[nick]&#124;|
-$UserCommand 1 3 Game Server\Chess\invite Nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +chess invite %[line:Enter the Nick]&#124;|
-$UserCommand 1 3 Game Server\Chess\quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
-$UserCommand 1 3 Game Server\Connect X\invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +invite %[nick]&#124;|
-$UserCommand 1 3 Game Server\Connect X\invite Nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +invite %[line:Enter the Nick]&#124;|
-$UserCommand 1 3 Game Server\Connect X\quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
-$UserCommand 1 3 Game Server\Jumble\start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.start&#124;|
-$UserCommand 1 3 Game Server\Jumble\scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.scores&#124;|
-$UserCommand 1 3 Game Server\Jumble\myscore$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.myscore&#124;|
-$UserCommand 1 3 Game Server\Jumble\help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.help&#124;|
-$UserCommand 1 3 Game Server\gtw\start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.start&#124;|
-$UserCommand 1 3 Game Server\gtw\scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.scores&#124;|
-$UserCommand 1 3 Game Server\gtw\myscore$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.myscore&#124;|
-$UserCommand 1 3 Game Server\gtw\help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.help&#124;|
-$UserCommand 1 3 Game Server\Trivia\start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +tvs&#124;|
-$UserCommand 1 3 Game Server\Trivia\scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivscore&#124;|
-$UserCommand 1 3 Game Server\Trivia\myscore$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivmyscore&#124;|
-$UserCommand 1 3 Game Server\Trivia\Top10$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivstats&#124;|
-$UserCommand 1 3 Game Server\Trivia\Hall_of_Fame$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivhf&#124;|
-$UserCommand 1 3 Game Server\Trivia\help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivhelp&#124;|
-$UserCommand 1 3 Game Server\help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +h&#124;|
+$UserCommand 0 3|
+$UserCommand 1 3 MADN\Play$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite comp&#124;|
+$UserCommand 1 3 MADN\Invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite %[nick]&#124;|
+$UserCommand 1 3 MADN\Invite nicks$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +madn invite %[line:nicks seperated by comma]&#124;|
+$UserCommand 1 3 MADN\Quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
+$UserCommand 1 3 TicTacToe\Invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +ttt invite %[nick]&#124;|
+$UserCommand 1 3 TicTacToe\Invite nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +ttt invite %[line:Enter the Nick]&#124;|
+$UserCommand 1 3 TicTacToe\Quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
+$UserCommand 1 3 Chess\Invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +chess invite %[nick]&#124;|
+$UserCommand 1 3 Chess\Invite nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +chess invite %[line:Enter the Nick]&#124;|
+$UserCommand 1 3 Chess\Quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
+$UserCommand 1 3 Connect X\Invite$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +invite %[nick]&#124;|
+$UserCommand 1 3 Connect X\Invite nick$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +invite %[line:Enter the Nick]&#124;|
+$UserCommand 1 3 Connect X\quit$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +quit&#124;|
+$UserCommand 1 3 Jumble Fever\Start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.start&#124;|
+$UserCommand 1 3 Jumble Fever\scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.scores&#124;|
+$UserCommand 1 3 Jumble Fever\My score$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.myscore&#124;|
+$UserCommand 1 3 Jumble Fever\Help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> j.help&#124;|
+$UserCommand 1 3 Guess The Word\Help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.help&#124;|
+$UserCommand 1 3 Guess The Word\Start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.start&#124;|
+$UserCommand 1 3 Guess The Word\Scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.scores&#124;|
+$UserCommand 1 3 Guess The Word\My score$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> g.myscore&#124;|
+$UserCommand 1 3 Trivia\Help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivhelp&#124;|
+$UserCommand 1 3 Trivia\Start$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +tvs&#124;|
+$UserCommand 1 3 Trivia\Scores$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivscore&#124;|
+$UserCommand 1 3 Trivia\My score$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivmyscore&#124;|
+$UserCommand 1 3 Trivia\Top 10$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivstats&#124;|
+$UserCommand 1 3 Trivia\Hall of Fame$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +trivhf&#124;|
+$UserCommand 1 3 help$$To: [BOT]GameServer From: %[mynick] $<%[mynick]> +h&#124;|
