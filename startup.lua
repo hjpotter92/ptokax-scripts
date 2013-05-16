@@ -23,7 +23,7 @@ function OnStartup()
 		["[BOT]GameServer"] = tFileHandles.fGameServer:read("*a"),
 		sGeneral = tFileHandles.fGeneral:read("*a")
 	}
-	for fHandle in pairs(tFileHandles) do
+	for _, fHandle in pairs(tFileHandles) do
 		fHandle:close()
 	end
 	tFileHandles = nil
@@ -39,3 +39,9 @@ function ToArrival( tUser, sMessage )
 	end
 	return false
 end
+
+function UserConnected( tUser )
+	Core.SendToUser( tUser, tMenuText.sGeneral )
+end
+
+OpConnected, RegConnected = UserConnected, UserConnected
