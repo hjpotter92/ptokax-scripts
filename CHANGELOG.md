@@ -1,3 +1,15 @@
+2013-05-17
+----------
+
+- Chatroom commands have been added to right click menu.
+- Fixed `invite` command bug.
+
+2013-05-16
+----------
+
+- Right click commands are categorised according to each bot.
+- Users can ask for specific menu-commands.
+
 2013-05-11
 ----------
 
