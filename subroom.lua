@@ -95,7 +95,7 @@ function ToArrival( tUser, sMessage )
 			return false
 		end
 	elseif sCmd:lower() == "invite" then
-		local sGuest = sData and sData:match( "^(%w+)" )
+		local sGuest = sData and sData:match( "^(%S+)" )
 		if not sGuest then
 			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
 			return false
