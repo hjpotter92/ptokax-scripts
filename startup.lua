@@ -30,21 +30,20 @@ function OnStartup()
 		fHandle:close()
 	end
 	tFileHandles, tConfig.tIndividualMenu = nil, nil
-	Core.SendToAll( tMenuText.sGeneral )
-end
-
-function ToArrival( tUser, sMessage )
-	local sTo, sCmd = sMessage:match( "$To: (%S+) From: %S+ $%b<>%s+[%!%#%?%.%+%-](%a+)%s?.*|" )
-	if sCmd and sCmd:lower() == "getrightclick" and tMenuText[sTo] then
-		Core.SendToUser( tUser, tMenuText[sTo] )
-		Core.SendToUser( tUser, "<"..tConfig.sBotName.."> "..tConfig.sReply:format(sTo) )
-		return true
-	end
-	return false
+	Core.SendToAll( tMenuText.sGeneral )	
+	Core.SendToAll( tMenuText["[BOT]Offliner"] )
+	Core.SendToAll( tMenuText["[BOT]Info"] )
+	Core.SendToAll( tMenuText["[BOT]GameServer"] )
+	Core.SendToAll( tMenuText["#[ChatRoom]"] )
+	Core.SendPmToNick("Brick","hhh",tMenuText["[BOT]Offliner"] )
 end
 
 function UserConnected( tUser )
-	Core.SendToUser( tUser, tMenuText.sGeneral )
+	Core.SendToUser( tUser,tMenuText.sGeneral )
+	Core.SendToUser( tUser,tMenuText["[BOT]Offliner"])
+	Core.SendToUser( tUser,tMenuText["[BOT]Info"])
+	Core.SendToUser( tUser,tMenuText["[BOT]GameServer"])
+	Core.SendToUser( tUser,tMenuText["#[ChatRoom]"] )
 end
 
 OpConnected, RegConnected = UserConnected, UserConnected
