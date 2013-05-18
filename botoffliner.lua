@@ -45,9 +45,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo = sMessage:find( "%$To: (%S+) From:" )
+	local sTo = sMessage:match( "%$To: (%S+) From:" )
 	if sTo ~= tCfg.sBotName then return false end
-	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	return ExecuteCommand( tUser, sCmd, sData )
 end
@@ -110,7 +110,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "search" or sCmd == "s" then
 		if (not sData) or sData:len() == 0 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! No search string was given.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! No search string was given." )
 			return true
 		elseif sData:len() < 3 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 1) )
@@ -131,22 +131,22 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	if tUser.iProfile == -1 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 2 ) )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 2 ) )
 		return true
 	end
 
 	if (not sData) or sData:len() == 0 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 4 ) )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4 ) )
 		return true
 	end
 	local tBreak = tFunction.Explode( sData )
 
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report( "GEN", 4 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4 ) )
 			return true
 		elseif not tFunction.CheckCategory( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! That category doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! That category doesn't exist." )
 			return true
 		elseif not tFunction.CheckModerator( tUser.sNick ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120)..sAllModerators )
@@ -168,7 +168,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The supplied ID doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -192,7 +192,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The supplied ID doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -219,7 +219,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The supplied ID doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tOffliner.am( tUser, tBreak ) then
@@ -242,7 +242,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The magnet with supplied ID doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -266,7 +266,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
 		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The magnet with supplied ID doesn't exist.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
@@ -280,14 +280,14 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "addmod" then
 		if not tProfiles.AllowVIP[tUser.iProfile] then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command." )
 			return true
 		end
 		if not RegMan.GetReg( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." must register first.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." must register first." )
 			return true
 		elseif tFunction.CheckModerator( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is already a moderator.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is already a moderator." )
 			return true
 		end
 		RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iModProfile )
@@ -303,11 +303,11 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "delmod" then
 		if not tProfiles.AllowVIP[tUser.iProfile] then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command." )
 			return true
 		end
 		if not tFunction.CheckModerator( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is not a moderator.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is not a moderator." )
 			return true
 		end
 		tOffliner.delmod( tUser, tBreak[1] )
@@ -316,7 +316,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		if not RegMan.GetReg( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is unregistered at the moment.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is unregistered at the moment." )
 			return true
 		elseif not tProfiles.AllowAdmin[tUser.iProfile] then
 			RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iModProfile )
@@ -326,7 +326,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "addctg" then
 		if not tProfiles.AllowAdmin[tUser.iProfile] then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command." )
 			return true
 		end
 		tOffliner.addctg( tUser, tBreak[1] )
@@ -334,7 +334,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 
 	elseif sCmd == "delctg" then
 		if not tProfiles.AllowAdmin[tUser.iProfile] then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command.|" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! You don't have access to this command." )
 			return true
 		end
 		return true

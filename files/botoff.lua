@@ -242,14 +242,14 @@ _G.tOffliner = {
 			VALUES( '%s', '%s', '%s', NOW() ) ]]
 		local sMagnetQuery = [[INSERT INTO `magnets`(`eid`,`tth`,`size`,`nick`,`date`)
 			VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
-		local _, _, sEntry, sTTH = sContent:find( "(.*) magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
-		local _, _, iSize = sContent:find( "xl=(%d+)&" )
+		local sEntry, sTTH = sContent:match( "(.*) magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
+		local iSize = sContent:match( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
 		end
 		sEntry, sNick = SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
-		sAdditionQuery = string.format( sAdditionQuery, sCategory, sEntry, sNick )
+		sAdditionQuery = string.format( sAdditionQuery, sCategory:lower(), sEntry, sNick )
 		local SQLCur = assert( SQLCon:execute(sAdditionQuery) )
 		local iID = SQLCon:getlastautoid()
 		sMagnetQuery = string.format( sMagnetQuery, iID, sTTH, tonumber(iSize), sNick )
@@ -327,8 +327,7 @@ _G.tOffliner = {
 		local iID, sContent = tInput[1], tInput[2]
 		local sMagnetQuery = [[INSERT INTO `magnets`(`eid`,`tth`,`size`,`nick`,`date`)
 			VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
-		local _, _, sTTH = sContent:find( "tree%:tiger%:(%w+)&" )
-		local _, _, iSize = sContent:find( "xl=(%d+)&" )
+		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
@@ -348,8 +347,7 @@ _G.tOffliner = {
 				`nick` = '%s',
 				`date` = NOW()
 			WHERE `id` = %d ]]
-		local _, _, sTTH = sContent:find( "magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
-		local _, _, iSize = sContent:find( "xl=(%d+)&" )
+		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
 			return false
