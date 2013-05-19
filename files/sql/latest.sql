@@ -1,19 +1,16 @@
 -- --------------------------------------------------------
--- Host:                         10.109.50.50
 -- Server version:               5.5.28-1 - (Debian)
 -- Server OS:                    debian-linux-gnu
--- HeidiSQL version:             7.0.0.4053
--- Date/time:                    2013-05-04 08:09:54
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
-/*!40014 SET FOREIGN_KEY_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Dumping database structure for latest
 CREATE DATABASE IF NOT EXISTS `latest` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `latest`;
-
 
 -- Dumping structure for table latest.buynsell
 CREATE TABLE IF NOT EXISTS `buynsell` (
@@ -28,9 +25,6 @@ CREATE TABLE IF NOT EXISTS `buynsell` (
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='The table storing information about users selling/buying/hiring things etc.';
 
--- Data exporting was unselected.
-
-
 -- Dumping structure for table latest.ctgtable
 CREATE TABLE IF NOT EXISTS `ctgtable` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
@@ -38,9 +32,6 @@ CREATE TABLE IF NOT EXISTS `ctgtable` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Listing of all categories.';
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.deletions
 CREATE TABLE IF NOT EXISTS `deletions` (
@@ -53,9 +44,6 @@ CREATE TABLE IF NOT EXISTS `deletions` (
   KEY `dated` (`dated`),
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='The information published when users are about to delete something from their share and others might need it.';
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.entries
 CREATE TABLE IF NOT EXISTS `entries` (
@@ -71,9 +59,6 @@ CREATE TABLE IF NOT EXISTS `entries` (
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Listing of all additions with their tags etc.';
 
--- Data exporting was unselected.
-
-
 -- Dumping structure for table latest.guestbook
 CREATE TABLE IF NOT EXISTS `guestbook` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -82,12 +67,10 @@ CREATE TABLE IF NOT EXISTS `guestbook` (
   `dated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nick_msg` (`nick`,`msg`),
+  UNIQUE KEY `nick` (`nick`),
   KEY `dated` (`dated`),
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.magnets
 CREATE TABLE IF NOT EXISTS `magnets` (
@@ -104,9 +87,6 @@ CREATE TABLE IF NOT EXISTS `magnets` (
   KEY `date` (`date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table populated with magnets of various entries.';
 
--- Data exporting was unselected.
-
-
 -- Dumping structure for table latest.messages
 CREATE TABLE IF NOT EXISTS `messages` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -121,9 +101,6 @@ CREATE TABLE IF NOT EXISTS `messages` (
   KEY `to` (`to`),
   FULLTEXT KEY `message` (`message`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='All offline messages users send to each other.';
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.modtable
 CREATE TABLE IF NOT EXISTS `modtable` (
@@ -140,9 +117,6 @@ CREATE TABLE IF NOT EXISTS `modtable` (
   KEY `date` (`date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table of all the moderators of all time.';
 
--- Data exporting was unselected.
-
-
 -- Dumping structure for table latest.news
 CREATE TABLE IF NOT EXISTS `news` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -154,9 +128,6 @@ CREATE TABLE IF NOT EXISTS `news` (
   KEY `dated` (`dated`),
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Recent happenings in and around the campus/country.';
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.replies
 CREATE TABLE IF NOT EXISTS `replies` (
@@ -172,9 +143,6 @@ CREATE TABLE IF NOT EXISTS `replies` (
   KEY `nick` (`nick`),
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Replies to buynsell messages from interested users.';
-
--- Data exporting was unselected.
-
 
 -- Dumping structure for table latest.requests
 CREATE TABLE IF NOT EXISTS `requests` (
@@ -196,9 +164,6 @@ CREATE TABLE IF NOT EXISTS `requests` (
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Requests from users in any of the categories.';
 
--- Data exporting was unselected.
-
-
 -- Dumping structure for table latest.suggestions
 CREATE TABLE IF NOT EXISTS `suggestions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -213,6 +178,6 @@ CREATE TABLE IF NOT EXISTS `suggestions` (
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Suggestions to other users about random stuff.';
 
--- Data exporting was unselected.
-/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
