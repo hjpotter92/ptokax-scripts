@@ -19,31 +19,28 @@ function OnStartup()
 		fGameServer = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tIndividualMenu["[BOT]GameServer"], "r+" ),
 		fChatrooms = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tIndividualMenu["#[ChatRoom]"], "r+" )
 	}
+	sGeneral = tFileHandles.fGeneral:read("*a")
 	tMenuText = {
 		["[BOT]Offliner"] = tFileHandles.fOffliner:read("*a"):gsub("%%%[bot%]", "[BOT]Offliner"),
 		["[BOT]Info"] = tFileHandles.fInfo:read("*a"):gsub("%%%[bot%]", "[BOT]Info"),
 		["[BOT]GameServer"] = tFileHandles.fGameServer:read("*a"),
 		["#[ChatRoom]"] = tFileHandles.fChatrooms:read("*a"),
-		sGeneral = tFileHandles.fGeneral:read("*a")
 	}
 	for _, fHandle in pairs(tFileHandles) do
 		fHandle:close()
 	end
 	tFileHandles, tConfig.tIndividualMenu = nil, nil
-	Core.SendToAll( tMenuText.sGeneral )	
-	Core.SendToAll( tMenuText["[BOT]Offliner"] )
-	Core.SendToAll( tMenuText["[BOT]Info"] )
-	Core.SendToAll( tMenuText["[BOT]GameServer"] )
-	Core.SendToAll( tMenuText["#[ChatRoom]"] )
-	Core.SendPmToNick("Brick","hhh",tMenuText["[BOT]Offliner"] )
+	Core.SendToAll( sGeneral )
+	for sAbout, sCommands in pairs(tMenuText) do
+		Core.SendToAll( sCommands )
+	end
 end
 
 function UserConnected( tUser )
-	Core.SendToUser( tUser,tMenuText.sGeneral )
-	Core.SendToUser( tUser,tMenuText["[BOT]Offliner"])
-	Core.SendToUser( tUser,tMenuText["[BOT]Info"])
-	Core.SendToUser( tUser,tMenuText["[BOT]GameServer"])
-	Core.SendToUser( tUser,tMenuText["#[ChatRoom]"] )
+	Core.SendToUser( tUser, sGeneral )
+	for sAbout, sCommands in pairs(tMenuText) do
+		Core.SendToUser( tUser, sCommands )
+	end
 end
 
 OpConnected, RegConnected = UserConnected, UserConnected
