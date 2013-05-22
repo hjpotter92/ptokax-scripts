@@ -120,6 +120,19 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		sList = nil
 		return true
 
+	elseif sCommand == "readdels" or sCommand == "rdel" then
+		if ( not sData ) or ( sData and not tonumber(sData) ) then
+			iLimit = 15
+		else
+			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
+		end
+		local sList = tInfobot.readOne( "deletions", iLimit )
+		if sList then
+			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
+		end
+		sList = nil
+		return true
+
 	elseif sCommand == "readgst" or sCommand == "rgst" then
 		if ( not sData ) or ( sData and not tonumber(sData) ) then
 			iLimit = 15
@@ -165,7 +178,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	if sCommand == "areq" or sCommand == "ar" then
 		local tBreak = tFunction.Explode( sData )
 		if tFunction.CheckCategory( tBreak[1] ) then
-			tInsertData.sCtg = tBreak[1]
+			tInsertData.sCtg = tBreak[1]:lower()
 		else
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Wrong category! "..tCfg.sAllCategories )
 			return false
