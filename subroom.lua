@@ -94,7 +94,7 @@ function ToArrival( tUser, sMessage )
 			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 			return false
 		end
-	elseif sCmd:lower() == "invite" then
+	elseif sCmd:lower() == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 		local sGuest = sData and sData:match( "^(%S+)" )
 		if not sGuest then
 			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
@@ -102,6 +102,7 @@ function ToArrival( tUser, sMessage )
 		end
 		if Core.GetUser( sGuest ) then
 			table.insert( tRooms[sTo].tSubscribers, sGuest )
+			pickle.store( tConfig.sPath.."texts/"..tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 			Core.SendPmToUser( tUser, sTo, sGuest.." has been invited to "..sTo.." chatroom." )
 			return true
 		else
