@@ -1,3 +1,12 @@
+2013-05-25
+----------
+
+- Restriction scripts loaded. Features are as listed:
+    1. All nick names must start with alphanumeric characters.
+    2. Only registered users are allowed to chat.
+- Modify `string.find()` method with `string.match()` method.
+- Comprehensive help for *[BOT]Info*.
+
 2013-05-17
 ----------
 
