@@ -1,4 +1,4 @@
-tSettings = {
+local tSettings = {
 	sAsBot = "<"..(SetMan.GetString( 21 ) or "PtokaX").."> ",
 	sBotName = SetMan.GetString( 21 ) or "PtokaX",
 }
