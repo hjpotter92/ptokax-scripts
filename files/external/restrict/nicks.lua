@@ -5,7 +5,7 @@ local tSettings = {
 }
 
 function UserConnected( tUser )
-	if tUser.sNick:find( "^[^%w%.]" ) then
+	if tUser.sNick:find( "^[^%w_%.]" ) then
 		Core.SendToUser( tUser, tSettings.sAsBot..Error("gen", 50) )
 		BanMan.TempBan( tUser, tSettings.iBanTime, Error("gen", 50), tSettings.sBotName, true )
 		Core.Disconnect( tUser )
