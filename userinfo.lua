@@ -114,67 +114,6 @@ tCmds["ii"] = function( Con, sIP, sFrom )
 	Core.SendPmToNick( sFrom, sMainBot, sCompleteUserData )
 end
 
-tFunction["CreateTable"] = function( Con )
-	local sQueryIPStat = [[CREATE TABLE IF NOT EXISTS `ipstats` (
-				`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				`ip` VARCHAR(15) NOT NULL,
-				`online` ENUM('n','y') NOT NULL DEFAULT 'y',
-				`last_used` DATETIME NOT NULL DEFAULT '1981-09-30 00:00:00',
-				PRIMARY KEY (`id`),
-				UNIQUE INDEX `ip` (`ip`)
-			)
-			COLLATE='utf8_general_ci'
-			ENGINE=MyISAM ]]
-	sQueryIPNStats = [[CREATE TABLE IF NOT EXISTS `ipstats_nicks` (
-				`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				`ipstats_id` INT UNSIGNED NOT NULL,
-				`nick` VARCHAR(32) NOT NULL,
-				`used_times` INT UNSIGNED NOT NULL DEFAULT '1',
-				`online` ENUM('n','y') NOT NULL DEFAULT 'y',
-				`last_used` DATETIME NOT NULL DEFAULT '1981-09-30 00:00:00',
-				PRIMARY KEY (`id`),
-				UNIQUE INDEX `ipnstats_id` (`ipstats_id`, `nick`)
-			)
-			COLLATE='utf8_general_ci'
-			ENGINE=MyISAM ]]
-	sQueryNickStats = [[CREATE TABLE IF NOT EXISTS `nickstats` (
-				`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				`nick` VARCHAR(32) NOT NULL,
-				`mode` ENUM('P','A','S') NOT NULL DEFAULT 'A' COMMENT '(A)ctive or (P)assive mode. (S) is some mode, not sure about what it is.',
-				`description` VARCHAR(200) NULL DEFAULT NULL,
-				`email` VARCHAR(100) NULL DEFAULT NULL,
-				`sharesize` BIGINT UNSIGNED NOT NULL DEFAULT '0',
-				`profile` TINYINT NOT NULL DEFAULT '-1',
-				`tag` VARCHAR(100) NULL DEFAULT NULL,
-				`client` VARCHAR(30) NULL DEFAULT NULL,
-				`hubs` TINYINT UNSIGNED NOT NULL DEFAULT '0',
-				`slots` TINYINT UNSIGNED NOT NULL DEFAULT '0',
-				`online` ENUM('n','y') NOT NULL DEFAULT 'y',
-				`last_used` DATETIME NOT NULL DEFAULT '1981-09-30 00:00:00',
-				PRIMARY KEY (`id`),
-				UNIQUE INDEX `nick` (`nick`)
-			)
-			COLLATE='utf8_general_ci'
-			ENGINE=MyISAM ]]
-	sQueryNLStats = [[CREATE TABLE IF NOT EXISTS `nickstats_login` (
-				`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				`nickstats_id` INT UNSIGNED NOT NULL,
-				`ip` VARCHAR(15) NOT NULL,
-				`login` DATETIME NOT NULL DEFAULT '2012-11-19 10:04:30',
-				`logout` DATETIME NULL DEFAULT NULL,
-				PRIMARY KEY (`id`),
-				INDEX `nickstats_id` (`nickstats_id`),
-				INDEX `ip_login` (`ip`, `login`)
-			)
-			COLLATE='utf8_general_ci'
-			ENGINE=MyISAM ]]
-	SQLCur = Con:execute( "DROP TABLE `nickstats_login`" )
-	SQLCur = assert( Con:execute(sQueryIPNStats) )
-	SQLCur = assert( Con:execute(sQueryIPStat) )
-	SQLCur = assert( Con:execute(sQueryNLStats) )
-	SQLCur = assert( Con:execute(sQueryNickStats) )
-end
-
 tFunction["ipstat"] = function( Con, tInput )
 	local sQueryIPStat = [[INSERT INTO `ipstats` (`ip`, `last_used`)
 			VALUES ( '%s', '%s' )
@@ -254,14 +193,9 @@ tFunction["GetSize"] = function( iSize )
 end
 
 function OnStartup()
-   --[[
-	if not luasql then
-		require "luasql.mysql"
-	end
-  ]]
-	SQLEnv = assert( require "luasql.mysql".mysql() )
+	local luasql = require "luasql.mysql"
+	SQLEnv = assert( require luasql.mysql() )
 	SQLCon = assert( SQLEnv:connect("ptokax", "root", "mysql@hhfh", "localhost", "3306") )
-	tFunction.CreateTable( SQLCon )
 	tUsers = Core.GetOnlineRegs()
 	for i,v in ipairs(tUsers) do
 		local tSend = {}
@@ -331,8 +265,7 @@ function UserDisconnected( tUser )
 	tFunction.logout( SQLCon, tSend )
 end
 
-OpConnected, RegConnected = UserConnected, UserConnected
-OpDisconnected, RegDisconnected = UserDisconnected, UserDisconnected
+OpConnected, RegConnected, OpDisconnected, RegDisconnected = UserConnected, UserConnected, UserDisconnected, UserDisconnected
 
 function ChatArrival( tUser, sMessage )
 	local _, _, sCmd, sData = sMessage:find( "%b<> [%/%*%-%+%#%?%.%!](%S+)%s+(%S+)|" )
