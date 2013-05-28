@@ -4,7 +4,7 @@ function OnStartup()
 		sTextPath = "texts/",
 		sDependent = "dependency/",
 		sFunctionsFile = "users.lua",
-		sDateFormat = tConfig.sDateFormat,
+		sDateFormat = "%Y-%m-%d %H:%M:%S",
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sAllowed = "01234",
 		sPassiveBanPass = "01236",
