@@ -21,6 +21,7 @@ function OnStartup()
 		}
 	}
 	local sTempPath = tConfig.sPath..tConfig..sTextPath
+	dofile( sTempPath..tConfig.sPickleFile )
 	local tFileHandles = {
 		fGeneral = io.open( sTempPath..tConfig.sGeneralMenu, "r+" ),
 		fOffliner = io.open( sTempPath..tConfig.tIndividualMenu["[BOT]Offliner"], "r+" ),
@@ -119,11 +120,11 @@ function ChatArrival( tUser, sMessage )
 			return false
 		end
 		if sData == "lnf" or sData == "lostnfound" then
-			return true
+			StoreMessage( "lostnfound", table.concat(tBreak, " ", 2) )
 		elseif sData == "notice" or sData == "notices" then
-			return true
+			StoreMessage( "notices", table.concat(tBreak, " ", 2) )
 		elseif sData == "tnp" then
-			return true
+			StoreMessage( "trainplace", table.concat(tBreak, " ", 2) )
 		end
 		Core.SendToUser( tUser, tConfig.sAsBot.."Added new message" )
 		return true
@@ -139,16 +140,16 @@ function ChatArrival( tUser, sMessage )
 			Core.SendToUser( tUser, tConfig.sAsBot.."No ID was passed." )
 			return false
 		end
+		tBreak[2] = tonumber(tBreak[2])
 		if sData == "lnf" or sData == "lostnfound" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("lostnfound") )
-			return true
+			RemoveMessage( "lostnfound", tBreak[2] )
 		elseif sData == "notice" or sData == "notices" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("notices") )
-			return true
+			RemoveMessage( "notices", tBreak[2] )
 		elseif sData == "tnp" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("trainplace") )
-			return true
+			RemoveMessage( "trainplace", tBreak[2] )
 		end
+		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tosting(tBreak[2])..".") )
+		return true
 
 	end
 end
