@@ -65,7 +65,20 @@ function CreateMessage( tInput )
 end
 
 function RemoveMessage( iMessageID )
-
+	local tTemp = {}
+	if not tConfig.tFiles[sName] then
+		return "ERROR", false
+	end
+	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
+	if fHandle then
+		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
+		fHandle:close()
+		table.remove( tTemp.tMain, iMessageID )
+		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
+		tTemp = nil
+		return true
+	end
+	return "ERROR", false
 end
 
 function SendFile( sName )
@@ -90,7 +103,7 @@ function StoreMessage( sName, sMessage )
 	if fHandle then
 		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
 		fHandle:close()
-		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d %H:%M:%S"), sBody = sMessage } )
+		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
 		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
 		return true
