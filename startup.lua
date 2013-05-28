@@ -64,6 +64,10 @@ function CreateMessage( tInput )
 	return ( sReply..table.concat(tTemp, ("-"):rep(100).."\n\n") )
 end
 
+function RemoveMessage( iMessageID )
+
+end
+
 function SendFile( sName )
 	local tTemp = {}
 	if not tConfig.tFiles[sName] then
@@ -75,6 +79,23 @@ function SendFile( sName )
 		fHandle:close()
 		return CreateMessage( tTemp )
 	end
+end
+
+function StoreMessage( sName, sMessage )
+	local tTemp = {}
+	if not tConfig.tFiles[sName] then
+		return "ERROR", false
+	end
+	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
+	if fHandle then
+		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
+		fHandle:close()
+		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d %H:%M:%S"), sBody = sMessage } )
+		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
+		tTemp = nil
+		return true
+	end
+	return "ERROR", false
 end
 
 function UserConnected( tUser )
