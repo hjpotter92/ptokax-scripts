@@ -20,8 +20,8 @@ function OnStartup()
 			trainplace = "tnp.txt",
 		}
 	}
-	local sTempPath = tConfig.sPath..tConfig..sTextPath
-	dofile( sTempPath..tConfig.sPickleFile )
+	local sTempPath = tConfig.sPath..tConfig.sTextPath
+	dofile( tConfig.sPath..tConfig.sFunctionsPath..tConfig.sPickleFile )
 	local tFileHandles = {
 		fGeneral = io.open( sTempPath..tConfig.sGeneralMenu, "r+" ),
 		fOffliner = io.open( sTempPath..tConfig.tIndividualMenu["[BOT]Offliner"], "r+" ),
@@ -71,7 +71,7 @@ function RemoveMessage( iMessageID )
 	end
 	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
 	if fHandle then
-		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
+		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
 		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
@@ -88,7 +88,7 @@ function SendFile( sName )
 	end
 	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
 	if fHandle then
-		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
+		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
 		fHandle:close()
 		return CreateMessage( tTemp )
 	end
@@ -101,7 +101,7 @@ function StoreMessage( sName, sMessage )
 	end
 	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
 	if fHandle then
-		assert( dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName]) )
+		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
 		fHandle:close()
 		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
 		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
@@ -182,7 +182,7 @@ function ChatArrival( tUser, sMessage )
 		elseif sData == "tnp" then
 			RemoveMessage( "trainplace", tBreak[2] )
 		end
-		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tosting(tBreak[2])..".") )
+		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tosting(tBreak[2]).."." )
 		return true
 
 	end
