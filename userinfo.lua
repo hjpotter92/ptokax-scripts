@@ -3,16 +3,21 @@ function OnStartup()
 		sPath = "/root/Ptokax/scripts/files/",
 		sTextPath = "texts/",
 		sDependent = "dependency/",
-		sDateFormat = tConfig.sDateFormat
+		sFunctionsFile = "users.lua",
+		sDateFormat = tConfig.sDateFormat,
+		sBotName = SetMan.GetString( 21 ) or "PtokaX",
+		sAllowed = "01234",
+		sPassiveBanPass = "01236",
 	}
+	dofile( tConfig.sPath..tConfig.sDependent..tConfig.sFunctionsFile )
 	tUsers = Core.GetOnlineRegs()
 	for i,v in ipairs(tUsers) do
 		local tSend = {}
 		tSend["sDate"] = os.date( tConfig.sDateFormat, Core.GetUserValue(v, 25) )
 		tSend["sIP"] = v.sIP
-		tSend["iIPID"] = tFunction.ipstat( SQLCon, tSend )
+		tSend["iIPID"] = tFunction.ipstat( tSend )
 		tSend["sNick"] = SQLCon:escape(v.sNick)
-		tFunction.ipnstat( SQLCon, tSend )
+		tFunction.ipnstat( tSend )
 		tSend["iProfile"] = v.iProfile
 		if Core.GetUserAllData( v ) then
 			tSend["sMode"] = v.sMode or "S"
@@ -27,25 +32,20 @@ function OnStartup()
 			tSend["sClient"] = string.format( "%s%s", v.sClient or "N/A", v.sClientVersion or "N/A" )
 			tSend["iSlots"] = v.iSlots or 0
 			tSend["iHubs"] = v.iHubs or 0
-			tSend["iNickID"] = tFunction.nickstat( SQLCon, tSend )
+			tSend["iNickID"] = tFunction.nickstat( tSend )
 		end
-		tFunction.login( SQLCon, tSend.iNickID, tSend.sIP, tSend.sDate )
+		tFunction.login( tSend.iNickID, tSend.sIP, tSend.sDate )
 	end
 
-end
-
-function OnExit()
-	SQLCon:close()
-	SQLEnv:close()
 end
 
 function UserConnected( tUser )
 	local tSend = {}
 	tSend["sDate"] = os.date( tConfig.sDateFormat )
 	tSend["sIP"] = tUser.sIP
-	tSend["iIPID"] = tFunction.ipstat( SQLCon, tSend )
+	tSend["iIPID"] = tFunction.ipstat( tSend )
 	tSend["sNick"] = SQLCon:escape(tUser.sNick)
-	tFunction.ipnstat( SQLCon, tSend )
+	tFunction.ipnstat( tSend )
 	tSend["iProfile"] = tUser.iProfile
 	if Core.GetUserAllData( tUser ) then
 		tSend["sMode"] = tUser.sMode or "S"
@@ -60,9 +60,9 @@ function UserConnected( tUser )
 		tSend["sClient"] = string.format( "%s%s", tUser.sClient or "N/A", tUser.sClientVersion or " N/A" )
 		tSend["iSlots"] = tUser.iSlots or 0
 		tSend["iHubs"] = tUser.iHubs or 0
-		tSend["iNickID"] = tFunction.nickstat( SQLCon, tSend )
+		tSend["iNickID"] = tFunction.nickstat( tSend )
 	end
-	tFunction.login( SQLCon, tSend.iNickID, tSend.sIP, tSend.sDate )
+	tFunction.login( tSend.iNickID, tSend.sIP, tSend.sDate )
 end
 
 function UserDisconnected( tUser )
@@ -71,7 +71,7 @@ function UserDisconnected( tUser )
 		sIP = tUser.sIP,
 		sNick = SQLCon:escape(tUser.sNick)
 	}
-	tFunction.logout( SQLCon, tSend )
+	tFunction.logout( tSend )
 end
 
 OpConnected, RegConnected, OpDisconnected, RegDisconnected = UserConnected, UserConnected, UserDisconnected, UserDisconnected
@@ -81,27 +81,27 @@ function ChatArrival( tUser, sMessage )
 	if not sCmd and not sData then return false end
 	if tProfiles.allowed[tUser.iProfile] == 0 then return false end
 	if string.lower(sCmd) == "ui" or string.lower(sCmd) == "userinfo" then
-		tCmds.ui( SQLCon, sData, tUser.sNick )
+		tCmds.ui( sData, tUser.sNick )
 		return true
 	elseif string.lower(sCmd) == "ii" or string.lower(sCmd) == "ipinfo" then
-		tCmds.ii( SQLCon, sData, tUser.sNick )
+		tCmds.ii( sData, tUser.sNick )
 		return true
 	end
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo = sMessage:find( "^\$To: (%S+) From.*" )
-	if sTo ~= sMainBot or tProfiles.allowed[tUser.iProfile] == 0 then
+	local sTo = sMessage:match( "^\$To: (%S+) From" )
+	if sTo ~= tConfig.sBotName or not tConfig.sAllowed:find( tUser.iProfile ) then
 		return false
 	end
-	local _, _, sCmd, sData = sMessage:find( "%b\$\$%b<> [%/%*%-%+%#%?%.%!](%w+)%s+(%S+)|" )
+	local sCmd, sData = sMessage:match( "%b\$\$%b<> [%/%*%-%+%#%?%.%!](%w+)%s+(%S+)|" )
 	if not sCmd and not sData then return false end
 	if string.lower(sCmd) == "ui" or string.lower(sCmd) == "userinfo" then
-		tCmds.ui( SQLCon, sData, tUser.sNick )
+		tCmds.ui( sData, tUser.sNick )
 		return true
 	end
 	if string.lower(sCmd) == "ii" or string.lower(sCmd) == "ipinfo" then
-		tCmds.ii( SQLCon, sData, tUser.sNick )
+		tCmds.ii( sData, tUser.sNick )
 		return true
 	end
 end
