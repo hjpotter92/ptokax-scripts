@@ -8,6 +8,7 @@ function OnStartup()
 		"chat.lua",
 		"share.lua",
 		"nicks.lua",
+		"search.lua",
 	}
 	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq.php?code=%s&num=%04d"
 	for iIndex, sScript in ipairs( tList ) do
