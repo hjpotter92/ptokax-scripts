@@ -57,11 +57,11 @@ function CreateMessage( tInput )
 	if not tInput or not tInput.sTitle then
 		return "ERROR", false
 	end
-	local sReply, sTemplate, tTemp = tInput.sTitle:upper().."\n"..("="):rep(24).."\n\n", "ID: %d \t\t\t Date added: \t %s \nMessage: %s", {}
+	local sReply, sTemplate, tTemp = "\n\n"..tInput.sTitle:upper().."\n"..("="):rep(24).."\n\n", "ID: %d \t\t\t Date added: \t %s \nMessage: %s", {}
 	for iIndex, tBody in pairs( tInput.tMain ) do
 		table.insert( tTemp, sTemplate:format(iIndex, tBody.sDate, tBody.sBody) )
 	end
-	return ( sReply..table.concat(tTemp, ("-"):rep(100).."\n\n") )
+	return ( sReply..table.concat(tTemp, "\n\t\t"..("-"):rep(100).."\n\n") )
 end
 
 function RemoveMessage( iMessageID )
