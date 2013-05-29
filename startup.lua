@@ -109,6 +109,15 @@ function StoreMessage( sName, sMessage )
 end
 
 function UserConnected( tUser )
+	for sName, sFile in pairs( tConfig.tFiles ) do
+		local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..sFile, "r+" )
+		if fHandle then
+			dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
+			fHandle:close()
+			Core.SendPmToUser( tUser, tConfig.sBotName, CreateMessage(tTemp) )
+			tTemp = nil
+		end
+	end
 	Core.SendToUser( tUser, sGeneral )
 	for sAbout, sCommand in pairs(tMenuText) do
 		Core.SendToUser( tUser, sCommand )
@@ -179,7 +188,7 @@ function ChatArrival( tUser, sMessage )
 		elseif sData == "tnp" then
 			RemoveMessage( "trainplace", tBreak[2] )
 		end
-		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tosting(tBreak[2]).."." )
+		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tostring(tBreak[2]).."." )
 		return true
 
 	end
