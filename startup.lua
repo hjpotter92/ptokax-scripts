@@ -46,11 +46,11 @@ function OnStartup()
 end
 
 function Explode( sInput )
-	local t = {}
-	for word in sInput:gmatch( "(%S+)" ) do
-		table.insert( t, x )
+	local tReturn = {}
+	for sWord in sInput:gmatch( "(%S+)" ) do
+		table.insert( tReturn, sWord )
 	end
-	return t
+	return tReturn
 end
 
 function CreateMessage( tInput )
@@ -61,11 +61,10 @@ function CreateMessage( tInput )
 	for iIndex, tBody in pairs( tInput.tMain ) do
 		table.insert( tTemp, sTemplate:format(iIndex, tBody.sDate, tBody.sBody) )
 	end
-	return ( sReply..table.concat(tTemp, "\n\t\t"..("-"):rep(100).."\n\n") )
+	return ( sReply..table.concat(tTemp, "\n\t\t"..("-"):rep(100).."\n\n").."\n" )
 end
 
-function RemoveMessage( iMessageID )
-	local tTemp = {}
+function RemoveMessage( sName, iMessageID )
 	if not tConfig.tFiles[sName] then
 		return "ERROR", false
 	end
@@ -74,7 +73,7 @@ function RemoveMessage( iMessageID )
 		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
-		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
+		pickle.store( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
 		return true
 	end
@@ -82,7 +81,6 @@ function RemoveMessage( iMessageID )
 end
 
 function SendFile( sName )
-	local tTemp = {}
 	if not tConfig.tFiles[sName] then
 		return "ERROR", false
 	end
@@ -95,7 +93,6 @@ function SendFile( sName )
 end
 
 function StoreMessage( sName, sMessage )
-	local tTemp = {}
 	if not tConfig.tFiles[sName] then
 		return "ERROR", false
 	end
@@ -104,7 +101,7 @@ function StoreMessage( sName, sMessage )
 		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
 		fHandle:close()
 		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
-		pickle.store( tConfig.sPath..tConfig.sFunctionsPath..tConfig.tFiles[sName], { tTemp = tTemp } )
+		pickle.store( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
 		return true
 	end
@@ -147,7 +144,7 @@ function ChatArrival( tUser, sMessage )
 			Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
 			return false
 		end
-		tBreak = Explode( sData )
+		local tBreak = Explode( sData )
 		sData = tBreak[1]:lower()
 		if not tBreak[2] then
 			Core.SendToUser( tUser, tConfig.sAsBot.."No message was provided." )
@@ -168,7 +165,7 @@ function ChatArrival( tUser, sMessage )
 			Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
 			return false
 		end
-		tBreak = Explode( sData )
+		local tBreak = Explode( sData )
 		sData = tBreak[1]:lower()
 		if not tonumber(tBreak[2]) then
 			Core.SendToUser( tUser, tConfig.sAsBot.."No ID was passed." )
