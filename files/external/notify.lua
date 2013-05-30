@@ -1,7 +1,10 @@
-local tFiles = {
+local tFiles, tSettings = {
 	lostnfound = "lost.txt",
 	notices = "notice.txt",
 	trainplace = "tnp.txt",
+}, {
+	sBotName = SetMan.GetString( 21 ) or "PtokaX",
+	sTextPath = tConfig.sPath..tConfig.sTextPath,
 }
 
 function CreateMessage( tInput )
@@ -19,13 +22,13 @@ function RemoveMessage( sName, iMessageID )
 	if not tFiles[sName] then
 		return false, "Removal error"
 	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tFiles[sName], "r+" )
+	local fHandle = io.open( tSettings.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
 		local sReply = "Message removed from ID #%02d"
-		dofile(tConfig.sPath..tConfig.sTextPath..tFiles[sName])
+		dofile(tConfig.sTextPath..tFiles[sName])
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
-		pickle.store( tConfig.sPath..tConfig.sTextPath..tFiles[sName], { tTemp = tTemp } )
+		pickle.store( tSettings.sTextPath..tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
 		return sReply:format( iMessageID )
 	end
@@ -36,9 +39,9 @@ function SendFile( sName )
 	if not tFiles[sName] then
 		return false, "Sending error"
 	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tFiles[sName], "r+" )
+	local fHandle = io.open( tSettings.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
-		dofile(tConfig.sPath..tConfig.sTextPath..tFiles[sName])
+		dofile( tSettings.sTextPath..tFiles[sName] )
 		fHandle:close()
 		return CreateMessage( tTemp )
 	else
@@ -50,15 +53,27 @@ function StoreMessage( sName, sMessage )
 	if not tFiles[sName] then
 		return false, "Storage error"
 	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tFiles[sName], "r+" )
+	local fHandle = io.open( tSettings.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
-		dofile(tConfig.sPath..tConfig.sTextPath..tFiles[sName])
+		dofile(tSettings.sTextPath..tFiles[sName])
 		fHandle:close()
 		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
-		pickle.store( tConfig.sPath..tConfig.sTextPath..tFiles[sName], { tTemp = tTemp } )
+		pickle.store( tSettings.sTextPath..tFiles[sName], { tTemp = tTemp } )
 		sReply = ("Message stored at ID #%02d"):format( #(tTemp.tMain) )
 		tTemp = nil
 		return sReply
 	end
 	return false, "Storage error"
+end
+
+function InformAll()
+	for sName, sFile in pairs( tFiles ) do
+		local fHandle = io.open( tSettings.sTextPath..sFile, "r+" )
+		if fHandle then
+			dofile( tSettings.sTextPath..tFiles[sName] )
+			fHandle:close()
+			Core.SendPmToAll( tSettings.sBotName, CreateMessage(tTemp) )
+			tTemp = nil
+		end
+	end
 end

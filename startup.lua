@@ -123,6 +123,7 @@ function ChatArrival( tUser, sMessage )
 	end
 	if Result then
 		Core.SendToUser( tUser, tConfig.sAsBot..Result )
+		InformAll()
 		return true
 	end
 	return false
