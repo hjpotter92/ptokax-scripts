@@ -73,67 +73,59 @@ function ChatArrival( tUser, sMessage )
 	if not sCommand then
 		return false
 	end
+	if sData:len() == 0 then
+		Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
+		return false
+	end
 	sCommand = sCommand:lower()
+	local tBreak, Result, sError = Explode( sData ), nil, nil
+	tBreak[1] = tBreak[1]:lower()
 	if sCommand == "check" then
-		sData = sData:lower()
-		if sData:len() == 0 then
-			Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
-			return false
-		elseif sData == "lnf" or sData == "lostnfound" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("lostnfound") )
-			return true
-		elseif sData == "notice" or sData == "notices" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("notices") )
-			return true
-		elseif sData == "tnp" then
-			Core.SendToUser( tUser, tConfig.sAsBot..SendFile("trainplace") )
-			return true
+		if tBreak[1] == "lnf" or tBreak[1] == "lostnfound" then
+			Result, sError = SendFile("lostnfound")
+		elseif tBreak[1] == "notice" or tBreak[1] == "notices" then
+			Result, sError = SendFile("notices")
+		elseif tBreak[1] == "tnp" then
+			Result, sError = SendFile("trainplace")
 		end
 
 	elseif sCommand == "addto" then
-		if sData:len() == 0 then
-			Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
-			return false
-		end
-		local tBreak = Explode( sData )
-		sData = tBreak[1]:lower()
 		if not tBreak[2] then
 			Core.SendToUser( tUser, tConfig.sAsBot.."No message was provided." )
 			return false
 		end
-		if sData == "lnf" or sData == "lostnfound" then
-			StoreMessage( "lostnfound", table.concat(tBreak, " ", 2) )
-		elseif sData == "notice" or sData == "notices" then
-			StoreMessage( "notices", table.concat(tBreak, " ", 2) )
-		elseif sData == "tnp" then
-			StoreMessage( "trainplace", table.concat(tBreak, " ", 2) )
+		if tBreak[1] == "lnf" or tBreak[1] == "lostnfound" then
+			Result, sError = StoreMessage( "lostnfound", table.concat(tBreak, " ", 2) )
+		elseif tBreak[1] == "notice" or tBreak[1] == "notices" then
+			Result, sError = StoreMessage( "notices", table.concat(tBreak, " ", 2) )
+		elseif tBreak[1] == "tnp" then
+			Result, sError = StoreMessage( "trainplace", table.concat(tBreak, " ", 2) )
 		end
-		Core.SendToUser( tUser, tConfig.sAsBot.."Added new message" )
-		return true
 
 	elseif sCommand == "removefrom" then
-		if sData:len() == 0 then
-			Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
-			return false
-		end
-		local tBreak = Explode( sData )
-		sData = tBreak[1]:lower()
 		if not tonumber(tBreak[2]) then
 			Core.SendToUser( tUser, tConfig.sAsBot.."No ID was passed." )
 			return false
 		end
 		tBreak[2] = tonumber(tBreak[2])
-		if sData == "lnf" or sData == "lostnfound" then
-			RemoveMessage( "lostnfound", tBreak[2] )
-		elseif sData == "notice" or sData == "notices" then
-			RemoveMessage( "notices", tBreak[2] )
-		elseif sData == "tnp" then
-			RemoveMessage( "trainplace", tBreak[2] )
+		if tBreak[1] == "lnf" or tBreak[1] == "lostnfound" then
+			Result, sError = RemoveMessage( "lostnfound", tBreak[2] )
+		elseif tBreak[1] == "notice" or tBreak[1] == "notices" then
+			Result, sError = RemoveMessage( "notices", tBreak[2] )
+		elseif tBreak[1] == "tnp" then
+			Result, sError = RemoveMessage( "trainplace", tBreak[2] )
 		end
-		Core.SendToUser( tUser, tConfig.sAsBot.."Removed message from ID "..tostring(tBreak[2]).."." )
-		return true
 
 	end
+	if sError then
+		Core.SendToUser( tUser, tConfig.sAsBot..sError )
+		return true
+	end
+	if Result then
+		Core.SendToUser( tUser, tConfig.sAsBot..Result )
+		return true
+	end
+	return false
 end
 
 function ToArrival( tUser, sMessage )
