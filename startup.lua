@@ -4,9 +4,12 @@ function OnStartup()
 		sAsBot = "<"..( SetMan.GetString(21) or "PtokaX" ).."> ",
 		sPath = "/root/PtokaX/scripts/files/",
 		sTextPath = "texts/",
-		sFunctionsPath = "functions/",
+		sFunctionsPath = "dependency/",
+		sExternalPath = "external/",
+		sFunctionsFile = "functions.lua",
 		sGeneralMenu = "clickMenu.txt",
 		sPickleFile = "pickle.lua",
+		sNotifyFunctionFile = "notify.lua",
 		sAllowedProfiles = "0237",
 		tIndividualMenu = {
 			["[BOT]Offliner"] = "offlinerMenu.txt",
@@ -20,14 +23,16 @@ function OnStartup()
 			trainplace = "tnp.txt",
 		}
 	}
-	local sTempPath = tConfig.sPath..tConfig.sTextPath
-	dofile( tConfig.sPath..tConfig.sFunctionsPath..tConfig.sPickleFile )
+	local sTextPath, sFunctionsPath = tConfig.sPath..tConfig.sTextPath, tConfig.sPath..tConfig.sFunctionsPath
+	dofile( sFunctionsPath..tConfig.sFunctionsFile )
+	dofile( sFunctionsPath..tConfig.sPickleFile )
+	dofile( tConfig.sPath..tConfig.sExternalPath..tConfig.sNotifyFunctionFile )
 	local tFileHandles = {
-		fGeneral = io.open( sTempPath..tConfig.sGeneralMenu, "r+" ),
-		fOffliner = io.open( sTempPath..tConfig.tIndividualMenu["[BOT]Offliner"], "r+" ),
-		fInfo = io.open( sTempPath..tConfig.tIndividualMenu["[BOT]Info"], "r+" ),
-		fGameServer = io.open( sTempPath..tConfig.tIndividualMenu["[BOT]GameServer"], "r+" ),
-		fChatrooms = io.open( sTempPath..tConfig.tIndividualMenu["#[ChatRoom]"], "r+" )
+		fGeneral = io.open( sTextPath..tConfig.sGeneralMenu, "r+" ),
+		fOffliner = io.open( sTextPath..tConfig.tIndividualMenu["[BOT]Offliner"], "r+" ),
+		fInfo = io.open( sTextPath..tConfig.tIndividualMenu["[BOT]Info"], "r+" ),
+		fGameServer = io.open( sTextPath..tConfig.tIndividualMenu["[BOT]GameServer"], "r+" ),
+		fChatrooms = io.open( sTextPath..tConfig.tIndividualMenu["#[ChatRoom]"], "r+" )
 	}
 	sGeneral, tMenuText = tFileHandles.fGeneral:read("*a"), {
 		["[BOT]Offliner"] = tFileHandles.fOffliner:read("*a"):gsub("%%%[bot%]", "[BOT]Offliner"),
@@ -43,69 +48,6 @@ function OnStartup()
 	for sAbout, sCommand in pairs(tMenuText) do
 		Core.SendToAll( sCommand )
 	end
-end
-
-function Explode( sInput )
-	local tReturn = {}
-	for sWord in sInput:gmatch( "(%S+)" ) do
-		table.insert( tReturn, sWord )
-	end
-	return tReturn
-end
-
-function CreateMessage( tInput )
-	if not tInput or not tInput.sTitle then
-		return "ERROR", false
-	end
-	local sReply, sTemplate, tTemp = "\n\n"..tInput.sTitle:upper().."\n"..("="):rep(24).."\n\n", "ID: %d \t\t\t Date added: \t %s \nMessage: %s", {}
-	for iIndex, tBody in pairs( tInput.tMain ) do
-		table.insert( tTemp, sTemplate:format(iIndex, tBody.sDate, tBody.sBody) )
-	end
-	return ( sReply..table.concat(tTemp, "\n\t\t"..("-"):rep(100).."\n\n").."\n" )
-end
-
-function RemoveMessage( sName, iMessageID )
-	if not tConfig.tFiles[sName] then
-		return "ERROR", false
-	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
-	if fHandle then
-		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
-		fHandle:close()
-		table.remove( tTemp.tMain, iMessageID )
-		pickle.store( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], { tTemp = tTemp } )
-		tTemp = nil
-		return true
-	end
-	return "ERROR", false
-end
-
-function SendFile( sName )
-	if not tConfig.tFiles[sName] then
-		return "ERROR", false
-	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
-	if fHandle then
-		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
-		fHandle:close()
-		return CreateMessage( tTemp )
-	end
-end
-
-function StoreMessage( sName, sMessage )
-	if not tConfig.tFiles[sName] then
-		return "ERROR", false
-	end
-	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], "r+" )
-	if fHandle then
-		dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
-		fHandle:close()
-		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
-		pickle.store( tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName], { tTemp = tTemp } )
-		tTemp = nil
-		return true
-	end
-	return "ERROR", false
 end
 
 function UserConnected( tUser )
