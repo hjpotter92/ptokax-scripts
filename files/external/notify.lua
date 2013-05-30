@@ -21,12 +21,13 @@ function RemoveMessage( sName, iMessageID )
 	end
 	local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
+		local sReply = "Message removed from ID #%02d"
 		dofile(tConfig.sPath..tConfig.sTextPath..tFiles[sName])
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
 		pickle.store( tConfig.sPath..tConfig.sTextPath..tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
-		return true
+		return sReply:format( iMessageID )
 	end
 	return false, "Removal error"
 end
@@ -55,8 +56,9 @@ function StoreMessage( sName, sMessage )
 		fHandle:close()
 		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
 		pickle.store( tConfig.sPath..tConfig.sTextPath..tFiles[sName], { tTemp = tTemp } )
+		sReply = ("Message stored at ID #%02d"):format( #(tTemp.tMain) )
 		tTemp = nil
-		return true
+		return sReply
 	end
 	return false, "Storage error"
 end
