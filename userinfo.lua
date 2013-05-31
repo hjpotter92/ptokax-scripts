@@ -8,30 +8,32 @@ function OnStartup()
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sAllowed = "01234",
 		sPassiveBanPass = "01236",
+		iPassiveBanTime = 15,		-- Time in minutes.
 	}
 	dofile( tConfig.sPath..tConfig.sDependent..tConfig.sFunctionsFile )
+	tFunction.Connect()
 	tUsers = Core.GetOnlineRegs()
-	for i,v in ipairs(tUsers) do
+	for iIndex, tUser in ipairs(tUsers) do
 		local tSend = {}
-		tSend["sDate"] = os.date( tConfig.sDateFormat, Core.GetUserValue(v, 25) )
-		tSend["sIP"] = v.sIP
+		tSend["sDate"] = os.date( tConfig.sDateFormat, Core.GetUserValue(tUser, 25) )
+		tSend["sIP"] = tUser.sIP
 		tSend["iIPID"] = tFunction.ipstat( tSend )
-		tSend["sNick"] = SQLCon:escape(v.sNick)
+		tSend["sNick"] = SQLCon:escape(tUser.sNick)
 		tFunction.ipnstat( tSend )
-		tSend["iProfile"] = v.iProfile
-		if Core.GetUserAllData( v ) then
-			tSend["sMode"] = v.sMode or "S"
-			if v.sMode == "P" and not tProfiles.passive[v.iProfile] then
-				BanMan.TempBan( v, 15, "Connection with passive mode is not allowed.", sMainBot, false )
-				Core.Disconnect( v )
+		tSend["iProfile"] = tUser.iProfile
+		if Core.GetUserAllData( tUser ) then
+			tSend["sMode"] = tUser.sMode or "S"
+			if tUser.sMode == "P" and not tConfig.sPassiveBanPass:find( tUser.iProfile ) then
+				BanMan.TempBan( tUser, tConfig.iPassiveBanTime, "Connection with passive mode is not allowed.", sMainBot, false )
+				Core.Disconnect( tUser )
 			end
-			tSend["sMail"] = (v.sEmail and string.format("'%s'", SQLCon:escape(v.sEmail)) or "NULL")
-			tSend["sDesc"] = (v.sDescription and string.format("'%s'", SQLCon:escape(v.sDescription)) or "NULL")
-			tSend["sTag"] = v.sTag or "NULL TAG"
-			tSend["iShare"] = tostring(v.iShareSize) or 0
-			tSend["sClient"] = string.format( "%s%s", v.sClient or "N/A", v.sClientVersion or "N/A" )
-			tSend["iSlots"] = v.iSlots or 0
-			tSend["iHubs"] = v.iHubs or 0
+			tSend["sMail"] = (tUser.sEmail and string.format("'%s'", SQLCon:escape(tUser.sEmail)) or "NULL")
+			tSend["sDesc"] = (tUser.sDescription and string.format("'%s'", SQLCon:escape(tUser.sDescription)) or "NULL")
+			tSend["sTag"] = tUser.sTag or "NULL TAG"
+			tSend["iShare"] = tostring(tUser.iShareSize) or 0
+			tSend["sClient"] = string.format( "%s%s", tUser.sClient or "N/A", tUser.sClientVersion or "N/A" )
+			tSend["iSlots"] = tUser.iSlots or 0
+			tSend["iHubs"] = tUser.iHubs or 0
 			tSend["iNickID"] = tFunction.nickstat( tSend )
 		end
 		tFunction.login( tSend.iNickID, tSend.sIP, tSend.sDate )
@@ -81,10 +83,10 @@ function ChatArrival( tUser, sMessage )
 	if not tConfig.sAllowed:find( tUser.iProfile ) then return false end
 	sCmd = sCmd:lower()
 	if sCmd == "ui" or sCmd == "userinfo" then
-		tCmds.ui( sData, tUser.sNick )
+		tCommands.ui( sData, tUser.sNick )
 		return true
 	elseif sCmd == "ii" or sCmd == "ipinfo" then
-		tCmds.ii( sData, tUser.sNick )
+		tCommands.ii( sData, tUser.sNick )
 		return true
 	end
 end
@@ -99,10 +101,10 @@ function ToArrival( tUser, sMessage )
 	if not tConfig.sAllowed:find( tUser.iProfile ) then return false end
 	sCmd = sCmd:lower()
 	if sCmd == "ui" or sCmd == "userinfo" then
-		tCmds.ui( sData, tUser.sNick )
+		tCommands.ui( sData, tUser.sNick )
 		return true
 	elseif sCmd == "ii" or sCmd == "ipinfo" then
-		tCmds.ii( sData, tUser.sNick )
+		tCommands.ii( sData, tUser.sNick )
 		return true
 	end
 end
