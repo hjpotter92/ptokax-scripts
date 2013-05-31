@@ -98,7 +98,7 @@ tFunction = {
 		SQLCur = assert( Con:execute(sQueryLogout) )
 		tInput["iID"] = tonumber( SQLCur:fetch() )
 		sQueryLogout = [[UPDATE `nickstats_login`
-				SET `logout` = ']]..tInput.sDate..[['
+				SET `logout` = NOW()
 				WHERE `nickstats_id` = ]]..tostring(tInput.iID)..[[
 					AND `ip` = ']]..tInput.sIP..[['
 				ORDER BY `login` DESC

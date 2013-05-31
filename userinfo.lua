@@ -67,9 +67,8 @@ end
 
 function UserDisconnected( tUser )
 	local tSend = {
-		sDate = os.date( tConfig.sDateFormat ),
 		sIP = tUser.sIP,
-		sNick = SQLCon:escape(tUser.sNick)
+		sNick = SQLCon:escape(tUser.sNick),
 	}
 	tFunction.logout( tSend )
 end
@@ -77,13 +76,14 @@ end
 OpConnected, RegConnected, OpDisconnected, RegDisconnected = UserConnected, UserConnected, UserDisconnected, UserDisconnected
 
 function ChatArrival( tUser, sMessage )
-	local _, _, sCmd, sData = sMessage:find( "%b<> [%/%*%-%+%#%?%.%!](%S+)%s+(%S+)|" )
+	local sCmd, sData = sMessage:match( "%b<> [%/%*%-%+%#%?%.%!](%S+)%s+(%S+)|" )
 	if not sCmd and not sData then return false end
-	if tProfiles.allowed[tUser.iProfile] == 0 then return false end
-	if string.lower(sCmd) == "ui" or string.lower(sCmd) == "userinfo" then
+	if not tConfig.sAllowed:find( tUser.iProfile ) then return false end
+	sCmd = sCmd:lower()
+	if sCmd == "ui" or sCmd == "userinfo" then
 		tCmds.ui( sData, tUser.sNick )
 		return true
-	elseif string.lower(sCmd) == "ii" or string.lower(sCmd) == "ipinfo" then
+	elseif sCmd == "ii" or sCmd == "ipinfo" then
 		tCmds.ii( sData, tUser.sNick )
 		return true
 	end
@@ -94,13 +94,14 @@ function ToArrival( tUser, sMessage )
 	if sTo ~= tConfig.sBotName or not tConfig.sAllowed:find( tUser.iProfile ) then
 		return false
 	end
-	local sCmd, sData = sMessage:match( "%b\$\$%b<> [%/%*%-%+%#%?%.%!](%w+)%s+(%S+)|" )
+	local sCmd, sData = sMessage:match( "^%b$$%b<> [%/%*%-%+%#%?%.%!](%S+)%s+(%S+)|" )
 	if not sCmd and not sData then return false end
-	if string.lower(sCmd) == "ui" or string.lower(sCmd) == "userinfo" then
+	if not tConfig.sAllowed:find( tUser.iProfile ) then return false end
+	sCmd = sCmd:lower()
+	if sCmd == "ui" or sCmd == "userinfo" then
 		tCmds.ui( sData, tUser.sNick )
 		return true
-	end
-	if string.lower(sCmd) == "ii" or string.lower(sCmd) == "ipinfo" then
+	elseif sCmd == "ii" or sCmd == "ipinfo" then
 		tCmds.ii( sData, tUser.sNick )
 		return true
 	end
