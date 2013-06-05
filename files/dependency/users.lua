@@ -21,6 +21,15 @@ local tDatabase = {
 	sDatabase = "ptokax",
 }
 
+local function LogIn( iID, sIP, sDate )
+	local sQueryLogin= [[INSERT INTO `nickstats_login` (`nickstats_id`, `ip`, `login`)
+		VALUES ( %d, '%s', '%s' ) ]]
+	sQueryLogin = string.format( sQueryLogin, iID, sIP, sDate )
+	SQLCur = assert( SQLCon:execute(sQueryLogin) )
+end
+
+local function
+
 tFunction = {
 	Connect = function()
 		local luasql = require "luasql.mysql"
@@ -36,74 +45,87 @@ tFunction = {
 		return string.format( "%.2f %sB", iSizeTemp, sPrefix[i] )
 	end,
 
-	ipstat = function( tInput )
+	IPStat = function( tInput )
 		local sQueryIPStat = [[INSERT INTO `ipstats` (`ip`, `last_used`)
-				VALUES ( '%s', '%s' )
-				ON DUPLICATE KEY
-				UPDATE `online` = 'y', `last_used` = '%s' ]]
-		sQueryIPStat = string.format( sQueryIPStat, tInput.sIP, tInput.sDate, tInput.sDate )
-		SQLCur = assert( SQLCon:execute(sQueryIPStat) )
+			VALUES ( '%s', '%s' )
+			ON DUPLICATE KEY
+			UPDATE `online` = 'y',
+				`last_used` = '%s',
+				`id` = LAST_INSERT_ID(`id`) ]]
+		SQLCur = assert( SQLCon:execute(sQueryIPStat:format(tInput.sIP, tInput.sDate, tInput.sDate)) )
 		return SQLCon:getlastautoid()
 	end,
 
-	ipnstat = function( tInput )
+	NickIPStat = function( tInput )
 		local sQueryIPNStat = [[INSERT INTO `ipstats_nicks` (`ipstats_id`, `nick`, `last_used`)
-				VALUES ( %d, '%s', '%s' )
-				ON DUPLICATE KEY
-				UPDATE `last_used` = '%s', `online` = 'y', `used_times` = `used_times`+1 ]]
-		sQueryIPNStat = string.format( sQueryIPNStat, tInput.iIPID, tInput.sNick, tInput.sDate, tInput.sDate )
-		SQLCur = assert( SQLCon:execute(sQueryIPNStat) )
+			VALUES ( %d, '%s', '%s' )
+			ON DUPLICATE KEY
+			UPDATE `last_used` = '%s',
+				`online` = 'y',
+				`used_times` = `used_times` + 1 ]]
+		SQLCur = assert( SQLCon:execute(sQueryIPNStat:format(tInput.iIPID, tInput.sNick, tInput.sDate, tInput.sDate)) )
 	end,
 
-	nickstat = function( tInput )
-		local sQueryIPNStat = [[INSERT INTO `nickstats` (`nick`, `mode`, `description`, `email`, `sharesize`, `profile`, `tag`, `client`, `hubs`, `slots`, `last_used`)
-				VALUES ( '%s', '%s', %s, %s, '%s', %d, '%s', '%s', %d, %d, '%s' )
-				ON DUPLICATE KEY
-				UPDATE `last_used` = '%s', `online` = 'y', `mode` = '%s', `description` = %s, `email` = %s,
-					`sharesize` = '%s', `profile` = '%d', `hubs` = '%d', `slots` = '%d', `tag` = '%s', `client` = '%s' ]]
-		sQueryIPNStat = string.format( sQueryIPNStat, tInput.sNick, tInput.sMode, tInput.sDesc, tInput.sMail, tInput.iShare, tInput.iProfile, SQLCon:escape(tInput.sTag), SQLCon:escape(tInput.sClient), tInput.iHubs, tInput.iSlots, tInput.sDate, tInput.sDate, tInput.sMode, tInput.sDesc, tInput.sMail, tInput.iShare, tInput.iProfile, tInput.iHubs, tInput.iSlots, SQLCon:escape(tInput.sTag), SQLCon:escape(tInput.sClient) )
+	NickStat = function( tInput )
+		local sQueryIPNStat = [[INSERT INTO `nickstats`
+			(`nick`, `mode`, `description`, `email`,
+			`sharesize`, `profile`, `tag`, `client`,
+			`hubs`, `slots`, `last_used`)
+			VALUES ( '%s', '%s', %s, %s, '%s', %d, '%s', '%s', %d, %d, %s )
+			ON DUPLICATE KEY
+			UPDATE `last_used` = '%s',
+				`online` = 'y',
+				`mode` = '%s',
+				`description` = %s,
+				`email` = %s,
+				`sharesize` = '%s',
+				`profile` = '%d',
+				`hubs` = '%d',
+				`slots` = '%d',
+				`tag` = '%s',
+				`client` = '%s',
+				`id` = LAST_INSERT_ID(`id`) ]]
+		sQueryIPNStat = sQueryIPNStat:format( tInput.sNick, tInput.sMode, tInput.sDesc, tInput.sMail, tInput.iShare, tInput.iProfile, tInput.sTag, tInput.sClient, tInput.iHubs, tInput.iSlots, tInput.sDate, tInput.sDate, tInput.sMode, tInput.sDesc, tInput.sMail, tInput.iShare, tInput.iProfile, tInput.iHubs, tInput.iSlots, tInput.sTag, tInput.sClient )
 		SQLCur = assert( SQLCon:execute(sQueryIPNStat) )
 		return SQLCon:getlastautoid()
 	end,
 
-	login = function( iID, sIP, sDate )
-		local sQueryLogin= [[INSERT INTO `nickstats_login` (`nickstats_id`, `ip`, `login`)
-				VALUES ( %d, '%s', '%s' ) ]]
-		sQueryLogin = string.format( sQueryLogin, iID, sIP, sDate )
-		SQLCur = assert( SQLCon:execute(sQueryLogin) )
+
+	StoreUserDetails = function( tInput )
+		tInput.sDate = ( tInput.sDate and ("'%s'"):format(tInput.sDate) ) or "NOW()"
+		tInput.sNick, tInput.sTag, tInput.sClient = SQLCon:escape( tInput.sNick ), SQLCon:escape(tInput.sTag), SQLCon:escape(tInput.sClient)
 	end,
 
-	logout = function( tInput )
-		local sQueryLogout = [[SET @updt_id = 0;]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		sQueryLogout = [[UPDATE `ipstats`
-				SET `online`='n', `last_used` = ']]..tInput.sDate..[[', id = (SELECT @updt_id := id)
-				WHERE `ip`=']]..tInput.sIP..[[' LIMIT 1;]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		sQueryLogout = [[SELECT @updt_id AS id; ]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		tInput["iIPID"] = tonumber( SQLCur:fetch() )
-		sQueryLogout = [[UPDATE `ipstats_nicks`
-				SET `online` = 'n', `last_used` = ']]..tInput.sDate..[['
-				WHERE `ipstats_id` = ]]..tostring(tInput.iIPID)..[[
-					AND `nick` = ']]..tInput.sNick..[[' ]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		local sQueryLogout = [[SET @updt_id = 0;]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		sQueryLogout = [[UPDATE `nickstats`
-				SET `online`='n', `last_used` = ']]..tInput.sDate..[[', id = (SELECT @updt_id := id)
-				WHERE `nick`=']]..tInput.sNick..[[' LIMIT 1;]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		sQueryLogout = [[SELECT @updt_id AS id; ]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
-		tInput["iID"] = tonumber( SQLCur:fetch() )
-		sQueryLogout = [[UPDATE `nickstats_login`
-				SET `logout` = NOW()
-				WHERE `nickstats_id` = ]]..tostring(tInput.iID)..[[
-					AND `ip` = ']]..tInput.sIP..[['
-				ORDER BY `login` DESC
-				LIMIT 1 ]]
-		SQLCur = assert( SQLCon:execute(sQueryLogout) )
+	LogOut = function( tInput )
+		local sLogoutQuery = [[UPDATE `ipstats`
+			SET `online`='n',
+				`last_used` = %s,
+				id = LAST_INSERT_ID(id)
+			WHERE `ip` = '%s'
+			LIMIT 1]]
+		SQLCur = assert( SQLCon:execute(sLogoutQuery:format(tInput.sDate, tInput.sIP)) )
+		tInput.iIPID = SQLCon:getlastautoid()
+		local sLogoutQuery = [[UPDATE `ipstats_nicks`
+			SET `online` = 'n',
+				`last_used` = %s
+			WHERE `ipstats_id` = %d
+				AND `nick` = '%s' ]]
+		SQLCur = assert( SQLCon:execute(sLogoutQuery:format(tInput.sDate, tInput.iIPID, tInput.sNick)) )
+		sLogoutQuery = [[UPDATE `nickstats`
+			SET `online`='n',
+				`last_used` = %s,
+				id = LAST_INSERT_ID(id)
+			WHERE `nick` = '%s'
+			LIMIT 1;]]
+		SQLCur = assert( SQLCon:execute(sLogoutQuery:format(tInput.sDate, tInput.sNick)) )
+		tInput["iID"] = SQLCon:getlastautoid()
+		sLogoutQuery = [[UPDATE `nickstats_login`
+			SET `logout` = NOW()
+			WHERE `nickstats_id` = %d
+				AND `ip` = '%s'
+			ORDER BY `login` DESC
+			LIMIT 1 ]]
+		SQLCur = assert( SQLCon:execute(sLogoutQuery:format(tInput.iID, tInput.sIP)) )
 	end,
 }
 
