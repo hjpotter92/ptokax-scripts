@@ -1,6 +1,6 @@
 function OnStartup()
 	tConfig = {
-		sPath = "/root/PtokaX/scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sPickleFile = "pickle.lua",
 		sLogPath = "/www/ChatLogs/"..os.date( "%Y/" )
 	}

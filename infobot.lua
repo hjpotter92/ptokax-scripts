@@ -5,7 +5,7 @@ function OnStartup()
 		sBotEmail = "do-not@mail.me",
 		sFunctionsFile = "botinfo.lua",
 		sHelpFile = "ihelp.txt",
-		sPath = "/root/PtokaX/scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sChatFile = "chatcore.lua",
 		sReportBot = "#[Hub-Feed]",
 		sHelp = "",
