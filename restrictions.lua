@@ -1,6 +1,6 @@
 function OnStartup()
 	tConfig, tList = {
-		sPath = "/root/PtokaX/scripts/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sFiles = "files/external/restrict/",
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",

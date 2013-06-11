@@ -8,7 +8,7 @@
 --]]
 
 function OnStartup()
-	dofile( "/root/PtokaX/scripts/chatStatSQL.lua" )
+	dofile( Core.GetPtokaXPath().."scripts/chatStatSQL.lua" )
 	tProfiles = {
 		[-1] = 0,				-- Unregistered users
 		[0] = 1,				-- Masters/Admins

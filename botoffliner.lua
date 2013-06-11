@@ -6,7 +6,7 @@ function OnStartup()
 		sFunctionsFile = "botoff.lua",
 		sHelpFile = "ohelp.txt",
 		sRulesFile = "general.txt",
-		sPath = "/root/PtokaX/scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sChatFile = "chatcore.lua",
 		sReportBot = "#[Hub-Feed]",
 		iModProfile = 4,

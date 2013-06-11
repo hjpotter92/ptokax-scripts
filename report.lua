@@ -3,10 +3,10 @@ function OnStartup()
 		sMainBot = SetMan.GetString( 21 ),
 		sReportBot = "#[VIPChat]",
 		sPrefixes = "[%/%*%-%+%?%#%!%.]",
-		sChatFilePath = "/root/PtokaX/scripts/files/chatcore.lua"
+		sChatFilePath = Core.GetPtokaXPath().."scripts/files/chatcore.lua"
 	}
 	dofile( tConfig.sChatFilePath )
-	local fCommand = io.open( "/root/PtokaX/scripts/files/command.txt", "r+" )
+	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/command.txt", "r+" )
 	sFileCommand = fCommand:read( "*a" )
 	fCommand:close()
 	Core.SendToAll( sFileCommand )
