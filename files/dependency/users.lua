@@ -86,6 +86,7 @@ tFunction = {
 	end,
 
 	LogOut = function( tInput )
+		tInput = FilterData( tInput )
 		local sQuery = [[UPDATE `ipstats`
 			SET `online`='n',
 				`last_used` = NOW(),
@@ -94,12 +95,14 @@ tFunction = {
 			LIMIT 1]]
 		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sDate, tInput.sIP)) )
 		tInput.iIPId = SQLCon:getlastautoid()
-		local sQuery = [[UPDATE `ipstats_nicks`
+
+		sQuery = [[UPDATE `ipstats_nicks`
 			SET `online` = 'n',
 				`last_used` = NOW()
 			WHERE `ipstats_id` = %d
 				AND `nick` = '%s' ]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sDate, tInput.iIPID, tInput.sNick)) )
+		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.iIPId, tInput.sNick)) )
+
 		sQuery = [[UPDATE `nickstats`
 			SET `online`='n',
 				`last_used` = NOW(),
@@ -107,14 +110,15 @@ tFunction = {
 			WHERE `nick` = '%s'
 			LIMIT 1;]]
 		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sDate, tInput.sNick)) )
-		tInput["iID"] = SQLCon:getlastautoid()
+		tInput.iNickId = SQLCon:getlastautoid()
+
 		sQuery = [[UPDATE `nickstats_login`
 			SET `logout` = NOW()
 			WHERE `nickstats_id` = %d
 				AND `ip` = '%s'
 			ORDER BY `login` DESC
 			LIMIT 1 ]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.iID, tInput.sIP)) )
+		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.iNickId, tInput.sIP)) )
 	end,
 }
 
