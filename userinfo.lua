@@ -1,3 +1,12 @@
+local function CheckUserMode( sNick, sMode, iProfile )
+	if sMode == "P" and not tConfig.sPassiveBanPass:find( iProfile ) then
+		BanMan.TempBanNick( sNick, tConfig.iPassiveBanTime, "Connection with passive mode is not allowed.", tConfig.sBotName )
+		Core.Disconnect( sNick )
+		return true
+	end
+	return false
+end
+
 function OnStartup()
 	tConfig = {
 		sPath = Core.GetPtokaXPath().."scripts/files/",
@@ -17,6 +26,7 @@ function OnStartup()
 		repeat
 			tUser.sDate = os.date( tConfig.sDateFormat, tUser.iLoginTime )
 			tUser.iShare = tostring(tUser.iShareSize) or 0
+			tUser.sClient = ("%s %s"):format( tUser.sClient or "N/A", tUser.sClientVersion or "N/A" )
 			tFunction.LogIn( tUser )
 			if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
 				break
@@ -30,6 +40,7 @@ end
 function UserConnected( tUser )
 	Core.GetUserAllData( tUser )
 	tUser.iShare = tostring(tUser.iShareSize) or 0
+	tUser.sClient = ("%s %s"):format( tUser.sClient or "N/A", tUser.sClientVersion or "N/A" )
 	tFunction.LogIn( tUser )
 	if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
 		return true
@@ -72,13 +83,4 @@ function ToArrival( tUser, sMessage )
 		tCommands.ii( sData, tUser.sNick )
 		return true
 	end
-end
-
-local function CheckUserMode( sNick, sMode, iProfile )
-	if sMode == "P" and not tConfig.sPassiveBanPass:find( iProfile ) then
-		BanMan.TempBanNick( sNick, tConfig.iPassiveBanTime, "Connection with passive mode is not allowed.", tConfig.sBotName, false )
-		Core.Disconnect( sNick )
-		return true
-	end
-	return false
 end

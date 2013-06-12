@@ -23,15 +23,18 @@ local tDatabase = {
 
 local function FilterData( tInput )
 	tInput.sDate = ( tInput.sDate and ("'%s'"):format(tInput.sDate) ) or "NOW()"
-	tInput.sNick, tInput.sTag, tInput.sClient = SQLCon:escape( tInput.sNick ), SQLCon:escape( tInput.sTag ), SQLCon:escape( tInput.sClient )
-	tInput.sEmail, tInput.sDescription = ( tInput.sEmail and ("'%s'"):format(tInput.sEmail) ) or "NULL", ( tInput.sDescription and ("'%s'"):format(tInput.sDescription) ) or "NULL"
+--~ 	tInput.sNick, tInput.sTag, tInput.sClient = SQLCon:escape( tInput.sNick ), SQLCon:escape( tInput.sTag ), SQLCon:escape( tInput.sClient )
+	tInput.sNick = SQLCon:escape( tInput.sNick )
+	tInput.sTag = ( tInput.sTag and ("'%s'"):format(SQLCon:escape(tInput.sTag)) ) or "NULL"
+	tInput.sClient = ( tInput.sClient and ("'%s'"):format(SQLCon:escape(tInput.sClient)) ) or "NULL"
+	tInput.sEmail, tInput.sDescription = ( tInput.sEmail and ("'%s'"):format(SQLCon:escape(tInput.sEmail)) ) or "NULL", ( tInput.sDescription and ("'%s'"):format(SQLCon:escape(tInput.sDescription)) ) or "NULL"
 	return tInput
 end
 
 tFunction = {
 	Connect = function()
 		local luasql = require "luasql.mysql"
-		SQLEnv = assert( require luasql.mysql() )
+		SQLEnv = assert( luasql.mysql() )
 		SQLCon = assert( SQLEnv:connect(tDatabase.sDatabase, tDatabase.sUser, tDatabase.sPassword, tDatabase.sHost, tDatabase.iPort) )
 	end,
 
@@ -51,10 +54,10 @@ tFunction = {
 				`online` = 'y',
 				`last_used` = %s,
 				`id` = LAST_INSERT_ID(`id`) ]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sIP, tInput.sDate, tInput.sDate)) )
+		local SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sIP, tInput.sDate, tInput.sDate)) )
 		tInput.iIPId = SQLCon:getlastautoid()
 		sQuery = [[INSERT INTO `ipstats_nicks` (`ipstats_id`, `nick`, `last_used`)
-			VALUES ( %d, '%s', '%s' )
+			VALUES ( %d, '%s', %s )
 			ON DUPLICATE KEY
 			UPDATE `last_used` = %s,
 				`online` = 'y',
@@ -64,7 +67,7 @@ tFunction = {
 			(`nick`, `mode`, `description`, `email`,
 			`sharesize`, `profile`, `tag`, `client`,
 			`hubs`, `slots`, `last_used`)
-			VALUES ( '%s', '%s', %s, %s, '%s', %d, '%s', '%s', %d, %d, %s )
+			VALUES ( '%s', '%s', %s, %s, '%s', %d, %s, %s, %d, %d, %s )
 			ON DUPLICATE KEY
 			UPDATE `last_used` = %s,
 				`online` = 'y',
@@ -75,10 +78,10 @@ tFunction = {
 				`profile` = %d,
 				`hubs` = %d,
 				`slots` = '%d',
-				`tag` = '%s',
-				`client` = '%s',
+				`tag` = %s,
+				`client` = %s,
 				`id` = LAST_INSERT_ID(`id`) ]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sNick, tInput.sMode, tInput.sDescription, tInput.sMail, tInput.iShare, tInput.iProfile, tInput.sTag, tInput.sClient, tInput.iHubs, tInput.iSlots, tInput.sDate, tInput.sDate, tInput.sMode, tInput.sDescription, tInput.sMail, tInput.iShare, tInput.iProfile, tInput.iHubs, tInput.iSlots, tInput.sTag, tInput.sClient)) )
+		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sNick, tInput.sMode, tInput.sDescription, tInput.sEmail, tInput.iShare, tInput.iProfile, tInput.sTag, tInput.sClient, tInput.iHubs, tInput.iSlots, tInput.sDate, tInput.sDate, tInput.sMode, tInput.sDescription, tInput.sEmail, tInput.iShare, tInput.iProfile, tInput.iHubs, tInput.iSlots, tInput.sTag, tInput.sClient)) )
 		tInput.iNickId = SQLCon:getlastautoid()
 		sQuery= [[INSERT INTO `nickstats_login` (`nickstats_id`, `ip`, `login`)
 			VALUES ( %d, '%s', %s ) ]]
