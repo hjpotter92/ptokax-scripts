@@ -15,12 +15,12 @@ function OnStartup()
 	local tOnlineUsers = Core.GetOnlineUsers(true)
 	for iIndex, tUser in ipairs(tOnlineUsers) do
 		repeat
-			if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
-				break
-			end
 			tUser.sDate = os.date( tConfig.sDateFormat, tUser.iLoginTime )
 			tUser.iShare = tostring(tUser.iShareSize) or 0
 			tFunction.LogIn( tUser )
+			if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
+				break
+			end
 		until true
 	end
 	tOnlineUsers = nil
@@ -29,20 +29,15 @@ end
 
 function UserConnected( tUser )
 	Core.GetUserAllData( tUser )
-	if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
-		break
-	end
-	tUser.sDate = os.date( tConfig.sDateFormat, tUser.iLoginTime )
 	tUser.iShare = tostring(tUser.iShareSize) or 0
 	tFunction.LogIn( tUser )
+	if CheckUserMode( tUser.sNick, tUser.sMode, tUser.iProfile ) then
+		return true
+	end
 end
 
 function UserDisconnected( tUser )
-	local tSend = {
-		sIP = tUser.sIP,
-		sNick = SQLCon:escape(tUser.sNick),
-	}
-	tFunction.logout( tSend )
+	tFunction.LogOut( tUser )
 end
 
 OpConnected, RegConnected, OpDisconnected, RegDisconnected = UserConnected, UserConnected, UserDisconnected, UserDisconnected
