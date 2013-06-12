@@ -21,12 +21,12 @@ local tDatabase = {
 	sDatabase = "ptokax",
 }
 
-local function FilterData( tInput )
-	tInput.sDate = ( tInput.sDate and ("'%s'"):format(tInput.sDate) ) or "NOW()"
---~ 	tInput.sNick, tInput.sTag, tInput.sClient = SQLCon:escape( tInput.sNick ), SQLCon:escape( tInput.sTag ), SQLCon:escape( tInput.sClient )
-	tInput.sNick = SQLCon:escape( tInput.sNick )
-	tInput.sTag = ( tInput.sTag and ("'%s'"):format(SQLCon:escape(tInput.sTag)) ) or "NULL"
-	tInput.sClient = ( tInput.sClient and ("'%s'"):format(SQLCon:escape(tInput.sClient)) ) or "NULL"
+local function FilterData( tInput, bLogOut )
+	tInput.sDate, tInput.sNick = ( tInput.sDate and ("'%s'"):format(tInput.sDate) ) or "NOW()", SQLCon:escape( tInput.sNick )
+	if bLogOut then
+		return tInput
+	end
+	tInput.sTag, tInput.sClient = SQLCon:escape( tInput.sTag ), SQLCon:escape( tInput.sClient )
 	tInput.sEmail, tInput.sDescription = ( tInput.sEmail and ("'%s'"):format(SQLCon:escape(tInput.sEmail)) ) or "NULL", ( tInput.sDescription and ("'%s'"):format(SQLCon:escape(tInput.sDescription)) ) or "NULL"
 	return tInput
 end
@@ -67,7 +67,7 @@ tFunction = {
 			(`nick`, `mode`, `description`, `email`,
 			`sharesize`, `profile`, `tag`, `client`,
 			`hubs`, `slots`, `last_used`)
-			VALUES ( '%s', '%s', %s, %s, '%s', %d, %s, %s, %d, %d, %s )
+			VALUES ( '%s', '%s', %s, %s, '%s', %d, '%s', '%s', %d, %d, %s )
 			ON DUPLICATE KEY
 			UPDATE `last_used` = %s,
 				`online` = 'y',
@@ -78,8 +78,8 @@ tFunction = {
 				`profile` = %d,
 				`hubs` = %d,
 				`slots` = '%d',
-				`tag` = %s,
-				`client` = %s,
+				`tag` = '%s',
+				`client` = '%s',
 				`id` = LAST_INSERT_ID(`id`) ]]
 		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sNick, tInput.sMode, tInput.sDescription, tInput.sEmail, tInput.iShare, tInput.iProfile, tInput.sTag, tInput.sClient, tInput.iHubs, tInput.iSlots, tInput.sDate, tInput.sDate, tInput.sMode, tInput.sDescription, tInput.sEmail, tInput.iShare, tInput.iProfile, tInput.iHubs, tInput.iSlots, tInput.sTag, tInput.sClient)) )
 		tInput.iNickId = SQLCon:getlastautoid()
@@ -89,14 +89,14 @@ tFunction = {
 	end,
 
 	LogOut = function( tInput )
-		tInput = FilterData( tInput )
+		tInput = FilterData( tInput, true )
 		local sQuery = [[UPDATE `ipstats`
 			SET `online`='n',
 				`last_used` = NOW(),
 				`id` = LAST_INSERT_ID(`id`)
 			WHERE `ip` = '%s'
 			LIMIT 1]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sDate, tInput.sIP)) )
+		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sIP)) )
 		tInput.iIPId = SQLCon:getlastautoid()
 
 		sQuery = [[UPDATE `ipstats_nicks`
@@ -112,7 +112,7 @@ tFunction = {
 				`id` = LAST_INSERT_ID(`id`)
 			WHERE `nick` = '%s'
 			LIMIT 1;]]
-		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sDate, tInput.sNick)) )
+		SQLCur = assert( SQLCon:execute(sQuery:format(tInput.sNick)) )
 		tInput.iNickId = SQLCon:getlastautoid()
 
 		sQuery = [[UPDATE `nickstats_login`
@@ -153,7 +153,7 @@ tCommands = {
 			elseif tRowUser.online == "n" then
 				sCompleteUserData = sCompleteUserData..string.rep(" ", 8).."(Offline since "..tRowUser.last_used..")\n"
 			end
-			sCompleteUserData = sCompleteUserData.."&#124;  Profile: "..tProfiles.names[tonumber(tRowUser.profile)].."\n"
+			sCompleteUserData = sCompleteUserData.."&#124;  Profile: "..tSettings.tProfileName[tonumber(tRowUser.profile)].."\n"
 			if tRowUser.email then
 				sCompleteUserData = sCompleteUserData.."&#124;  Email: "..tRowUser.email.."\n"
 			end if tRowUser.description then
@@ -165,11 +165,11 @@ tCommands = {
 			sCompleteUserData = sCompleteUserData.."&#124;  Client: "..tRowUser.client.."\n"
 			sCompleteUserData = sCompleteUserData.."&#124;  Slots: "..tRowUser.slots.."\n\n&#124; IP History:\n"
 			while tRowIP do
-				sCompleteUserData = sCompleteUserData..string.format("&#124;  %s          From: %s          To: %s\n", tRowIP.ip, tRowIP.login, tRowIP.logout or "Still SQLConnected")
+				sCompleteUserData = sCompleteUserData..string.format("&#124;  %s          From: %s          To: %s\n", tRowIP.ip, tRowIP.login, tRowIP.logout or "Still connected")
 				tRowIP = CurIP:fetch( {}, "a" )
 			end
 			CurIP:close()
-			Core.SendPmToNick( sFrom, sMainBot, sCompleteUserData )
+			Core.SendPmToNick( sFrom, tSettings.sBotName, sCompleteUserData )
 			tRowUser = Cur:fetch( {}, "a" )
 		end
 	end,
@@ -203,7 +203,7 @@ tCommands = {
 			CurIP:close()
 			tRowIP = Cur:fetch( {}, "a" )
 		end
-		Core.SendPmToNick( sFrom, sMainBot, sCompleteUserData )
+		Core.SendPmToNick( sFrom, tSettings.sBotName, sCompleteUserData )
 	end,
 }
 
