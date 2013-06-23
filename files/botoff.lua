@@ -116,9 +116,9 @@ _G.tFunction = {
 		local fWrite = io.open( sFileName, "a" )
 		local sChatLine = "<"..sAsUser.."> "..sMessage
 		if fWrite then
-		   fWrite:write( os.date("[%I:%M:%S %p]").." "..sChatLine.."\n" )
-		   fWrite:flush()
-		   fWrite:close()
+			fWrite:write( os.date("[%I:%M:%S %p]").." "..sChatLine.."\n" )
+			fWrite:flush()
+			fWrite:close()
 		end
 		Core.SendToAll( sChatLine )
 		return sChatLine
@@ -260,7 +260,11 @@ _G.tOffliner = {
 	end,
 
 	dl = function( tUser, iID )
-		local sDeleteQuery, sModNick = string.format( "DELETE e.*, m.* FROM `entries` e LEFT JOIN `magnets` m ON m.`eid` = e.`id` WHERE e.`id` = %d", tonumber(iID) ), tFunction.FetchRow(iID).nick
+		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*
+			FROM `entries` e
+			LEFT JOIN `magnets` m
+				ON m.`eid` = e.`id`
+			WHERE e.`id` = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
 			local SQLCur = assert( SQLCon:execute("UPDATE `modtable` SET `deletions` = `deletions` + 1 WHERE `nick`='"..SQLCon:escape(sModNick).."'") )
@@ -360,7 +364,9 @@ _G.tOffliner = {
 	end,
 
 	rm = function( tUser, iMID )
-		local sMagnetQuery = string.format( "DELETE FROM `magnets` WHERE `id` = %d LIMIT 1", iMID )
+		local sMagnetQuery = string.format( [[DELETE FROM `magnets`
+			WHERE `id` = %d
+			LIMIT 1]], iMID )
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
 		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(SQLCon:getlastautoid()).." was removed." )
@@ -386,12 +392,10 @@ _G.tOffliner = {
 		if SQLCur:numrows() == 0 then
 			return false
 		end
-		local tRow = SQLCur:fetch( {}, "a" )
+		local tRow, sMessage, sEditMessage = SQLCur:fetch( {}, "a" ), "An offline message with ID #%04d was sent to you by %s on %s. The message is: \n\t%s\n\n\tThank you for using offline message services.", "UPDATE `messages` SET `delivered` = 'Y' WHERE `id` = %d"
 		while tRow do
-			local sEditMessage = "UPDATE `messages` SET `delivered` = 'Y' WHERE `id` = %d"
-			sEditMessage = sEditMessage:format( tonumber(tRow.id) )
-			local SQLTemp = assert( SQLCon:execute(sEditMessage) )
-			Core.SendPmToNick( sNick, tConfig.sBotName, "An offline message with ID #"..tostring(tRow.id).." was sent to you by "..tRow.from.." on "..tRow.dated..". The message is: \n\t"..tRow.message.."\n\n\tThank you for using offline message services." )
+			local SQLTemp = assert( SQLCon:execute(sEditMessage:format(tRow.id)) )
+			Core.SendPmToNick( sNick, tConfig.sBotName, sMessage:format(tRow.id, tRow.from, tRow.dated, tRow.message) )
 			tRow = SQLCur:fetch( {}, "a" )
 			SQLTemp = nil
 		end
