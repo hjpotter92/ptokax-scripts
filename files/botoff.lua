@@ -126,8 +126,8 @@ _G.tFunction = {
 }
 
 tFunction.CheckCategory = function( sInput )
-	local sReturn, tTemporary, bFlag = "The possible categories are: ", tFunction.GetCategories(), false
-	sReturn = sReturn..table.concat( tTemporary, ", " ).."\n"
+	local sReturn, tTemporary, bFlag = "The following #02d categories are allowed: ", tFunction.GetCategories(), false
+	sReturn = sReturn:format( #tTemporary )..table.concat( tTemporary, ", " ).."\n"
 	if not sInput then return sReturn end
 	for iIndex, sValues in ipairs( tTemporary ) do
 		if sValues:lower() == sInput:lower() then
@@ -143,8 +143,8 @@ tFunction.CheckCategory = function( sInput )
 end
 
 tFunction.CheckModerator = function( sInput )
-	local sReturn, tTemporary, bFlag = "The current moderators are: \n\n", tFunction.GetModerators(), false
-	sReturn = sReturn..table.concat( tTemporary, ", " ).."\n"
+	local sReturn, tTemporary, bFlag = "There are %02d moderators active: \n\n", tFunction.GetModerators(), false
+	sReturn = sReturn:format( #tTemporary )..table.concat( tTemporary, ", " ).."\n"
 	if not sInput then return sReturn end
 	if sInput then
 		for iIndex, sValues in ipairs( tTemporary ) do
