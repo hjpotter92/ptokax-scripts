@@ -7,8 +7,10 @@ local tSettings = {
 	iConversionFactor = 2^10,
 }
 
+tSettings.iDivisionFactor = tSettings.iConversionFactor ^ tSettings.iExponent
+
 function SearchArrival( tUser, sData )
-	tUser.iShareSize = Core.GetUserValue( tUser, 16 ) / tSettings.iConversionFactor ^ tSettings.iExponent
+	tUser.iShareSize = Core.GetUserValue( tUser, 16 ) / tSettings.iDivisionFactor
 	if tUser.iShareSize < tSettings.iShareLimit and not tSettings.sAllowedProfiles:find( tUser.iProfile ) then
 		Core.SendToUser( tUser, tSettings.sAsBot:format(tSettings.iShareLimit) )
 		return true
