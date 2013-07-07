@@ -49,7 +49,7 @@ function ToArrival( tUser, sMessage )
 	if sTo ~= tCfg.sBotName then return false end
 	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
-	return ExecuteCommand( tUser, sCmd, sData )
+	return ExecuteCommand( tUser, sCmd:lower(), sData )
 end
 
 --~ function ChatArrival( tUser, sMessage )
@@ -131,19 +131,19 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	if tUser.iProfile == -1 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 2 ) )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 2) )
 		return true
 	end
 
 	if (not sData) or sData:len() == 0 then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4 ) )
+		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
 		return true
 	end
 	local tBreak = tFunction.Explode( sData )
 
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4 ) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
 			return true
 		elseif not tFunction.CheckCategory( tBreak[1] ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! That category doesn't exist." )
