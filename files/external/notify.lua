@@ -25,7 +25,7 @@ function RemoveMessage( sName, iMessageID )
 	local fHandle = io.open( tSettings.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
 		local sReply = "Message removed from ID #%02d"
-		dofile(tConfig.sTextPath..tFiles[sName])
+		dofile( tSettings.sTextPath..tFiles[sName] )
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
 		pickle.store( tSettings.sTextPath..tFiles[sName], { tTemp = tTemp } )
