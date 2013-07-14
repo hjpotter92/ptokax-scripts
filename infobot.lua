@@ -74,6 +74,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 35 and 35 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readAll( iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -87,6 +88,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "requests", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -100,6 +102,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "buynsell", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -113,6 +116,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "suggestions", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -126,6 +130,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "deletions", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -139,6 +144,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "guestbook", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -152,6 +158,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "news", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
