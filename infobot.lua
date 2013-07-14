@@ -41,9 +41,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo = sMessage:find( "%$To: (%S+) From:" )
+	local sTo = sMessage:match( "%$To: (%S+) From:" )
 	if sTo ~= tCfg.sBotName then return false end
-	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	if sData and sData:len() > tCfg.iMaxStringLength then
 		Core.SendPmToUser( tUser, tCfg.sBotName, "All command length must be below "..tostring(tCfg.iMaxStringLength).." characters." )
@@ -57,7 +57,7 @@ function ToArrival( tUser, sMessage )
 end
 
 function ChatArrival( tUser, sMessage )
-	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	if sCmd:lower() == "ih" or sCmd:lower() == "ihelp" then
 		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
@@ -74,6 +74,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 35 and 35 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readAll( iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -87,6 +88,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "requests", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -100,6 +102,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "buynsell", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -113,6 +116,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "suggestions", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -126,6 +130,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "deletions", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -139,6 +144,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "guestbook", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
@@ -152,6 +158,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		else
 			iLimit = ( tonumber(sData) > 50 and 50 ) or tonumber(sData)
 		end
+		if iLimit < 0 then iLimit = 15 end
 		local sList = tInfobot.readOne( "news", iLimit )
 		if sList then
 			Core.SendPmToUser( tUser, tCfg.sBotName, sList )
