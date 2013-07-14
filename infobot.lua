@@ -41,9 +41,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo = sMessage:find( "%$To: (%S+) From:" )
+	local sTo = sMessage:match( "%$To: (%S+) From:" )
 	if sTo ~= tCfg.sBotName then return false end
-	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	if sData and sData:len() > tCfg.iMaxStringLength then
 		Core.SendPmToUser( tUser, tCfg.sBotName, "All command length must be below "..tostring(tCfg.iMaxStringLength).." characters." )
@@ -57,7 +57,7 @@ function ToArrival( tUser, sMessage )
 end
 
 function ChatArrival( tUser, sMessage )
-	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	if sCmd:lower() == "ih" or sCmd:lower() == "ihelp" then
 		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
