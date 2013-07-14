@@ -73,7 +73,7 @@ function ChatArrival( tUser, sMessage )
 	if not sCommand then
 		return false
 	end
-	if sData:len() == 0 then
+	if sData:len() == 0 and ( sCommand == "check" or sCommand == "addto" or sCommand == "removefrom" ) then
 		Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
 		return false
 	end
