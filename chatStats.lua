@@ -10,7 +10,7 @@ function OnStartup()
 		sFunctionsFile = "stats.lua",
 		iTimerID = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" ),
 	}, {}, {}
-	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail )
+	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
 	dofile( tConfig.sPath..tConfig.sExtPath..tConfig.sFunctionsFile )
 end
 
