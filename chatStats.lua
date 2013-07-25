@@ -73,12 +73,12 @@ end
 function UpdateStats()
 	for sDate, tTemporary in pairs( tUserStats ) do
 		for sNick, tTemp in pairs( tTemporary ) do
-			UserScore( sNick, tTemp.main, tTemp.msg, sDate )
+			UserScore( sNick, sDate, tTemp.main, tTemp.msg )
 		end
 	end
 	for sDate, tTemporary in pairs( tBotStats ) do
 		for sName, tTemp in pairs( tTemporary ) do
-			BotStats( sName, tTemp.regs, tTemp.unregs, sDate )
+			BotStats( sName, sDate, tTemp.regs, tTemp.unregs )
 		end
 	end
 	tUserStats, tBotStats = {}, {}
