@@ -47,7 +47,7 @@ end
 function ToArrival( tUser, sMessage )
 	local sTo = sMessage:match( "%$To: (%S+) From:" )
 	if sTo ~= tCfg.sBotName then return false end
-	local sCmd, sData = sMessage:match( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
 	if not sCmd then return false end
 	return ExecuteCommand( tUser, sCmd:lower(), sData )
 end
