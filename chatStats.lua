@@ -6,7 +6,7 @@ function OnStartup()
 			sEmail = "do-not@mail.me",
 		},
 		sPath = Core.GetPtokaXPath(),
-		sExtPath = "scripts/external/",
+		sExtPath = "scripts/files/external/",
 		sFunctionsFile = "stats.lua",
 		iTimerID = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" ),
 	}, {}, {}
