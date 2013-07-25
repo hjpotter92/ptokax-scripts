@@ -11,7 +11,7 @@ function ChatArrival( tUser, sMessage )
 	LogMessage( sMessage:sub(1, -2) )
 	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
 	local sTime = os.date( "%I:%M:%S %p" )
-	local sChatLine = "["..sTime.."] "..sMessage
+	local sChatLine = "["..sTime.."] "..sMessage:sub( 1, -2 )
 	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
 		table.insert( tChatHistory, sChatLine )
 		if tChatHistory[tConfig.iMaxLines + 1] then
