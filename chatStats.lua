@@ -81,4 +81,5 @@ function UpdateStats()
 			BotStats( sName, tTemp.regs, tTemp.unregs, sDate )
 		end
 	end
+	tUserStats, tBotStats = {}, {}
 end
