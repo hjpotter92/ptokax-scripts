@@ -8,7 +8,7 @@ function OnStartup()
 end
 
 function ChatArrival( tUser, sMessage )
-	LogMessage( sMessage:gsub("[|]", "") )
+	LogMessage( sMessage:sub(1, -2) )
 	local sCmd, sData = sMessage:match( "%b<>%s+[%+%-%*%/%!%.%#%?](%w+)%s?(.*)|" )
 	local sTime = os.date( "%I:%M:%S %p" )
 	local sChatLine = "["..sTime.."] "..sMessage
@@ -27,7 +27,7 @@ end
 function ToArrival( tUser, sMessage )
 	local sTo, sFrom = sMessage:match("$To: (%S+) From: (%S+)")
 	if sTo ~= tConfig.sBotName then return false end
-	local sCmd, sData = sMessage:find("^%b\$\$%b<>%s+[%+%-%*%/%!%.%#%?](%w+)%s?(.*)|")
+	local sCmd, sData = sMessage:match("%b$$%b<>%s+[%+%-%*%/%!%.%#%?](%w+)%s?(.*)|")
 	if sCmd then
 		return ExecuteCommand( sCmd:lower(), sData, tUser, true )
 	end
