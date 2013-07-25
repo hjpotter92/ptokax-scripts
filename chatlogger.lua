@@ -99,5 +99,6 @@ function LogMessage( sLine )
 	sChatLine = sChatLine:gsub( "&#124;", "|" ):gsub( "&#36;", "$" ):gsub( "[\n\r]+", "\n\t" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
-	fWrite:flush():close()
+	fWrite:flush()
+	fWrite:close()
 end
