@@ -1,6 +1,4 @@
-local tCfg, tDatabase = {
-	s
-}, {
+local tDatabase = {
 	sUser = "stat",
 	sPassword = "stats@hhfh",
 	sHost = "localhost",

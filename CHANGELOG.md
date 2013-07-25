@@ -1,3 +1,11 @@
+2013-07-26
+----------
+
+- New API for chat logging.
+- New bot **[BOT]Stats** added. Commands still not written.
+- Each user's statistics are stored to database.
+- Daily statistics for registered users and bots/chatrooms.
+
 2013-05-25
 ----------
 
