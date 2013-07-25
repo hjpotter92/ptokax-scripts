@@ -10,7 +10,7 @@ Features
 Currently, the scripts in the repository are for following operations:
 
 - Chat logging for history and retrieval upto 100 lines.
-- *[BOT]Offliner* and *[BOT]Info* commands.
+- *[BOT]Offliner*, *[BOT]Info* and *[BOT]Stats* commands.
 - Reporting of fake and personal files.
 - Integrating the report commands into right click.
 - Four separate chatrooms; supporting:
@@ -20,6 +20,7 @@ Currently, the scripts in the repository are for following operations:
   4. Denying messages from unsubscribed users
   5. Logs of messages received
 - Restricting unregistered users from chat.
+- Users' daily activity stored to database. Applicable for registered users only.
 
 Useful Links
 ------------
