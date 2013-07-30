@@ -47,13 +47,21 @@ function ToArrival( tUser, sMessage )
 		tBotStats[sDate][sTo].unregs = (tBotStats[sDate][sTo].unregs or 0) + 1
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	local sCmd, sData = sMessage:match( "%b$$%b<> [-+*/?#!](%w+)%s?(.*)|" )
+	local sCmd, sData, iLimit = sMessage:match( "%b$$%b<> [-+*/?#!](%w+)%s?(.*)|" ), 10
 	if not sCmd then return false end
+	sCmd, iLimit = sCmd:lower(), tonumber( sData )
+	if sCmd == "see" or sCmd == "score" then
+		if sData:len() == 0 then sData = tUser.sNick end
+	elseif sCmd == "top" then
+		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
+	end
 end
 
 function OnExit()
 	Core.UnregBot( tConfig.tBot.sName )
 	TmrMan.RemoveTimer( tConfig.iTimerID )
+	sqlCur:close()
+	sqlEnv:close()
 end
 
 function VerifyBots( sInput )
