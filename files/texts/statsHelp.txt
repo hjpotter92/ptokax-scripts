@@ -1,0 +1,15 @@
+
+The following commands have been made available to all users:
+
+	+top [#Limit [<date>]]: Arguments #Limit and <date> are optional. If not passed, a limit of 10 and current date will be
+	  assumed by default. The date passed must be of the type YYYY-MM-DD. Therefore 2013-07-29 and 2015-15-35 are both
+	  valid (the second one will produce no output, of course).
+
+	+topall [#Limit]: All time record holder's list. Previously, this was accessed by the top command.
+
+The following command is available for all users, but result will be produced only for registered users. Unregistered users
+may either receive an error or undesired behaviour.
+
+	+see: To get statistics for self.
+
+	+score <nick>: To fetch statistics of a registered user with nick as passed as arguments.
