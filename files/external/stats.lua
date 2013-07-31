@@ -113,7 +113,7 @@ function tTop.User( sNick )
 	PMs sent: %d
 	Most recent score of %d on %s
 	Highest activity on %s (with score of %d)
-	-------------------------------------\n\n]]
+	-------------------------------------]].."\n\n"
 	local sqlCur = assert( sqlCon:execute(sQuery:format( sqlCon:escape(sNick) )) )
 	tRow = sqlCur:fetch( tRow, "a" )
 	if not tRow then
