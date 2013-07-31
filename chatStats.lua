@@ -5,12 +5,16 @@ function OnStartup()
 			sDescription = "Statistics collection and fetching tasks.",
 			sEmail = "do-not@mail.me",
 		},
-		sPath = Core.GetPtokaXPath(),
-		sExtPath = "scripts/files/external/",
+		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sExtPath = "external/",
 		sFunctionsFile = "stats.lua",
+		sDepPath = "dependency/",
+		sFuncFile = "functions.lua",
+		sTxtPath = "texts/",
 		iTimerID = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" ),
 	}, {}, {}
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
+	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sFuncFile )
 	dofile( tConfig.sPath..tConfig.sExtPath..tConfig.sFunctionsFile )
 end
 
@@ -23,6 +27,7 @@ function ChatArrival( tUser, sMessage )
 	if not tUserStats[sDate][tUser.sNick] then tUserStats[sDate][tUser.sNick] = { main = 0, msg = 0 } end
 	tUserStats[sDate][tUser.sNick].main = ( tUserStats[sDate][tUser.sNick].main or 0 ) + 1
 	if not sCmd then return false end
+	return ExecuteCommand( tUser, sCmd, sData, false )
 end
 
 function ToArrival( tUser, sMessage )
@@ -47,14 +52,9 @@ function ToArrival( tUser, sMessage )
 		tBotStats[sDate][sTo].unregs = (tBotStats[sDate][sTo].unregs or 0) + 1
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	local sCmd, sData, iLimit = sMessage:match( "%b$$%b<> [-+*/?#!](%w+)%s?(.*)|" ), 10
+	local sCmd, sData = sMessage:match( "%b$$%b<> [-+*/?#!](%w+)%s?(.*)|" )
 	if not sCmd then return false end
-	sCmd, iLimit = sCmd:lower(), tonumber( sData )
-	if sCmd == "see" or sCmd == "score" then
-		if sData:len() == 0 then sData = tUser.sNick end
-	elseif sCmd == "top" then
-		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-	end
+	return ExecuteCommand( tUser, sCmd, sData, true )
 end
 
 function OnExit()
@@ -90,4 +90,39 @@ function UpdateStats()
 		end
 	end
 	tUserStats, tBotStats = {}, {}
+end
+
+function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
+	local sCmd, iLimit = sCmd:lower(), tonumber( sData )
+	if sCmd == "see" or sCmd == "score" then
+		if sData:len() == 0 then sData = tUser.sNick end
+		if not RegMan.GetReg( sData ) then
+			Reply( tUser, "Available only for registered users.", bIsPm )
+		end
+		local sReply, sError = tTop.User( sData )
+		if sError then
+			Reply( tUser, sError, bIsPm )
+		end
+		Reply( tUser, sReply, bIsPm )
+	elseif sCmd == "top" then
+		local tBreak = Explode( sData )
+		if tBreak[2] then
+			Reply( tUser, tTop.Daily(tBreak[1], tBreak[2]), bIsPm )
+		else
+			if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
+			Reply( tUser, tTop.Daily(iLimit), bIsPm )
+		end
+	end
+	elseif sCmd == "topall" then
+		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
+		Reply( tUser, tTop.Total(iLimit), bIsPm )
+	end
+end
+
+function Reply( tUser, sMessage, bIsPm )
+	if bIsPm then
+		Core.SendPmToUser( tUser, tConfig.tBot.sName, sMessage )
+	else
+		Core.SendToUser( tUser, "<"..tConfig.tBot.sName.."> "..sMessage )
+	end
 end
