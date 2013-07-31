@@ -1,10 +1,12 @@
-local tDatabase, tTop = {
+local tDatabase = {
 	sUser = "stat",
 	sPassword = "stats@hhfh",
 	sHost = "localhost",
 	sPort = 3306,
 	sDB = "stats",
-}, {
+}
+
+tTop = {
 	sHeader = ( "\t%05s\t%-32s\t%-7s\n\t" ):format( "S.No.", "UserName", "Score" ),
 	sTemplate = "%-3d.\t%-25s\t%-7d",
 }
