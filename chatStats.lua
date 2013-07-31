@@ -11,8 +11,12 @@ function OnStartup()
 		sDepPath = "dependency/",
 		sFuncFile = "functions.lua",
 		sTxtPath = "texts/",
+		sHelpFile = "statsHelp.txt",
 		iTimerID = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" ),
 	}, {}, {}
+	local fHelp = io.open( tConfig.sPath..tConfig.sTxtPath..tConfig.sHelpFile, "r" )
+	sHelp = fHelp:read( "*a" )
+	fHelp:close()
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sFuncFile )
 	dofile( tConfig.sPath..tConfig.sExtPath..tConfig.sFunctionsFile )
@@ -94,7 +98,11 @@ end
 
 function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
 	local sCmd, iLimit = sCmd:lower(), tonumber( sData )
-	if sCmd == "see" or sCmd == "score" then
+	if sCmd == "h" or sCmd == "help" and bIsPm then
+		Reply( tUser, sHelp, bIsPm )
+	elseif sCmd == "stath" or sCmd == "stathelp" and not bIsPm then
+		Reply( tUser, sHelp, bIsPm )
+	elseif sCmd == "see" or sCmd == "score" then
 		if sData:len() == 0 then sData = tUser.sNick end
 		if not RegMan.GetReg( sData ) then
 			Reply( tUser, "Available only for registered users.", bIsPm )
