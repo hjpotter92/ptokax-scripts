@@ -103,24 +103,23 @@ function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
 	elseif sCmd == "stath" or sCmd == "stathelp" and not bIsPm then
 		Reply( tUser, sHelp, bIsPm )
 	elseif sCmd == "see" or sCmd == "score" then
-		if sData:len() == 0 then sData = tUser.sNick end
-		if not RegMan.GetReg( sData ) then
+		if sMessage:len() == 0 then sMessage = tUser.sNick end
+		if not RegMan.GetReg( sMessage ) then
 			Reply( tUser, "Available only for registered users.", bIsPm )
 		end
-		local sReply, sError = tTop.User( sData )
+		local sReply, sError = tTop.User( sMessage )
 		if sError then
 			Reply( tUser, sError, bIsPm )
 		end
 		Reply( tUser, sReply, bIsPm )
 	elseif sCmd == "top" then
-		local tBreak = Explode( sData )
+		local tBreak = Explode( sMessage )
 		if tBreak[2] then
 			Reply( tUser, tTop.Daily(tBreak[1], tBreak[2]), bIsPm )
 		else
 			if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
 			Reply( tUser, tTop.Daily(iLimit), bIsPm )
 		end
-	end
 	elseif sCmd == "topall" then
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
 		Reply( tUser, tTop.Total(iLimit), bIsPm )
