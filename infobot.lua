@@ -56,17 +56,6 @@ function ToArrival( tUser, sMessage )
 	end
 end
 
-function ChatArrival( tUser, sMessage )
-	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
-	if not sCmd then return false end
-	if sCmd:lower() == "ih" or sCmd:lower() == "ihelp" then
-		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
-		return true
-	else
-		return ExecuteCommand( tUser, sCmd:lower(), sData )
-	end
-end
-
 function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	if sCommand == "readall" or sCommand == "rall" then
 		if ( not sData ) or ( sData and not tonumber(sData) ) then

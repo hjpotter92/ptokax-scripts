@@ -52,12 +52,6 @@ function ToArrival( tUser, sMessage )
 	return ExecuteCommand( tUser, sCmd:lower(), sData )
 end
 
---~ function ChatArrival( tUser, sMessage )
---~ 	local _, _, sCmd, sData = sMessage:find( "%b<>%s[%+%-%*%/%!%#%?](%w+)%s?(.*)|" )
---~ 	if not sCmd then return false end
---~ 	return ExecuteCommand( tUser, sCmd, sData )
---~ end
-
 function UserConnected( tUser )
 	tOffliner.PassMessage( tUser.sNick )
 end

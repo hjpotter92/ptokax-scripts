@@ -24,14 +24,12 @@ end
 
 function ChatArrival( tUser, sMessage )
 	if tUser.iProfile == -1 then return false end
-	local sDate, sCmd, sData = os.date( "%Y-%m-%d" ), sMessage:match( "%b<> [-+*/?#!](%w+)%s?(.*)|" )
+	local sDate = os.date( "%Y-%m-%d" )
 	if type( tUserStats[sDate] ) ~= "table" then
 		tUserStats[sDate] = {}
 	end
 	if not tUserStats[sDate][tUser.sNick] then tUserStats[sDate][tUser.sNick] = { main = 0, msg = 0 } end
 	tUserStats[sDate][tUser.sNick].main = ( tUserStats[sDate][tUser.sNick].main or 0 ) + 1
-	if not sCmd then return false end
-	return ExecuteCommand( tUser, sCmd, sData, false )
 end
 
 function ToArrival( tUser, sMessage )
@@ -99,8 +97,6 @@ end
 function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
 	local sCmd, iLimit = sCmd:lower(), tonumber( sData )
 	if sCmd == "h" or sCmd == "help" and bIsPm then
-		Reply( tUser, sHelp, bIsPm )
-	elseif sCmd == "stath" or sCmd == "stathelp" and not bIsPm then
 		Reply( tUser, sHelp, bIsPm )
 	elseif sCmd == "see" or sCmd == "score" then
 		if sMessage:len() == 0 then sMessage = tUser.sNick end
