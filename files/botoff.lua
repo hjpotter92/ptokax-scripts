@@ -126,7 +126,7 @@ _G.tFunction = {
 }
 
 tFunction.CheckCategory = function( sInput )
-	local sReturn, tTemporary, bFlag = "The following #02d categories are allowed: ", tFunction.GetCategories(), false
+	local sReturn, tTemporary, bFlag = "The following %02d categories are allowed: ", tFunction.GetCategories(), false
 	sReturn = sReturn:format( #tTemporary )..table.concat( tTemporary, ", " ).."\n"
 	if not sInput then return sReturn end
 	for iIndex, sValues in ipairs( tTemporary ) do
@@ -163,13 +163,21 @@ end
 
 _G.tOffliner = {
 	l = function( tUser, iLimit, sCategory )
-		local sLatestQuery, tTemporary, sSuffix = [[SELECT `id`, `ctg`, `msg`, `nick`, `date`
-			FROM ( SELECT `id`, `ctg`, `msg`, `nick`, `date`
-				FROM `entries`
-				WHERE `ctg` %s
-				ORDER BY `id` DESC
-				LIMIT %d ) AS `temp`
-			ORDER BY `id` ASC ]], {}, "get_latest.php"
+		local sLatestQuery, tTemporary, sSuffix = [[SELECT `id`,
+			`ctg`,
+			`msg`,
+			`nick`,
+			`date`
+		FROM ( SELECT `id`,
+				`ctg`,
+				`msg`,
+				`nick`,
+				`date`
+			FROM `entries`
+			WHERE `ctg` %s
+			ORDER BY `id` DESC
+			LIMIT %d ) AS `temp`
+		ORDER BY `id` ASC ]], {}, "get_latest.php"
 		local sPMToUser = "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information:\n\n"
 		if not iLimit and not sCategory then
 			iLimit = 35
@@ -212,12 +220,16 @@ _G.tOffliner = {
 
 	s = function( tUser, sSearchString )
 		local sSearchQuery, tTemporary, sSuffix = [[SELECT *
-			FROM ( SELECT `id`, `ctg`, `msg`, `nick`, `date`
-				FROM `entries`
-				WHERE `msg` REGEXP '%s'
-				ORDER BY `id` DESC
-				LIMIT 20 ) AS `temp`
-			ORDER BY `id` ASC ]], {}, "s/"
+		FROM ( SELECT `id`,
+				`ctg`,
+				`msg`,
+				`nick`,
+				`date`
+			FROM `entries`
+			WHERE `msg` REGEXP '%s'
+			ORDER BY `id` DESC
+			LIMIT 20 ) AS `temp`
+		ORDER BY `id` ASC ]], {}, "s/"
 		local sPMToUser = "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n"
 		sSearchQuery = string.format( sSearchQuery, SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")) )
 		local SQLCur = assert( SQLCon:execute(sSearchQuery) )
@@ -239,9 +251,9 @@ _G.tOffliner = {
 
 	al = function( tUser, tInput )
 		local sCategory, sContent, sAdditionQuery = tInput[1], table.concat( tInput, " ", 2 ), [[INSERT INTO `entries`(`ctg`,`msg`,`nick`,`date`)
-			VALUES( '%s', '%s', '%s', NOW() ) ]]
+		VALUES( '%s', '%s', '%s', NOW() ) ]]
 		local sMagnetQuery = [[INSERT INTO `magnets`(`eid`,`tth`,`size`,`nick`,`date`)
-			VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
+		VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
 		local sEntry, sTTH = sContent:match( "(.*) magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
 		local iSize = sContent:match( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
@@ -261,10 +273,10 @@ _G.tOffliner = {
 
 	dl = function( tUser, iID )
 		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*
-			FROM `entries` e
-			LEFT JOIN `magnets` m
-				ON m.`eid` = e.`id`
-			WHERE e.`id` = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
+		FROM `entries` e
+		LEFT JOIN `magnets` m
+			ON m.`eid` = e.`id`
+		WHERE e.`id` = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
 			local SQLCur = assert( SQLCon:execute("UPDATE `modtable` SET `deletions` = `deletions` + 1 WHERE `nick`='"..SQLCon:escape(sModNick).."'") )
@@ -275,8 +287,8 @@ _G.tOffliner = {
 
 	ul = function( tUser, tInput )
 		local iID, sContent, sUpdateQuery = tonumber(tInput[1]), table.concat(tInput, " ", 2), [[UPDATE `entries`
-			SET `msg` = '%s'
-			WHERE `id` = %d ]]
+		SET `msg` = '%s'
+		WHERE `id` = %d ]]
 		sUpdateQuery = string.format( sUpdateQuery, SQLCon:escape(sContent), iID )
 		if not sContent:find( "magnet%:%?" ) then
 			local SQLCur = assert( SQLCon:execute(sUpdateQuery) )
@@ -289,13 +301,13 @@ _G.tOffliner = {
 
 	addmod = function( tUser, sModNick )
 		local sAddModerator = [[INSERT INTO `modtable`(`nick`, `added_by`, `active`, `date`)
-			VALUES( '%s', '%s', 'Y', NOW() )
-			ON DUPLICATE KEY
-			UPDATE
-				`active` = 'Y',
-				`added_by` = '%s',
-				`deletions` = 0,
-				`date` = NOW() ]]
+		VALUES( '%s', '%s', 'Y', NOW() )
+		ON DUPLICATE KEY
+		UPDATE
+			`active` = 'Y',
+			`added_by` = '%s',
+			`deletions` = 0,
+			`date` = NOW() ]]
 		sAddModerator = string.format( sAddModerator, SQLCon:escape(sModNick), SQLCon:escape(tUser.sNick), SQLCon:escape(tUser.sNick) )
 		local SQLCur = assert( SQLCon:execute(sAddModerator) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
@@ -304,10 +316,10 @@ _G.tOffliner = {
 
 	delmod = function( tUser, sModNick )
 		local sRemoveModerator = [[UPDATE `modtable`
-			SET `active` = 'N',
-				`deletions` = 50,
-				`date` = NOW()
-			WHERE `nick` = '%s' ]]
+		SET `active` = 'N',
+			`deletions` = 50,
+			`date` = NOW()
+		WHERE `nick` = '%s' ]]
 		sRemoveModerator = string.format( sRemoveModerator, SQLCon:escape(sModNick) )
 		local SQLCur = assert( SQLCon:execute(sRemoveModerator) )
 		return true
@@ -330,7 +342,7 @@ _G.tOffliner = {
 	am = function( tUser, tInput )
 		local iID, sContent = tInput[1], tInput[2]
 		local sMagnetQuery = [[INSERT INTO `magnets`(`eid`,`tth`,`size`,`nick`,`date`)
-			VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
+		VALUES( %d, '%s', %.0f, '%s', NOW() ) ]]
 		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
@@ -346,11 +358,11 @@ _G.tOffliner = {
 	em = function( tUser, tInput )
 		local iMID, sContent = tInput[1], tInput[2]
 		local sMagnetQuery = [[UPDATE `magnets`
-			SET `tth` = '%s',
-				`size` = %.0f,
-				`nick` = '%s',
-				`date` = NOW()
-			WHERE `id` = %d ]]
+		SET `tth` = '%s',
+			`size` = %.0f,
+			`nick` = '%s',
+			`date` = NOW()
+		WHERE `id` = %d ]]
 		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
@@ -365,8 +377,8 @@ _G.tOffliner = {
 
 	rm = function( tUser, iMID )
 		local sMagnetQuery = string.format( [[DELETE FROM `magnets`
-			WHERE `id` = %d
-			LIMIT 1]], iMID )
+		WHERE `id` = %d
+		LIMIT 1]], iMID )
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
 		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(SQLCon:getlastautoid()).." was removed." )
@@ -375,7 +387,7 @@ _G.tOffliner = {
 
 	StoreMessage = function( sSender, sRecipient, sMessage )
 		local sStorageQuery = [[INSERT INTO `messages`(`message`, `from`, `to`, `dated`)
-			VALUES ( '%s', '%s', '%s', NOW() ) ]]
+		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
 		Core.SendPmToNick( sSender, tConfig.sBotName, "The message has been stored with ID: #"..tostring(SQLCon:getlastautoid())..". It'll be delivered to "..sRecipient.." when they connect to hub." )
@@ -383,10 +395,13 @@ _G.tOffliner = {
 	end,
 
 	PassMessage = function( sNick )
-		local sSearchUserQuery = [[SELECT `id`, `from`, `dated`, `message`
-			FROM `messages`
-			WHERE `to` = '%s'
-				AND `delivered` = 'N' ]]
+		local sSearchUserQuery = [[SELECT `id`,
+			`from`,
+			`dated`,
+			`message`
+		FROM `messages`
+		WHERE `to` = '%s'
+			AND `delivered` = 'N' ]]
 		sSearchUserQuery = sSearchUserQuery:format( SQLCon:escape(sNick) )
 		local SQLCur = assert( SQLCon:execute(sSearchUserQuery) )
 		if SQLCur:numrows() == 0 then
