@@ -219,23 +219,39 @@ _G.tOffliner = {
 	end,
 
 	s = function( tUser, sSearchString )
-		local sSearchQuery, tTemporary, sSuffix = [[SELECT *
+		local sSearchQuery, sSuffix, sPMToUser, tTemporary = [[SELECT *
 		FROM ( SELECT `id`,
 				`ctg`,
 				`msg`,
 				`nick`,
 				`date`
 			FROM `entries`
-			WHERE `msg` REGEXP '%s'
+			WHERE `msg` REGEXP '%s']], "s/", "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n", {}
+		for sTemp in sSearchString:gmatch( "%{(.-)%}" ) do
+			table.insert( tTemporary, sTemp )
+		end
+		if #tTemporary > 0 then
+			sSearchString = sSearchString:gsub("[%s+]?%{.-%}[%s+]?", '')
+			sSearchQuery = sSearchQuery.." AND `ctg` IN (%s) "
+		end
+		if sSearchString:len() < 3 then
+			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 1) )
+			return true
+		end
+		sSearchQuery = sSearchQuery..[[
 			ORDER BY `id` DESC
 			LIMIT 20 ) AS `temp`
-		ORDER BY `id` ASC ]], {}, "s/"
-		local sPMToUser = "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n"
-		sSearchQuery = string.format( sSearchQuery, SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")) )
+		ORDER BY `id` ASC]]
+		if #tTemporary == 0 then
+			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")) )
+		else
+			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")), "'"..table.concat(tTemporary, "', '").."'" )
+		end
+		tTemporary = {}
 		local SQLCur = assert( SQLCon:execute(sSearchQuery) )
 		if SQLCur:numrows() == 0 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, sPMToUser.."No result was obtained for your query.|" )
-			return
+			return true
 		end
 		sSuffix = tConfig.sLatestPage..sSuffix..sSearchString:gsub( "%s+", "+" )
 		local tRow = SQLCur:fetch( {}, "a" )
