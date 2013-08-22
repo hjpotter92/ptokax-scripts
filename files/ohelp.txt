@@ -25,7 +25,8 @@ FOR ALL USERS
 	Any of the categories can be given as argument. You'll get a default 20 entries if the category exists otherwise works same as
 	  +latest. An additional limit number can be provided.
 
-+search (or +s) must be given with a search string of length greater than 3 characters.
++search (or +s) must be given with a search string of length greater than 3 characters. Restricting results from particular
+    categories can be done by passing categories inside curly braces.
 
 +showctg (or +sc) lists all the available categories. Helpful for both new moderators and users.
 
