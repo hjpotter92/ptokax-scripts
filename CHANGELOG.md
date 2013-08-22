@@ -1,3 +1,9 @@
+2013-08-22
+----------
+
+- Advanced search to support category based searches (for [BOT]Offliner).
+- Commands specific to bots restricted back to PM only.
+
 2013-07-26
 ----------
 

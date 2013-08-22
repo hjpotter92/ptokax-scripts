@@ -106,9 +106,6 @@ function ExecuteCommand( tUser, sCmd, sData )
 		if (not sData) or sData:len() == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! No search string was given." )
 			return true
-		elseif sData:len() < 3 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 1) )
-			return true
 		else
 			tOffliner.s( tUser, sData )
 			return true
