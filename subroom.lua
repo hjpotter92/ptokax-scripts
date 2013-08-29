@@ -111,7 +111,7 @@ function ToArrival( tUser, sMessage )
 			return false
 		end
 	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
-		local sTemplate = ("There are %02d current subscribers participating:\n\n\t"):format( #tRooms[sTo].tSubscribers )
+		local sTemplate = ("There are %02d current subscribers participating:\n\n\t"):format( #(tRooms[sTo].tSubscribers) )
 		Core.SendPmToUser( tUser, sTo, sTemplate..table.concat(tRooms[sTo].tSubscribers, ", ") )
 		return true
 	elseif sCmd:lower() == "h" or sCmd:lower() == "help" then
