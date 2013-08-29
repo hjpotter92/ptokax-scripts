@@ -1,3 +1,11 @@
+2013-08-29
+----------
+
+- Fix chatrooms' `invite` command bug.
+- Quicker access to subscribers list in chatrooms, thereby reducing table access times.
+- Fix an unreported bug in `kick` command wherein non-alphanumeric characters weren't allowed.
+- Subscribers' list in chatrooms modified to show number of subscribers.
+
 2013-08-22
 ----------
 
