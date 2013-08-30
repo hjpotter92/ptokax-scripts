@@ -181,7 +181,7 @@ _G.tOffliner = {
 		local sPMToUser = "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information:\n\n"
 		if not iLimit and not sCategory then
 			iLimit = 35
-                        sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` REGEXP 'DVDRIP')"
+                        sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` LIKE '%[DVDRIP]%')"
 
 		else
 			if iLimit > 50 or iLimit < 5 then
@@ -190,10 +190,10 @@ _G.tOffliner = {
 				iLimit = iLimit
 			end
 			if not sCategory then
-				sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` REGEXP 'DVDRIP')"
+				sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` LIKE '%[DVDRIP]%')"
 			else
 				if not tFunction.CheckCategory(sCategory) then
-				   sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` REGEXP 'DVDRIP')"
+				   sCategory = "<> 'sdmovie' OR (`ctg` = 'sdmovie' AND `msg` LIKE '%[DVDRIP]%')"
 				else
 					sSuffix = sCategory
 					sCategory = "= '"..sCategory.."'"
@@ -226,7 +226,7 @@ _G.tOffliner = {
 				`nick`,
 				`date`
 			FROM `entries`
-			WHERE `msg` REGEXP '%s']], "s/", "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n", {}
+			WHERE `msg` LIKE '%%%s%%']], "s/", "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n", {}
 		for sTemp in sSearchString:gmatch( "%{(.-)%}" ) do
 			table.insert( tTemporary, sTemp )
 		end
@@ -243,9 +243,9 @@ _G.tOffliner = {
 			LIMIT 20 ) AS `temp`
 		ORDER BY `id` ASC]]
 		if #tTemporary == 0 then
-			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")) )
+			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString) )
 		else
-			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString:gsub("%(", "\\("):gsub("%[", "\\["):gsub("%{", "\\{")), "'"..table.concat(tTemporary, "', '").."'" )
+			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString), "'"..table.concat(tTemporary, "', '").."'" )
 		end
 		tTemporary = {}
 		local SQLCur = assert( SQLCon:execute(sSearchQuery) )
