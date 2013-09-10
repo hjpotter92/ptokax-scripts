@@ -236,16 +236,3 @@ custcom=function(user,data)
 	local msg=CustomCommands[tokens[2]](user,tokens)
 	return msg
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
