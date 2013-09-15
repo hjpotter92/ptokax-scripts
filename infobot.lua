@@ -172,6 +172,10 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	end
 
 	if sCommand == "areq" or sCommand == "ar" then
+		if tUser.iProfile == -1 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report('gen', 2) )
+			return false
+		end
 		local tBreak = tFunction.Explode( sData )
 		if tFunction.CheckCategory( tBreak[1] ) then
 			tInsertData.sCtg = tBreak[1]:lower()
@@ -228,6 +232,10 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		return true
 
 	elseif sCommand == "agst" or sCommand == "ag" then
+		if tUser.iProfile == -1 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report('gen', 2) )
+			return false
+		end
 		tInsertData.sTable = "guestbook"
 		iLastID = tInfobot.add( tUser, tInsertData )
 		if not iLastID then
@@ -256,6 +264,10 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		return true
 
 	elseif sCommand == "addbns" or sCommand == "absell" then
+		if tUser.iProfile == -1 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report('gen', 2) )
+			return false
+		end
 		local tBreak = tFunction.Explode( sData )
 		local _, sError = tFunction.CheckBnS( string.lower(tBreak[1]) )
 		if _ then

@@ -35,8 +35,8 @@ _G.tFunction = {
 	end,
 
 	Report = function( sErrorCode, iErrorNumber )
-		local sReturn = "ERROR (%s#%04d): You should check %s for more information."
-		return sReturn:format( sErrorCode:upper(), iErrorNumber, tConfig.sHubFAQ:format(sErrorCode:upper(), iErrorNumber) )
+		local sReturn, sErrorCode = "ERROR (%s#%04d): You should check "..tConfig.sHubFAQ.." for more information.", sErrorCode:upper()
+		return sReturn:format( sErrorCode, iErrorNumber, sErrorCode, iErrorNumber )
 	end,
 
 	CheckBnS = function( sInput )
