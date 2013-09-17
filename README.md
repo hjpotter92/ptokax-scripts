@@ -21,6 +21,8 @@ Currently, the scripts in the repository are for following operations:
   5. Logs of messages received
 - Restricting unregistered users from chat.
 - Users' daily activity stored to database. Applicable for registered users only.
+- Subscribable mainchat.
+- Registration maintained by a script.
 
 Useful Links
 ------------

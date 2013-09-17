@@ -1,3 +1,11 @@
+2013-09-17
+----------
+
+- Subscription based mainchat.
+- Additional commands for normal to administrative users.
+- Auto registration system based on boolean flag set by operator status users.
+- Certain [BOT]Info commands updated to be usable only by registered users.
+
 2013-08-29
 ----------
 
