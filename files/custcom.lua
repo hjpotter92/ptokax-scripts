@@ -138,6 +138,7 @@ CustomCommands= {
 			if isthere(tokens[3],nickc) then
 				nickc[tokens[3]] = nil
 				notify(user,tokens[3].."'s nick has been changed back.|")
+				SendToRoom("Ptokax",user.sNick.." changed nick of "..tokens[3].." back to "..tokens[3],"#[Hub-Feed]" ,3)
 			else
 				notify(user,tokens[3].."'s nick has not been changed.|")
 			end
