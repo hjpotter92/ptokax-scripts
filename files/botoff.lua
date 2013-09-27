@@ -90,7 +90,18 @@ _G.tFunction = {
 	end,
 
 	FetchMagnetRow = function( iMID )
-		local tReturn, sQuery = {}, string.format( "SELECT * FROM `magnets` WHERE id = %d LIMIT 1", iMID )
+		local tReturn, sQuery = {}, string.format( [[SELECT m.id AS id,
+			m.eid AS eid,
+			m.tth AS tth,
+			m.size AS size,
+			m.nick AS nick,
+			m.date AS `date`,
+			e.msg AS msg
+		FROM `magnets` m
+		INNER JOIN entries e
+			ON e.id = m.eid
+		WHERE m.id = %d
+		LIMIT 1]], iMID )
 		local SQLCur = assert( SQLCon:execute(sQuery) )
 		tReturn = SQLCur:fetch( {}, "a" )
 		SQLCur:close()
@@ -392,13 +403,17 @@ _G.tOffliner = {
 	end,
 
 	rm = function( tUser, iMID )
-		local sMagnetQuery = string.format( [[DELETE FROM `magnets`
+		local tRow, sMagnetQuery = tFunction.FetchMagnetRow( iMID ), string.format( [[DELETE FROM `magnets`
 		WHERE `id` = %d
 		LIMIT 1]], iMID )
+		if not tRow then
+			Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(iMID).." does not exist." )
+			return false
+		end
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
 		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(SQLCon:getlastautoid()).." was removed." )
-		return true
+		return true, { eid = tRow.eid }
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )

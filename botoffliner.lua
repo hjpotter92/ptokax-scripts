@@ -261,8 +261,10 @@ function ExecuteCommand( tUser, sCmd, sData )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
-			if not tOffliner.rm( tUser, tonumber(tBreak[1]) ) then return true end
-			local sChatMessage = "Magnet removed for magnetID #"..tostring(tBreak[1]).."."
+			local bStatus, Value = tOffliner.rm( tUser, tonumber(tBreak[1]) )
+			if not bStatus then return true end
+			if type( Value ) ~= "table" then return false end
+			local sChatMessage = "Magnet removed for magnetID #"..tostring(tBreak[1]).." attached to entry #"..tostring(Value.eid).."."
 			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 			return true
 		else
