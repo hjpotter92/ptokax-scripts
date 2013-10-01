@@ -11,7 +11,7 @@ function OnStartup()
 	tConfig = {
 		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sTextPath = "texts/",
-		sDependent = "dependency/",
+		sExternal = "external/",
 		sFunctionsFile = "users.lua",
 		sDateFormat = "%Y-%m-%d %H:%M:%S",
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
@@ -19,7 +19,7 @@ function OnStartup()
 		sPassiveBanPass = "01236",
 		iPassiveBanTime = 15,		-- Time in minutes.
 	}
-	dofile( tConfig.sPath..tConfig.sDependent..tConfig.sFunctionsFile )
+	dofile( tConfig.sPath..tConfig.sExternal..tConfig.sFunctionsFile )
 	tFunction.Connect()
 	local tOnlineUsers = Core.GetOnlineUsers(true)
 	for iIndex, tUser in ipairs(tOnlineUsers) do
