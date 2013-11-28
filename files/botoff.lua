@@ -84,7 +84,7 @@ _G.tFunction = {
 	end,
 
 	FetchRow = function( iID )
-		local tReturn, sQuery = {}, string.format( "SELECT e.id, c.name AS ctg, e.msg, m.nick AS nick, e.date FROM entries e INNER JOIN ctgtable c ON c.id = e.ctg INNER JOIN modtable m ON m.id = e.nick FROM entries e WHERE e.id = %d LIMIT 1", iID )
+		local tReturn, sQuery = {}, string.format( "SELECT e.id, c.name AS ctg, e.msg, m.nick AS nick, e.date FROM entries e INNER JOIN ctgtable c ON c.id = e.ctg INNER JOIN modtable m ON m.id = e.nick WHERE e.id = %d LIMIT 1", iID )
 		local SQLCur = assert( SQLCon:execute(sQuery) )
 		tReturn = SQLCur:fetch( {}, "a" )
 		SQLCur:close()
@@ -318,7 +318,7 @@ _G.tOffliner = {
 			%d,
 			'%s',
 			%.0f,
-			m.id
+			m.id,
 			NOW()
 		FROM modtable m
 		WHERE m.nick = '%s']]
@@ -326,6 +326,10 @@ _G.tOffliner = {
 		local iSize = sContent:match( "xl=(%d+)&" )
 		if not (sTTH and iSize) or sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+			return false
+		end
+		if sEntry:len() > 255 then
+			Core.SendPmToUser( tUser, tConfig.sBotName, "" )
 			return false
 		end
 		sEntry, sNick = SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
@@ -414,7 +418,7 @@ _G.tOffliner = {
 			%d,
 			'%s',
 			%.0f,
-			m.id
+			m.id,
 			NOW()
 		FROM modtable m
 		WHERE m.nick = '%s']]

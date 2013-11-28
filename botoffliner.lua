@@ -149,6 +149,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 			return true
 		else
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Some internal error occured." )
 			return true
 		end
 
