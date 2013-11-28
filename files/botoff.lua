@@ -114,10 +114,10 @@ _G.tFunction = {
 		local tReturn, sQuery = {}, [[SELECT m.id,
 			m.tth,
 			m.size,
-			mod.nick AS nick,
+			m2.nick AS nick,
 			m.date
 		FROM magnets m
-		INNDER JOIN modtable m2
+		INNER JOIN modtable m2
 			ON m2.id = m.nick
 		WHERE eid = %d
 		ORDER BY date DESC
@@ -262,20 +262,20 @@ _G.tOffliner = {
 				ON c.id = e.ctg
 			INNER JOIN modtable m
 				ON m.id = e.nick
-			WHERE msg LIKE '%%%s%%']], "s/", "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n", {}
+			WHERE e.msg LIKE '%%%s%%']], "s/", "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information for the search:\n\n", {}
 		for sTemp in sSearchString:gmatch( "%{(.-)%}" ) do
 			table.insert( tTemporary, sTemp )
 		end
 		if #tTemporary > 0 then
 			sSearchString = sSearchString:gsub("[%s+]?%{.-%}[%s+]?", '')
-			sSearchQuery = sSearchQuery.." AND ctg IN (%s) "
+			sSearchQuery = sSearchQuery.." AND c.name IN (%s) "
 		end
 		if sSearchString:len() < 3 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 1) )
 			return true
 		end
 		sSearchQuery = sSearchQuery..[[
-			ORDER BY id DESC
+			ORDER BY e.id DESC
 			LIMIT 20 ) AS temp
 		ORDER BY id ASC]]
 		if #tTemporary == 0 then
@@ -464,7 +464,7 @@ _G.tOffliner = {
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )
-		local sStorageQuery = [[INSERT INTO `messages`(`message`, `from`, `to`, `dated`)
+		local sStorageQuery = [[INSERT INTO messages (message, `from`, `to`, dated)
 		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
@@ -474,11 +474,11 @@ _G.tOffliner = {
 
 	PassMessage = function( sNick )
 		local sSearchUserQuery = [[SELECT id,
-			from`,
-			dated`,
-			message`
+			`from`,
+			dated,
+			message
 		FROM messages
-		WHERE to = '%s'
+		WHERE `to` = '%s'
 			AND delivered = 'N' ]]
 		sSearchUserQuery = sSearchUserQuery:format( SQLCon:escape(sNick) )
 		local SQLCur = assert( SQLCon:execute(sSearchUserQuery) )
