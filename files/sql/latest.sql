@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `buynsell` (
 
 -- Dumping structure for table latest.ctgtable
 CREATE TABLE IF NOT EXISTS `ctgtable` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(15) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
@@ -48,9 +48,9 @@ CREATE TABLE IF NOT EXISTS `deletions` (
 -- Dumping structure for table latest.entries
 CREATE TABLE IF NOT EXISTS `entries` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `ctg` varchar(15) NOT NULL,
-  `msg` varchar(200) NOT NULL,
-  `nick` varchar(30) NOT NULL,
+  `ctg` tinyint(3) unsigned NOT NULL,
+  `msg` tinytext NOT NULL,
+  `nick` smallint(5) unsigned NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `date` (`date`),
@@ -77,14 +77,13 @@ CREATE TABLE IF NOT EXISTS `magnets` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `eid` int(10) unsigned NOT NULL,
   `tth` char(39) NOT NULL,
-  `size` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `nick` varchar(30) NOT NULL DEFAULT 'hjpotter92',
+  `size` bigint(20) unsigned NOT NULL,
+  `nick` smallint(5) unsigned NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `eid_tth` (`eid`,`tth`),
   KEY `entriedID` (`eid`),
-  KEY `tth_size` (`tth`,`size`),
-  KEY `date` (`date`)
+  KEY `nick` (`nick`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table populated with magnets of various entries.';
 
 -- Dumping structure for table latest.messages
