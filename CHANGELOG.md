@@ -1,3 +1,9 @@
+2013-11-29
+----------
+
+- Normalize tables
+- Optimise storage and searches for **[BOT]Offliner**.
+
 2013-09-17
 ----------
 
