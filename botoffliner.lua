@@ -313,7 +313,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Sorry! The user "..tBreak[1].." is unregistered at the moment." )
 			return true
 		elseif not tProfiles.AllowAdmin[tUser.iProfile] then
-			RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iModProfile )
+			RegMan.ChangeReg( tBreak[1], RegMan.GetReg(tBreak[1]).sPassword, tCfg.iRegProfile )
 			return true
 		end
 		return true
