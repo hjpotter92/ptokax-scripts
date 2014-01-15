@@ -96,12 +96,14 @@ _G.tFunction = {
 			m.eid AS eid,
 			m.tth AS tth,
 			m.size AS size,
-			m.nick AS nick,
+			m2.nick AS nick,
 			m.date AS `date`,
 			e.msg AS msg
 		FROM magnets m
 		INNER JOIN entries e
 			ON e.id = m.eid
+		INNER JOIN modtable m2
+			ON m2.id = m.nick
 		WHERE m.id = %d
 		LIMIT 1]], iMID )
 		local SQLCur = assert( SQLCon:execute(sQuery) )
