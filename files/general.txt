@@ -1,4 +1,3 @@
-
 ----------------------
 | For ALL additions  |
 ----------------------
@@ -22,7 +21,7 @@ The addition commands are listed in help file too. Here's a quick tour of them a
   To remove entirely a row from latest database having the id = <id>. The associated magnets are removed too.
 
 - am or addmagnet
-    +al <id> <magnet>
+    +am <id> <magnet>
   To add another <magnet> to database for an entry with id = <id>.
 - em or editmagnet
     +em <mid> <magnet>
