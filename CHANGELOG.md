@@ -1,3 +1,9 @@
+2014-02-19
+----------
+
+- Operators can promote users to moderators in each chatroom.
+- Chatroom moderators can kick several users in a single command.
+
 2013-11-29
 ----------
 
