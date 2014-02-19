@@ -79,25 +79,31 @@ function ToArrival( tUser, sMessage )
 		end
 		return true
 	elseif sCmd:lower() == "kick" then
-		local sKicked = sData and sData:match( "^(%S+)" )
-		if not sKicked then
-			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
-			return false
-		end
-		if not FindSubscription( tRooms[sTo].tSubscribers, sKicked ) then
-			Core.SendPmToUser( tUser, sTo, sKicked.." is not subscribed to this room." )
-			return false
-		end
-		if tUser.iProfile ~= 0 and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
-			Core.SendPmToUser( tUser, sTo, "You do not have access to this command. Kicked for abusing." )
-			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
-			pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
-			return false
-		else
-			Core.SendPmToUser( tUser, sTo, "Kicking "..sKicked.." from "..sTo.." chatroom." )
-			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, sKicked) )
-			pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
-			return false
+		for sKicked in sData:gmatch( "(%S+)" )
+			if not sKicked then
+				Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
+				return false
+			end
+			local IsInRoom = FindSubscription( tRooms[sTo].tSubscribers, sKicked )
+			if not IsInRoom then
+				Core.SendPmToUser( tUser, sTo, sKicked.." is not subscribed to this room." )
+				return false
+			end
+			if tUser.iProfile ~= 0 and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
+				Core.SendPmToUser( tUser, sTo, "You do not have access to this command. Kicked for abusing." )
+				table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
+				pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
+				return false
+			else
+				Core.SendPmToUser( tUser, sTo, "Kicking "..sKicked.." from "..sTo.." chatroom." )
+				table.remove( tRooms[sTo].tSubscribers, IsInRoom )
+				local IsModerator = FindSubscription( tRooms[sTo].tSubscribers.tModerators, sKicked )
+				if tUser.iProfile == 0 and IsModerator then
+					table.remove( tRooms[sTo].tSubscribers.tModerators, IsModerator )
+				end
+				pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
+				return false
+			end
 		end
 	elseif sCmd:lower() == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 		local sGuest = sData and sData:match( "^(%S+)" )
