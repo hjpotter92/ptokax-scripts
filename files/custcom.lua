@@ -202,13 +202,19 @@ CustomCommands= {
 	end,
 	["changereg"]=function(user,tokens) -- Change the profile of a registered user. Syntax - !changereg <user_nick> <profile_num>
 		if not check(user,0,tokens,4) then return false end
-		account=RegMan.GetReg(tokens[3])
+		local account=RegMan.GetReg(tokens[3])
+		local profile=ProfMan.GetProfile(tonumber(tokens[4]))
 		if not account then
 		notify(user,"No registered user with nick "..tokens[3])
 		return false
 		end
+		if not profile then
+		notify(user,"No profile with number "..tokens[4])
+		return false
+		end
 		RegMan.ChangeReg(account.sNick,account.sPassword,tonumber(tokens[4]))
 		Core.Disconnect(tokens[3])
+		notify(user,"Profile of "..tokens[3].." changed to "..profile.sProfileName)
 		return false
 	end,
 	["getpass"]=function(user,tokens)-- Get the password of a registered user Syntax - !getpass <nick>
