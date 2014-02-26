@@ -49,7 +49,9 @@ ChatArrival = function(user,data)
 	 _, _,fchar,cmd= tempdata:find( "%b<> (.)(%S+)%s")
 	 local isCmd=false
 	 local irc=false
-	if  not cmdchars[fchar] then	
+	 --Check beforehand if the message begins with a command character . If it doesnt , its not a command . 
+	 --We are avoiding the table lookups and saving computation power at the cost of code repetition
+	if  not cmdchars[fchar] then			
 		isCmd=false
 		digest(user,data,isCmd,irc)
 		return true
@@ -63,6 +65,10 @@ ChatArrival = function(user,data)
 		digest(user,data,isCmd,irc)
 		return true
 	end
+	--message begins with a command character but the command is not found . Treat it as a normal message
+	isCmd=false
+	digest(user,data,isCmd,irc)
+	return true	
 end
 
 ToArrival = function( user, data)
