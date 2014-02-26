@@ -238,6 +238,16 @@ CustomCommands= {
 		notify(user,"Password Bans Cleared")
 		return false
 	end,
+	["getprofiles"]=function(user,tokens)	--Gives a list of all profiles . Syntax !getprofiles
+		if not check(user,0) then return false end
+		local profiles = ProfMan.GetProfiles()
+		local msg = "\n\tProfile name\t\tNumber"
+		for k,profile in ipairs(profiles) do
+		msg=msg.."\n\t"..profile.sProfileName.."\t\t"..profile.iProfileNumber
+		end
+		notify(user,msg)
+		return false
+	end,
 }
 
 custcom=function(user,data)
