@@ -1,7 +1,6 @@
+package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+local Connection = require 'config'
 local tConfig = {
-	sDatabase = "latest",
-	sMySQLUser = "offliner",
-	sMySQLPass = "latest@hhfh",
 	sBotName = "[BOT]Offliner",
 	sHub = SetMan.GetString( 2 ) or "localhost"
 }
@@ -20,7 +19,7 @@ _G.tFunction = {
 		end
 		if not SQLEnv then
 			_G.SQLEnv = assert( luasql.mysql() )
-			_G.SQLCon = assert( SQLEnv:connect(tConfig.sDatabase, tConfig.sMySQLUser, tConfig.sMySQLPass, "localhost") )
+			_G.SQLCon=assert( SQLEnv:connect(Connection ('latest') ) )
 		end
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
 	end,
