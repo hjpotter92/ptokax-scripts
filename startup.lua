@@ -70,15 +70,15 @@ OpConnected, RegConnected = UserConnected, UserConnected
 
 function ChatArrival( tUser, sMessage )
 	local sCommand, sData = sMessage:match( "%b<> [%!%#%?%.%+%-%/%*](%w+)%s?(.*)|" )
-	if not sCommand then
+	if not sCommand or not ( sCommand == "check" or sCommand == "addto" or sCommand == "removefrom" ) then
 		return false
 	end
-	if sData:len() == 0 and ( sCommand == "check" or sCommand == "addto" or sCommand == "removefrom" ) then
+	local tBreak, Result, sError = Explode( sData ), nil, nil
+	if not tBreak[1] then
 		Core.SendToUser( tUser, tConfig.sAsBot.."No argument passed." )
 		return false
 	end
 	sCommand = sCommand:lower()
-	local tBreak, Result, sError = Explode( sData ), nil, nil
 	tBreak[1] = tBreak[1]:lower()
 	if sCommand == "check" then
 		if tBreak[1] == "lnf" or tBreak[1] == "lostnfound" then
