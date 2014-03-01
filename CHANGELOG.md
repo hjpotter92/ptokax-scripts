@@ -1,3 +1,10 @@
+2014-03-02
+----------
+
+- `[BOT]Offliner` stores the file display name from magnet URI scheme.
+- Using a stored procedure to insert magnets and entries.
+- Long pending bug regarding kicks from a lower profile user fixed.
+
 2014-02-19
 ----------
 
