@@ -19,7 +19,7 @@ _G.tFunction = {
 		end
 		if not SQLEnv then
 			_G.SQLEnv = assert( luasql.mysql() )
-			_G.SQLCon=assert( SQLEnv:connect(Connection ('latest') ) )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest' ) )
 		end
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
 	end,
@@ -38,6 +38,16 @@ _G.tFunction = {
 	Report = function( sErrorCode, iErrorNumber )
 		local sReturn = "ERROR (%s#%04d): You should check %s for more information."
 		return sReturn:format( sErrorCode:upper(), iErrorNumber, tConfig.sHubFAQ:format(sErrorCode:upper(), iErrorNumber) )
+	end,
+
+	FindMagnet = function( sInput, tUser )
+		local sTTH, sSize, sName = sContent:match "^.*magnet[:]%?xt=urn[:]tree[:]tiger[:](%w+)&xl=(%d+)&dn=(.+)$"
+		if sTTH:len() == 0 or sSize:len() == 0 or sName:len() == 0 then
+			return false
+		elseif sTTH:len() ~= 39 then
+			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+		end
+		return { tth = sTTH, size = sSize, name = sName }
 	end,
 
 	CreateLatestReading = function( tEntry )
@@ -82,6 +92,25 @@ _G.tFunction = {
 		return tReturn
 	end,
 
+	InsertProcedure = function( sProcName, tInput )
+		local SQLCur2 = ""
+		if sProcName:lower() == "newmaget" then[[]]
+			local sInsertQuery, sIDQuery = [[CALL NewMagnet('%s', '%s', '%s', '%s', @mgid)]], [[SELECT @mgid AS magnetID]]
+			sInsertQuery = sInsertQuery:format( tInput.nick, tInput.tth, tInput.name, tInput.size, tInput.eid )
+			local SQLCur1 = assert( SQLCon:execute(sInsertQuery) )
+			SQLCur2 = assert( SQLCon:execute(sIDQuery) )
+		elseif sProcName:lower() == "newentry" then
+			local sInsertQuery, sIDQuery = [[CALL NewEntry( '%s', '%s', '%s', '%s', '%s', '%s', @eid, @mgid )]], [[SELECT @eid AS entryID, @mgid AS magnetID]]
+			sInsertQuery = sInsertQuery:format( tInput.ctg, tInput.msg, tInput.nick, tInput.tth, tInput.name, tInput.size )
+			SQLCur2 = assert( SQLCon:execute(sIDQuery) )
+		end
+		if type( SQLCur2 ) ~= "string" then
+			local tRow = assert( SQLCur2:fetch({}, "a") )
+			return tRow
+		end
+		return false
+	end,
+
 	FetchRow = function( iID )
 		local tReturn, sQuery = {}, string.format( "SELECT e.id, c.name AS ctg, e.msg, m.nick AS nick, e.date FROM entries e INNER JOIN ctgtable c ON c.id = e.ctg INNER JOIN modtable m ON m.id = e.nick WHERE e.id = %d LIMIT 1", iID )
 		local SQLCur = assert( SQLCon:execute(sQuery) )
@@ -112,7 +141,7 @@ _G.tFunction = {
 	end,
 
 	FetchMagnets = function( iEID )
-		local tReturn, sQuery = {}, [[SELECT m.id,
+		local tReturn, sQuery, sTemplate = {}, [[SELECT m.id,
 			m.tth,
 			m.size,
 			m2.nick AS nick,
@@ -122,14 +151,14 @@ _G.tFunction = {
 			ON m2.id = m.nick
 		WHERE eid = %d
 		ORDER BY date DESC
-		LIMIT 5]]
+		LIMIT 5]], "%s. [%s] magnet:?xt=urn:tree:tiger:%s&xl=%s (Added by %s on %s)"
 		local SQLCur = assert( SQLCon:execute(string.format( sQuery, iEID )) )
 		if SQLCur:numrows() == 0 then
 			return nil
 		end
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
-			table.insert( tReturn, string.format("%d. [%s] magnet:?xt=urn:tree:tiger:%s&xl=%.0f (Added by %s on %s)", tRow.id, tFunction.GetSize(tRow.size), tRow.tth, tRow.size, tRow.nick, tRow.date) )
+			table.insert( tReturn, sTemplate:format(tRow.id, tFunction.GetSize(tRow.size), tRow.tth, tRow.size, tRow.nick, tRow.date) )
 			tRow = SQLCur:fetch( {}, "a" )
 		end
 		return table.concat( tReturn, "\n\t" )
@@ -303,44 +332,23 @@ _G.tOffliner = {
 	end,
 
 	al = function( tUser, tInput )
-		local sCategory, sContent, sAdditionQuery = tInput[1], table.concat( tInput, " ", 2 ), [[INSERT INTO entries (ctg, msg, nick, date)
-		SELECT
-			c.id,
-			'%s',
-			m.id,
-			NOW()
-		FROM ctgtable c
-		INNER JOIN modtable m
-		WHERE c.name = '%s'
-			AND m.nick = '%s'
-		LIMIT 1]]
-		local sMagnetQuery = [[INSERT INTO magnets (eid, tth, size, nick, date)
-		SELECT
-			%d,
-			'%s',
-			%.0f,
-			m.id,
-			NOW()
-		FROM modtable m
-		WHERE m.nick = '%s']]
-		local sEntry, sTTH = sContent:match( "(.*) magnet%:%?xt=urn%:tree%:tiger%:(%w+)" )
-		local iSize = sContent:match( "xl=(%d+)&" )
-		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+		local sCategory, sEntry, sMagnet = tInput[1], table.concat( tInput, " ", 2, #tInput - 1 ), tInput[ #tInput ]
+		local tMagnet = tFunction.FindMagnet( sContent, tUser )
+		if not tMagnet then
 			return false
 		end
 		if sEntry:len() > 255 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "" )
+			Core.SendPmToUser( tUser, tConfig.sBotName, "Too long entry" )
 			return false
 		end
-		sEntry, sNick = SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
-		sAdditionQuery = sAdditionQuery:format( sEntry, sCategory, sNick )
-		local SQLCur = assert( SQLCon:execute(sAdditionQuery) )
-		local iID = SQLCon:getlastautoid()
-		sMagnetQuery = sMagnetQuery:format( iID, sTTH, tonumber(iSize), sNick )
-		SQLCur = assert( SQLCon:execute(sMagnetQuery) )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
-		Core.SendPmToUser( tUser, tConfig.sBotName, "Your message has been added to database at entry ID #"..tostring(iID).." and magnet ID #"..tostring(SQLCon:getlastautoid()) )
+		tMagnet.ctg, tMagnet.msg, tMagnet.nick = sCategory, SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
+		local tOutput = tFunction.InsertProcedure( 'newentry', tMagnet )
+		if not tOutput then
+			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
+			return false
+		end
+		local sReply = ("Your message has been added to database at entry ID #%s and magnet ID #%s."):format( tOutput.entryID, tOutput.magnetID )
+		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
 		return true
 	end,
 
@@ -413,25 +421,18 @@ _G.tOffliner = {
 	end,
 
 	am = function( tUser, tInput )
-		local iID, sContent = tInput[1], tInput[2]
-		local sMagnetQuery = [[INSERT INTO magnets (eid, tth, size, nick, date)
-		SELECT
-			%d,
-			'%s',
-			%.0f,
-			m.id,
-			NOW()
-		FROM modtable m
-		WHERE m.nick = '%s']]
-		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
-		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+		local tMagnet = tFunction.FindMagnet( tInput[2], tUser )
+		if not tMagnet then
 			return false
 		end
-		sMagnetQuery = sMagnetQuery:format( iID, sTTH, tonumber(iSize), SQLCon:escape(tUser.sNick) )
-		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
-		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet to entry #"..tostring(iID).." has been added. The magnet ID is #"..tostring(SQLCon:getlastautoid()).."." )
+		tMagnet.eid, tMagnet.nick = tInput[1], SQLCon:escape( tUser.sNick )
+		local tOutput = tFunction.InsertProcedure( 'newmagnet', tMagnet )
+		if not tOutput then
+			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
+			return false
+		end
+		local sReply = ("The magnet to entry #%s has been added. The magnet ID is #%s."):format( tInput[1], tOutput.magnetID )
+		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
 		return true
 	end,
 
@@ -464,7 +465,8 @@ _G.tOffliner = {
 		end
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(SQLCon:getlastautoid()).." was removed." )
+		local sReply = ("The magnet ID: #%s was removed."):format( iMid )
+		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
 		return true, { eid = tRow.eid }
 	end,
 
