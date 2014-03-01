@@ -12,6 +12,13 @@ function chkpriv(user,n)
 	return true
 end
 
+function isHigherRanked(user,victim)
+	local userprofile = Core.GetUserValue(user,15)
+	local victimprofile = Core.GetUserValue(victim,15)
+	if userprofile < victimprofile and userprofile ~= -1 then return true end
+	return false
+end
+	
 function isthere(user,tabl)
 	return tabl[user]
 end
@@ -49,11 +56,16 @@ function check(user,regprofile,tokens,numofargs,victimid)
 		end
 	end
 	if victimid then
-		local victim=tokens[victimid]
-		if not Core.GetUser(victim) then
+		local victim=Core.GetUser(tokens[victimid])
+		if not victim then
 			notify(user,victim.." not online")
 			return false
 		end
+		if not isHigherRanked(user,victim) then
+			notify(user,"You dont have the permission to use this command on "..victim.sNick)
+			return false
+		end
+
 	end
 	return true
 end
