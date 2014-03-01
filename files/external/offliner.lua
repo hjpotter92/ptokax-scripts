@@ -30,7 +30,7 @@ _G.tFunction = {
 	end,
 
 	FindMagnet = function( sInput, tUser )
-		local sTTH, sSize, sName = sContent:match "^.*magnet[:]%?xt=urn[:]tree[:]tiger[:](%w+)&xl=(%d+)&dn=(.+)$"
+		local sTTH, sSize, sName = sInput:match "^.*magnet[:]%?xt=urn[:]tree[:]tiger[:](%w+)&xl=(%d+)&dn=(.+)$"
 		if sTTH:len() == 0 or sSize:len() == 0 or sName:len() == 0 then
 			return false
 		elseif sTTH:len() ~= 39 then
@@ -82,19 +82,18 @@ _G.tFunction = {
 	end,
 
 	InsertProcedure = function( sProcName, tInput )
-		local SQLCur2 = ""
-		if sProcName:lower() == "newmaget" then[[]]
+		local sInsertQuery, sIDQuery = "", ""
+		if sProcName:lower() == "newmaget" then
 			local sInsertQuery, sIDQuery = [[CALL NewMagnet('%s', '%s', '%s', '%s', @mgid)]], [[SELECT @mgid AS magnetID]]
 			sInsertQuery = sInsertQuery:format( tInput.nick, tInput.tth, tInput.name, tInput.size, tInput.eid )
-			local SQLCur1 = assert( SQLCon:execute(sInsertQuery) )
-			SQLCur2 = assert( SQLCon:execute(sIDQuery) )
 		elseif sProcName:lower() == "newentry" then
 			local sInsertQuery, sIDQuery = [[CALL NewEntry( '%s', '%s', '%s', '%s', '%s', '%s', @eid, @mgid )]], [[SELECT @eid AS entryID, @mgid AS magnetID]]
 			sInsertQuery = sInsertQuery:format( tInput.ctg, tInput.msg, tInput.nick, tInput.tth, tInput.name, tInput.size )
-			SQLCur2 = assert( SQLCon:execute(sIDQuery) )
 		end
+		local SQLCur = assert( SQLCon:execute(sInsertQuery) )
+		SQLCur = assert( SQLCon:execute(sIDQuery) )
 		if type( SQLCur2 ) ~= "string" then
-			local tRow = assert( SQLCur2:fetch({}, "a") )
+			local tRow = SQLCur2:fetch( {}, "a" )
 			return tRow
 		end
 		return false
@@ -134,20 +133,27 @@ _G.tFunction = {
 			m.tth,
 			m.size,
 			m2.nick AS nick,
-			m.date
+			m.date,
+			f.filename AS name
 		FROM magnets m
 		INNER JOIN modtable m2
 			ON m2.id = m.nick
+		LEFT JOIN filenames f
+			ON f.magnet_id = m.id
 		WHERE eid = %d
 		ORDER BY date DESC
 		LIMIT 5]], "%s. [%s] magnet:?xt=urn:tree:tiger:%s&xl=%s (Added by %s on %s)"
-		local SQLCur = assert( SQLCon:execute(string.format( sQuery, iEID )) )
+		local SQLCur = assert( SQLCon:execute(sQuery:format( iEID )) )
 		if SQLCur:numrows() == 0 then
 			return nil
 		end
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
-			table.insert( tReturn, sTemplate:format(tRow.id, tFunction.GetSize(tRow.size), tRow.tth, tRow.size, tRow.nick, tRow.date) )
+			local sSize = tFunction.GetSize( tRow.size )
+			if tRow.name then
+				tRow.size = ("%s&dn=%s"):format(tRow.size, tRow.name)
+			end
+			table.insert( tReturn, sTemplate:format(tRow.id, sSize, tRow.tth, tRow.size, tRow.nick, tRow.date) )
 			tRow = SQLCur:fetch( {}, "a" )
 		end
 		return table.concat( tReturn, "\n\t" )
@@ -322,7 +328,7 @@ _G.tOffliner = {
 
 	al = function( tUser, tInput )
 		local sCategory, sEntry, sMagnet = tInput[1], table.concat( tInput, " ", 2, #tInput - 1 ), tInput[ #tInput ]
-		local tMagnet = tFunction.FindMagnet( sContent, tUser )
+		local tMagnet = tFunction.FindMagnet( sMagnet, tUser )
 		if not tMagnet then
 			return false
 		end
@@ -342,10 +348,12 @@ _G.tOffliner = {
 	end,
 
 	dl = function( tUser, iID )
-		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*
+		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*, f.*
 		FROM entries e
 		LEFT JOIN magnets m
 			ON m.eid = e.id
+		LEFT JOIN filenames f
+			ON m.id = f.magnet_id
 		WHERE e.id = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
@@ -426,27 +434,28 @@ _G.tOffliner = {
 	end,
 
 	em = function( tUser, tInput )
-		local iMID, sContent = tInput[1], tInput[2]
-		local sMagnetQuery = [[UPDATE magnets
+		local iMID, tMagnet = tInput[1], tFunction.FindMagnet( tInput[2] )
+		local sMagnetQuery, sReply = [[UPDATE magnets
 		SET tth = '%s',
-			size = %.0f,
+			size = %s,
 			date = NOW()
-		WHERE id = %d ]]
-		local sTTH, iSize = sContent:match( "tree%:tiger%:(%w+)&xl=(%d+)&" )
-		if not (sTTH and iSize) or sTTH:len() ~= 39 then
-			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+		WHERE id = %s ]], "The magnet entry #%s has been updated."
+		if not tMagnet then
 			return false
 		end
-		sMagnetQuery = sMagnetQuery:format( sTTH, tonumber(iSize), iMID )
+		sMagnetQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID )
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet entry #"..tostring(iMID).." has been updated." )
+		Core.SendPmToUser( tUser, tConfig.sBotName, sReply:format(iMID) )
 		return true
 	end,
 
 	rm = function( tUser, iMID )
-		local tRow, sMagnetQuery = tFunction.FetchMagnetRow( iMID ), string.format( [[DELETE FROM `magnets`
-		WHERE `id` = %d
+		local tRow, sMagnetQuery = tFunction.FetchMagnetRow( iMID ), string.format( [[DELETE m.*, f.*
+		FROM magnets m
+		LEFT JOIN filenames f
+			ON m.id = f.magnet_id
+		WHERE m.id = %d
 		LIMIT 1]], iMID )
 		if not tRow then
 			Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(iMID).." does not exist." )
