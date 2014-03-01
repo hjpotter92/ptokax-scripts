@@ -4,7 +4,7 @@ local tConfig = {
 	sBotName = "[BOT]Offliner",
 	sHub = SetMan.GetString( 2 ) or "localhost"
 }
-tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%s"
+tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%s"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sError )
@@ -22,17 +22,6 @@ _G.tFunction = {
 			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest' ) )
 		end
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
-	end,
-
-	Explode = function( sData )
-		if not sData then
-			return {}
-		end
-		local tReturn = {}
-		string.gsub( sData, "(%S+)", function( sGrab )
-			table.insert( tReturn, sGrab )
-		end )
-		return tReturn
 	end,
 
 	Report = function( sErrorCode, iErrorNumber )

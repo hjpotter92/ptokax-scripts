@@ -3,14 +3,19 @@ function OnStartup()
 		sBotName = "[BOT]Offliner",
 		sBotDescription = "The database of newest additions to hub.",
 		sBotEmail = "do-not@mail.me",
-		sFunctionsFile = "botoff.lua",
+		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sExternalFile = "offliner.lua",
+		sChatFile = "chatcore.lua",
 		sHelpFile = "ohelp.txt",
 		sRulesFile = "general.txt",
-		sPath = Core.GetPtokaXPath().."scripts/files/",
-		sChatFile = "chatcore.lua",
 		sReportBot = "#[Hub-Feed]",
 		iModProfile = 4,
 		iRegProfile = 5
+	}
+	tPaths = {
+		sDependency = tCfg.sPath.."dependency/",
+		sExternal = tCfg.sPath.."external/",
+		sTexts = tCfg.sPath.."texts/",
 	}
 	tProfiles = {
 		AllowVIP = {
@@ -34,10 +39,11 @@ function OnStartup()
 			[7] = false			-- gymkhana
 		}
 	}
-	dofile( tCfg.sPath..tCfg.sFunctionsFile )
+	dofile( tPaths.sExternal..tCfg.sExternalFile )
+	dofile( tPaths.sDependency.."functions.lua" )
 	dofile( tCfg.sPath..tCfg.sChatFile )
-	local fHelp = io.open( tCfg.sPath..tCfg.sHelpFile )
-	local fRules = io.open( tCfg.sPath..tCfg.sRulesFile )
+	local fHelp = io.open( tPaths.sTexts..tCfg.sHelpFile )
+	local fRules = io.open( tPaths.sTexts..tCfg.sRulesFile )
 	sHelp = fHelp:read( "*a" )
 	sRules = fRules:read( "*a" )
 	Core.RegBot( tCfg.sBotName, tCfg.sBotDescription, tCfg.sBotEmail, true )
@@ -64,7 +70,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			tOffliner.l( tUser, 35 )
 			return true
 		else
-			local tBreak = tFunction.Explode( sData )
+			local tBreak = Explode( sData )
 			if tBreak[1] and tonumber( tBreak[1] ) then
 				tOffliner.l( tUser, tonumber(tBreak[1]) )
 				return true
@@ -98,7 +104,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Message must be less than 300 characters. Error raised." )
 			return true
 		end
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		tOffliner.StoreMessage( tUser.sNick, tBreak[1], table.concat(tBreak, " ", 2) )
 		return true
 
@@ -130,7 +136,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
 		return true
 	end
-	local tBreak = tFunction.Explode( sData )
+	local tBreak = Explode( sData )
 
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
