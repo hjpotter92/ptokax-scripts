@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Server version:               5.5.28-1 - (Debian)
+-- Server version:               5.5.28-1-log - (Debian)
 -- Server OS:                    debian-linux-gnu
 -- --------------------------------------------------------
 
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `buynsell` (
 
 -- Dumping structure for table latest.ctgtable
 CREATE TABLE IF NOT EXISTS `ctgtable` (
-  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `id` tinyint(3) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `name` varchar(15) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
@@ -59,6 +59,13 @@ CREATE TABLE IF NOT EXISTS `entries` (
   FULLTEXT KEY `msg` (`msg`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Listing of all additions with their tags etc.';
 
+-- Dumping structure for table latest.filenames
+CREATE TABLE IF NOT EXISTS `filenames` (
+  `magnet_id` int(10) unsigned NOT NULL,
+  `filename` tinytext NOT NULL,
+  KEY `magnet_id` (`magnet_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table to track all filenames extracted from magnets attached to entries';
+
 -- Dumping structure for table latest.guestbook
 CREATE TABLE IF NOT EXISTS `guestbook` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -82,8 +89,7 @@ CREATE TABLE IF NOT EXISTS `magnets` (
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `eid_tth` (`eid`,`tth`),
-  KEY `entriedID` (`eid`),
-  KEY `nick` (`nick`)
+  UNIQUE KEY `tth_nick` (`tth`,`nick`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table populated with magnets of various entries.';
 
 -- Dumping structure for table latest.messages
@@ -115,6 +121,48 @@ CREATE TABLE IF NOT EXISTS `modtable` (
   KEY `active` (`active`),
   KEY `date` (`date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table of all the moderators of all time.';
+
+-- Dumping structure for procedure latest.NewEntry
+DELIMITER //
+CREATE DEFINER=`offliner`@`localhost` PROCEDURE `NewEntry`(IN `ctg` VARCHAR(15), IN `msg` TINYTEXT, IN `nick` VARCHAR(32), IN `tth` CHAR(39), IN `name` TINYTEXT, IN `size` BIGINT, OUT `eid` INT, OUT `maid` INT
+)
+    COMMENT 'Automated procedure to insert a new entry'
+BEGIN
+	INSERT INTO entries (msg, nick, date, ctg)
+	SELECT
+		msg,
+		m.id,
+		NOW(),
+		c.id
+	FROM modtable m, ctgtable c
+	WHERE c.name = ctg
+		AND m.nick = nick
+	LIMIT 1;
+	SET eid = LAST_INSERT_ID();
+	CALL NewMagnet( tth, name, size, eid, maid );
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure latest.NewMagnet
+DELIMITER //
+CREATE DEFINER=`offliner`@`localhost` PROCEDURE `NewMagnet`(IN `nick` vaRCHAR(32), IN `tth` CHAR(39), IN `name` TINYTEXT, IN `size` BIGINT, IN `eid` INT, OUT `maid` INT
+)
+    COMMENT 'Automated insertion to magnets and filename tables'
+BEGIN
+	INSERT INTO magnets (eid, tth, size, nick, date)
+	SELECT
+		eid,
+		tth,
+		size,
+		m.id,
+		NOW()
+	FROM modtable m
+	WHERE m.nick = nick;
+	SET maid = LAST_INSERT_ID();
+	INSERT INTO filenames
+	VALUES( LAST_INSERT_ID(), name );
+END//
+DELIMITER ;
 
 -- Dumping structure for table latest.news
 CREATE TABLE IF NOT EXISTS `news` (

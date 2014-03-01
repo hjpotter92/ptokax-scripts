@@ -3,6 +3,7 @@ local tDatabase = {
 		'dbName',
 		'username',
 		'password',
+		'hostname',
 	},
 }
 
