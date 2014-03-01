@@ -35,8 +35,10 @@ _G.tFunction = {
 			return false
 		elseif sTTH:len() ~= 39 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, tFunction.Report("off", 80) )
+		elseif sName:len() > 255 then
+			Core.SendPmToUser( tUser, tConfig.sBotName, "Filename length should be less than 250 characters." )
 		end
-		return { tth = sTTH, size = sSize, name = sName }
+		return { tth = sTTH, size = sSize, name = SQLCon:escape(sName) }
 	end,
 
 	CreateLatestReading = function( tEntry )
@@ -84,10 +86,10 @@ _G.tFunction = {
 	InsertProcedure = function( sProcName, tInput )
 		local sInsertQuery, sIDQuery = "", ""
 		if sProcName:lower() == "newmagnet" then
-			local sInsertQuery, sIDQuery = [[CALL NewMagnet('%s', '%s', '%s', '%s', '%s', @mgid)]], [[SELECT @mgid AS magnetID]]
+			sInsertQuery, sIDQuery = [[CALL NewMagnet('%s', '%s', '%s', '%s', '%s', @mgid)]], [[SELECT @mgid AS magnetID]]
 			sInsertQuery = sInsertQuery:format( tInput.nick, tInput.tth, tInput.name, tInput.size, tInput.eid )
 		elseif sProcName:lower() == "newentry" then
-			local sInsertQuery, sIDQuery = [[CALL NewEntry( '%s', '%s', '%s', '%s', '%s', '%s', @eid, @mgid )]], [[SELECT @eid AS entryID, @mgid AS magnetID]]
+			sInsertQuery, sIDQuery = [[CALL NewEntry( '%s', '%s', '%s', '%s', '%s', '%s', @eid, @mgid )]], [[SELECT @eid AS entryID, @mgid AS magnetID]]
 			sInsertQuery = sInsertQuery:format( tInput.ctg, tInput.msg, tInput.nick, tInput.tth, tInput.name, tInput.size )
 		end
 		local SQLCur = assert( SQLCon:execute(sInsertQuery) )
