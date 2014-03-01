@@ -58,7 +58,7 @@ function check(user,regprofile,tokens,numofargs,victimid)
 	if victimid then
 		local victim=Core.GetUser(tokens[victimid])
 		if not victim then
-			notify(user,victim.." not online")
+			notify(user,tokens[victimid].." not online")
 			return false
 		end
 		if not isHigherRanked(user,victim) then
