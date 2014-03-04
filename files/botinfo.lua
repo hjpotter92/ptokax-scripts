@@ -1,9 +1,8 @@
+package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+local Connection = require 'config'
 local tConfig = {
-	sDatabase = "latest",
-	sMySQLUser = "offliner",
-	sMySQLPass = "latest@hhfh",
 	sBotName = "[BOT]Info",
-	sHub = SetMan.GetString( 2 ) or "localhost"
+	sHub = SetMan.GetString( 2 ) or "localhost",
 }
 tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
@@ -18,8 +17,10 @@ _G.tFunction = {
 		if not luasql then
 			luasql = require "luasql.mysql"
 		end
-		_G.SQLEnv = assert( luasql.mysql() )
-		_G.SQLCon = assert( SQLEnv:connect( tConfig.sDatabase, tConfig.sMySQLUser, tConfig.sMySQLPass, "localhost", "3306") )
+		if not SQLEnv then
+			_G.SQLEnv = assert( luasql.mysql() )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
+		end
 		return tFunction.CheckCategory()
 	end,
 
