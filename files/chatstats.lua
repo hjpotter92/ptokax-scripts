@@ -106,16 +106,16 @@ function AllTimeTop( iLimit )
 	return sResult..tFormat.sHeader..table.concat( tTemp, "\n\t" )
 end
 
-function DailyTop( iLimit )
+function DailyTop( iLimit, sDate )
 	local sResult, tTemp = "\n\n\t\tShowing %d of %s\n\n", {}
 	sResult = sResult:format( iLimit, sDate or "today" )
-	local sQuery= [[SELECT `nick`,
+	local sQuery= [[SELECT nick,
 		`count` AS `total`
-	FROM `scores`
-	WHERE `dated` = %s
+	FROM scores
+	WHERE dated = %s
 	ORDER BY `total` DESC
 	LIMIT %d]]
-	local sDate="CURDATE()"
+	local sDate = sDate or "CURDATE()"
 	local sqlCur = assert( sqlCon:execute(sQuery:format(sDate, iLimit)) )
 	tTemp = List( sqlCur )
 	return sResult..tFormat.sHeader..table.concat( tTemp, "\n\t" )

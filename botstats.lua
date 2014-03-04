@@ -99,7 +99,7 @@ function ExecuteCommand( tUser,sMessage, bIsPm )
 	elseif sCmd == "top" then
 		local iLimit=tonumber(tTokens[7])
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		Reply( tUser, DailyTop(iLimit), bIsPm )
+		Reply( tUser, DailyTop(iLimit, tTokens[8]), bIsPm )
 		return true
 	elseif sCmd == "topall" then
 		local iLimit=tonumber(tTokens[7])
