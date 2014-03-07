@@ -1,6 +1,8 @@
 function OnStartup()
-	dofile(Core.GetPtokaXPath().."scripts/files/chatstats.lua" )
-	dofile(Core.GetPtokaXPath().."scripts/files/toks.lua" )
+	package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+	local Connection = require 'config'
+	dofile( Core.GetPtokaXPath().."scripts/files/chatstats.lua" )
+	dofile( Core.GetPtokaXPath().."scripts/files/toks.lua" )
 	tConfig = {
 		tBot = {
 			sName = "[BOT]Stats",
@@ -14,13 +16,6 @@ function OnStartup()
 		sFuncFile = "functions.lua",
 		sTxtPath = "texts/",
 		sHelpFile = "statsHelp.txt",
-	} 
-	tDatabase = {
-		sUser = "stat",
-		sPassword = "stats@hhfh",
-		sHost = "localhost",
-		sPort = 3306,
-		sDB = "stats",
 	}
 	tToksConfig = {
 		iMinShareLimit = 64,
@@ -35,44 +30,46 @@ function OnStartup()
 	tConfig.iTimerID2=TmrMan.AddTimer( 5 *60*10^3, "UpdateToks" )
 	tConfig.iTimerID3=TmrMan.AddTimer( 24*60*60* 10^3, "Inflation" )
 	tConfig.iTimerID4=TmrMan.AddTimer( 24*60*60* 10^3, "GrantAllowance" )
-	
+
 	local fHelp = io.open( tConfig.sPath..tConfig.sTxtPath..tConfig.sHelpFile, "r" )
 	sHelp = fHelp:read( "*a" )
 	fHelp:close()
-	
+
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
-	
+
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sFuncFile )
-	--dofile( tConfig.sPath..tConfig.sFunctionsFile )
-	
+
+	local luasql
 	if not luasql then
-	luasql = require "luasql.mysql"
+		luasql = require "luasql.mysql"
 	end
-	sqlEnv = assert( luasql.mysql() )
-	sqlCon = assert( sqlEnv:connect(tDatabase.sDB, tDatabase.sUser, tDatabase.sPassword, tDatabase.sHost, tDatabase.sPort) )
+	if not sqlEnv then
+		_G.sqlEnv = assert( luasql.mysql() )
+		_G.sqlCon = assert( sqlEnv:connect(Connection 'stats') )
+	end
 end
 
 function ChatArrival( tUser, sMessage )
 	local bIsRegUser = (tUser.iProfile ~= -1)
 	if bIsRegUser then
-		IncreaseChatCount(tUser)
+		IncreaseChatCount( tUser )
 	end
 end
 
 function ToArrival( tUser, sMessage )
 	local sMessage = string.gsub(sMessage,"|","")
-	
+
 	local sTo = sMessage:match( "$To: (%S+)" )
 	local bIsRegUser = (tUser.iProfile ~= -1)
 	local bIsBot = VerifyBots( sTo )
 	if bIsRegUser then
-		IncreasePMCount(tUser)
+		IncreasePMCount( tUser )
 	end
 	if bIsBot then
 		IncreaseBotCount(sTo,bIsRegUser)
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	local sFchar =sMessage:match( "%b$$%b<> ([-+*/?#!]).*" )
+	local sFchar = sMessage:match( "%b$$%b<> ([-+*/?#!]).*" )
 	if not sFchar then return false end
 	return ExecuteCommand( tUser, sMessage, true )
 end
@@ -81,15 +78,13 @@ function OnExit()
 	Core.UnregBot( tConfig.tBot.sName )
 	TmrMan.RemoveTimer( tConfig.iTimerID1 )
 	TmrMan.RemoveTimer( tConfig.iTimerID2 )
-	--TmrMan.RemoveTimer( tConfig.iTimerID3 )
 	TmrMan.RemoveTimer( tConfig.iTimerID4 )
 	sqlCon:close()
 	sqlEnv:close()
 end
 
 function ExecuteCommand( tUser,sMessage, bIsPm )
-	tTokens=Explode( sMessage)
-	Core.SendPmToNick("Brick","PtokaX",sMessage)
+	tTokens = Explode( sMessage )
 	local sCmd = tTokens[6]:lower():match(".(.*)")
 	if sCmd == "h" or sCmd == "help" and bIsPm then
 		Reply( tUser, sHelp, bIsPm )
@@ -104,7 +99,7 @@ function ExecuteCommand( tUser,sMessage, bIsPm )
 	elseif sCmd == "top" then
 		local iLimit=tonumber(tTokens[7])
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		Reply( tUser, DailyTop(iLimit), bIsPm )
+		Reply( tUser, DailyTop(iLimit, tTokens[8]), bIsPm )
 		return true
 	elseif sCmd == "topall" then
 		local iLimit=tonumber(tTokens[7])

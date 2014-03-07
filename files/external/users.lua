@@ -1,3 +1,5 @@
+package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+local Connection = require 'config'
 local tSettings = {
 	sBotName = SetMan.GetString( 21 ),
 	sAsBot = "<"..(SetMan.GetString(21) or "PtokaX").."> ",
@@ -13,13 +15,6 @@ local tSettings = {
 		[7] = "Gymkhana",
 	},
 }
-local tDatabase = {
-	sUser = "ptokax",
-	sPassword = "ptokax@hhfh",
-	sHost = "localhost",
-	iPort = 3306,
-	sDatabase = "ptokax",
-}
 
 local function FilterData( tInput, bLogOut )
 	tInput.sDate, tInput.sNick = ( tInput.sDate and ("'%s'"):format(tInput.sDate) ) or "NOW()", SQLCon:escape( tInput.sNick )
@@ -33,9 +28,14 @@ end
 
 tFunction = {
 	Connect = function()
-		local luasql = require "luasql.mysql"
-		SQLEnv = assert( luasql.mysql() )
-		SQLCon = assert( SQLEnv:connect(tDatabase.sDatabase, tDatabase.sUser, tDatabase.sPassword, tDatabase.sHost, tDatabase.iPort) )
+		local luasql
+		if not luasql then
+			luasql = require "luasql.mysql"
+		end
+		if not SQLEnv then
+			_G.SQLEnv = assert( luasql.mysql() )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'ptokax') )
+		end
 	end,
 
 	GetSize = function( iSize )

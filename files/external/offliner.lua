@@ -19,7 +19,7 @@ _G.tFunction = {
 		end
 		if not SQLEnv then
 			_G.SQLEnv = assert( luasql.mysql() )
-			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest' ) )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
 		end
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
 	end,
