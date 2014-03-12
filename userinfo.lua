@@ -1,3 +1,12 @@
+--[[
+
+	This file is part of HiT Hi FiT Hai's PtokaX scripts
+
+	Copyright: © 2014 HiT Hi FiT Hai group
+	Licence: GNU General Public Licence v3 https://www.gnu.org/licenses/gpl-3.0.html
+
+--]]
+
 local function CheckUserMode( sNick, sMode, iProfile )
 	if sMode == "P" and not tConfig.sPassiveBanPass:find( iProfile ) then
 		BanMan.TempBanNick( sNick, tConfig.iPassiveBanTime, "Connection with passive mode is not allowed.", tConfig.sBotName )
