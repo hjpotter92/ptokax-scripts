@@ -21,7 +21,7 @@ Currently, the scripts in the repository are for following operations:
   4. Denying messages from unsubscribed users
   5. Message logging
 - Restricting unregistered users from chat.
-- Users' daily activity on mianchat stored to database. Applicable for registered users only.
+- Users' daily activity on mainchat stored to database. Applicable for registered users only.
 - Subscribable mainchat.
 - Automated registration of new users.
 - Right click menu for each of the actions
