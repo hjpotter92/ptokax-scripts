@@ -24,7 +24,8 @@ end
 function isHigherRanked(user,victim)
 	local userprofile = Core.GetUserValue(user,15)
 	local victimprofile = Core.GetUserValue(victim,15)
-	if userprofile < victimprofile and userprofile ~= -1 then return true end
+	if victimprofile == -1 and userprofile ~= -1  then return true end
+	if userprofile < victimprofile then return true end
 	return false
 end
 	
