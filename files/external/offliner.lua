@@ -467,8 +467,7 @@ _G.tOffliner = {
 		FROM magnets m
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
-		WHERE m.id = %d
-		LIMIT 1]], iMID )
+		WHERE m.id = %d ]], iMID )
 		if not tRow then
 			Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(iMID).." does not exist." )
 			return false
