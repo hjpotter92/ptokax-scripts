@@ -474,7 +474,7 @@ _G.tOffliner = {
 		end
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		local sReply = ("The magnet ID: #%s was removed."):format( iMid )
+		local sReply = ("The magnet ID: #%s was removed."):format( iMID )
 		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
 		return true, { eid = tRow.eid }
 	end,
