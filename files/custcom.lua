@@ -22,8 +22,8 @@ function chkpriv(user,n)
 end
 
 function isHigherRanked(user,victim)
-	local userprofile = Core.GetUserValue(user,15)
-	local victimprofile = Core.GetUserValue(victim,15)
+	local userprofile = user.iProfile
+	local victimprofile = victim.iProfile
 	if victimprofile == -1 and userprofile ~= -1  then return true end
 	if userprofile < victimprofile then return true end
 	return false
@@ -44,7 +44,7 @@ function isthere_key(key,tabl)
 	return nil
 end
 
-function check(user,regprofile,tokens,numofargs,victimid)
+function check(user,regprofile,tokens,numofargs,victimid,viconline)
 	if not chkpriv( user, regprofile) then
 		notify(user,"You dont have access to this command")
 		return false
@@ -55,11 +55,21 @@ function check(user,regprofile,tokens,numofargs,victimid)
 			return false
 		end
 	end
-	if victimid then
-		local victim=Core.GetUser(tokens[victimid])
-		if not victim then
-			notify(user,tokens[victimid].." not online")
-			return false
+	if victimid then -- command has a victim
+		local victimnick=tokens[victimid]
+		local victim=Core.GetUser(victimnick)
+		if viconline then -- victim is required to be online for this command to work ex kick
+			if not victim then
+				notify(user,victimnick.." not online")
+				return false
+			end
+		end
+		if not victim then -- victim isnt online but they might be a registered user , we need victim profile id for isHigherRanked function
+			victim = RegMan.GetReg(victimnick)
+			if not victim then -- victim is an offline unregistered user , create fake user table with profile for them
+				victim={}
+				victim.iProfile = -1
+			end
 		end
 		if not isHigherRanked(user,victim) then
 			notify(user,"You dont have the permission to use this command on "..victim.sNick)
@@ -85,7 +95,7 @@ CustomCommands= {
 		return msg
 	end,
 	["drop"]=function(user,tokens)		--Disconnect (drop) a user Syntax - !drop <nick>
-		if not check(user,3,tokens,3,3) then return false end
+		if not check(user,3,tokens,3,3,true) then return false end
 		Core.Disconnect(tokens[3])
 		SendToRoom("PtokaX",user.sNick.." dropped " ..tokens[3] ,"#[Hub-Feed]" ,3)
 		return false
@@ -97,7 +107,7 @@ CustomCommands= {
 		return warning
 	end,
 	["kick"]=function(user,tokens)		--Disconnect the victim and tempban him/her for 10 mins Syntax -!kick <nick> <reason>
-		if not check(user,3,tokens,3,3) then return false end
+		if not check(user,3,tokens,3,3,true) then return false end
 		local victim=tokens[3]
 		local reason =table.concat(tokens," ",4)
 		if reason == "" then reason = "No reason provided" end
