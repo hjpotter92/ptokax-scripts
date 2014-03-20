@@ -44,16 +44,6 @@ function isthere_key(key,tabl)
 	return nil
 end
 
-function substring(tokens,index)	--return a string concatenated with all tokens after index
-	local string=""
-	for k,v in ipairs(tokens) do
-		if k>index then
-			string= string..v.." "
-		end
-	end
-	return string
-end
-
 function check(user,regprofile,tokens,numofargs,victimid)
 	if not chkpriv( user, regprofile) then
 		notify(user,"You dont have access to this command")
@@ -89,7 +79,7 @@ end
 CustomCommands= {
 	["say"]=function(user,tokens)			-- Send a message on mainchat as someone else Syntax - !say <nick>  <message>
 		if not check(user,3,tokens,3) then return false end
-		local msg =substring(tokens,3)
+		local msg =table.concat(tokens," ",4)
 		msg = "<"..tokens[3].."> "..msg
 		SendToRoom("PtokaX",user.sNick.." send a mainchat message saying "..msg,"#[Hub-Feed]" ,3)
 		return msg
@@ -102,14 +92,14 @@ CustomCommands= {
 	end,
 	["warn"]=function(user,tokens)		--Send a warning on mainchat as the mainbot Syntax - !warn <nick> <reason>
 		if not check(user,3,tokens,3,3) then return false end
-		local reason =substring(tokens,3)
+		local reason =table.concat(tokens," ",4)
 		local warning = "<PtokaX> "..tokens[3].." has been warned for : "..reason..". If it doesnt calm down it WILL be kicked from the hub."
 		return warning
 	end,
 	["kick"]=function(user,tokens)		--Disconnect the victim and tempban him/her for 10 mins Syntax -!kick <nick> <reason>
 		if not check(user,3,tokens,3,3) then return false end
 		victim=tokens[3]
-		local reason =substring(tokens,3)
+		local reason =table.concat(tokens," ",4)
 		BanMan.TempBanNick(victim,10,reason,user.sNick)
 		if reason then
 			SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
@@ -196,7 +186,7 @@ CustomCommands= {
 		return false
 	end,
       	["me"]=function(user,tokens)	-- Speak in third person.Identical to /me command on IRC, Syntax - !me <message>
-		local msg =substring(tokens,2)
+		local msg =table.concat(tokens," ",3)
 		msg = user.sNick.." "..msg
 		return msg
 	end,
@@ -219,7 +209,7 @@ CustomCommands= {
 	--adminstrative shortcuts
 	["send"]=function(user,tokens) -- Send message to all in the form of raw data(without adding any dcprotocol keywords) . Syntax - !send <message>
 		if not check(user,0) then return false end
-		local msg =substring(tokens,2)
+		local msg =table.concat(tokens," ",3)
 		return msg
 	end,
 	["changereg"]=function(user,tokens) -- Change the profile of a registered user. Syntax - !changereg <user_nick> <profile_num>
