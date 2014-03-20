@@ -206,6 +206,54 @@ CustomCommands= {
 		chan=not chan
 		return false
 	end,
+	--blocking related 
+	["block"]=function(user,tokens)		--Prevent the victim from downloading from the users Syntax - !block <nick> <reason>
+		if not check(user,4,tokens,3,3) then return false end
+		local victim=tokens[3]
+		local nickpair=user.sNick.."$"..victim
+		local reason = table.concat(tokens," ",4) 
+		if reason == "" then reason = "No reason provided" end
+		blocked[nickpair] = reason
+		pickle.store( path.."files/blocks.txt", {blocked=blocked} )
+		--SendToRoom(user.sNick, "Blocking "..victim.." .","#[Hub-Feed]" ,3)
+		local msg=victim.." has been blocked by you for :"..reason
+		notify(user,msg)
+		return false
+	end,
+	["unblock"]=function(user,tokens)		--Unmute the person Syntax - !unmute <nick>
+		if not check(user,4,tokens,3,3) then return false end
+		local victim=tokens[3]
+		local nickpair=user.sNick.."$"..victim
+		if isthere(nickpair,blocked) then
+			blocked[nickpair] = nil
+			pickle.store( path.."files/blocks.txt", {blocked=blocked} )
+			notify(user,"Unblocking "..victim)
+		else
+			notify(user,victim.." is not blocked.|")
+		end
+		return false
+	end,
+	["getblocks"]=function(user,tokens)		--Get all blocks Syntax - !getblocks
+		if not check(user,0) then return false end
+		local msg="The block pairs are\n\t"
+		for nickpair,reason in pairs(blocked) do
+			msg=msg..nickpair.."\t"..reason.."\n\t"
+		end
+		notify(user,msg)
+		return false
+	end,
+	["getmyblocks"]=function(user,tokens)		--Get your blocks Syntax - !getmyblocks
+		if not check(user,4) then return false end
+		local msg="The users blocked by you are\n\t"
+		for nickpair,reason in pairs(blocked) do
+			local _,_,blocker,blocked=nickpair:find("([^$]+)$(%S+)")
+			if blocker == user.sNick then
+				msg=msg..blocked.."\t"..reason.."\n\t"
+			end
+		end
+		notify(user,msg)
+		return false
+	end,
 	--adminstrative shortcuts
 	["send"]=function(user,tokens) -- Send message to all in the form of raw data(without adding any dcprotocol keywords) . Syntax - !send <message>
 		if not check(user,0) then return false end

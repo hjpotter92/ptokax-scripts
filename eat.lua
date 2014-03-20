@@ -7,12 +7,14 @@
 
 --]]
 
-path="/root/PtokaX/scripts/"
+path=Core.GetPtokaXPath().."scripts/"
 bot=SetMan.GetString(21)
 dofile(path.."files/digest.lua")
 nickc = {}
 falone = {}
 muted = {}
+blocked={}
+dofile( path.."files/blocks.txt" )
 desu =false
 san =false
 chan =false
@@ -77,7 +79,8 @@ ChatArrival = function(user,data)
 	--message begins with a command character but the command is not found . Treat it as a normal message
 	isCmd=false
 	digest(user,data,isCmd,irc)
-	return true	
+	return true
+	
 end
 
 ToArrival = function( user, data)
@@ -100,4 +103,12 @@ ToArrival = function( user, data)
 		return true
 	end
 end
-
+ConnectToMeArrival=function(user,data)
+	local _,_,uploader=data:find("$ConnectToMe%s(%S+)")
+	local nickpair=uploader.."$"..user.sNick
+	if blocked[nickpair] then
+		local msg = uploader.." has blocked you from downloading from them for the reason: "..blocked[nickpair]
+		Core.SendPmToNick(user.sNick,"PtokaX",msg)
+		return true
+	end
+end
