@@ -98,14 +98,11 @@ CustomCommands= {
 	end,
 	["kick"]=function(user,tokens)		--Disconnect the victim and tempban him/her for 10 mins Syntax -!kick <nick> <reason>
 		if not check(user,3,tokens,3,3) then return false end
-		victim=tokens[3]
+		local victim=tokens[3]
 		local reason =table.concat(tokens," ",4)
+		if reason == "" then reason = "No reason provided" end
 		BanMan.TempBanNick(victim,10,reason,user.sNick)
-		if reason then
-			SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
-		else
-			SendToRoom(user.sNick, "Kicking "..victim.." .","#[Hub-Feed]" ,3)
-		end
+		SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
 		return false
 	end,
 	["mute"]=function(user,tokens)		--Mute the  victim indefinitely, preventing him/her from posting on mainchat Syntax - !mute <nick>
