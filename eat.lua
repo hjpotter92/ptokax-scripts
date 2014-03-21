@@ -7,12 +7,14 @@
 
 --]]
 
-path="/root/PtokaX/scripts/"
+path=Core.GetPtokaXPath().."scripts/"
 bot=SetMan.GetString(21)
 dofile(path.."files/digest.lua")
 nickc = {}
 falone = {}
 muted = {}
+blocked={}
+dofile( path.."files/blocks.txt" )
 desu =false
 san =false
 chan =false
@@ -55,7 +57,7 @@ end
 ChatArrival = function(user,data)
 	local data = string.gsub(data,"|","") --remove terminating |
 	local tempdata = data.." "
-	 _, _,fchar,cmd= tempdata:find( "%b<> (.)(%S+)%s")
+	 fchar,cmd= tempdata:match( "%b<> (.)(%S+)%s")
 	 local isCmd=false
 	 local irc=false
 	 --Check beforehand if the message begins with a command character . If it doesnt , its not a command . 
@@ -77,18 +79,19 @@ ChatArrival = function(user,data)
 	--message begins with a command character but the command is not found . Treat it as a normal message
 	isCmd=false
 	digest(user,data,isCmd,irc)
-	return true	
+	return true
+	
 end
 
 ToArrival = function( user, data)
 	local tempdata = string.gsub(data,"|","") --remove terminating |
 	local tempdata = tempdata.." "
-	 _,_,to,from= tempdata:find( "$To:%s(%S+)%sFrom:%s(%S+)%s$%b<>%s.*")
+	 to,from= tempdata:match( "$To:%s(%S+)%sFrom:%s(%S+)%s$%b<>%s.*")
 	if  to~= "PtokaX" then
 		return
 	end
-	_,_,tempdata=tempdata:find("$.*$(.*)")
-	_, _,fchar,cmd= tempdata:find( "%b<> (.)(%S+)%s")
+	tempdata=tempdata:match("$.*$(.*)")
+	fchar,cmd= tempdata:match( "%b<> (.)(%S+)%s")
 	if  not cmdchars[fchar] then	
 		return
 	end
@@ -100,4 +103,12 @@ ToArrival = function( user, data)
 		return true
 	end
 end
-
+ConnectToMeArrival=function(user,data)
+	local uploader=data:match("$ConnectToMe%s(%S+)")
+	local nickpair=uploader.."$"..user.sNick
+	if blocked[nickpair] then
+		local msg = uploader.." has blocked you from downloading from them for the reason: "..blocked[nickpair]
+		Core.SendPmToNick(user.sNick,"PtokaX",msg)
+		return true
+	end
+end

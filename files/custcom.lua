@@ -22,8 +22,8 @@ function chkpriv(user,n)
 end
 
 function isHigherRanked(user,victim)
-	local userprofile = Core.GetUserValue(user,15)
-	local victimprofile = Core.GetUserValue(victim,15)
+	local userprofile = user.iProfile
+	local victimprofile = victim.iProfile
 	if victimprofile == -1 and userprofile ~= -1  then return true end
 	if userprofile < victimprofile then return true end
 	return false
@@ -44,17 +44,7 @@ function isthere_key(key,tabl)
 	return nil
 end
 
-function substring(tokens,index)	--return a string concatenated with all tokens after index
-	local string=""
-	for k,v in ipairs(tokens) do
-		if k>index then
-			string= string..v.." "
-		end
-	end
-	return string
-end
-
-function check(user,regprofile,tokens,numofargs,victimid)
+function check(user,regprofile,tokens,numofargs,victimid,viconline)
 	if not chkpriv( user, regprofile) then
 		notify(user,"You dont have access to this command")
 		return false
@@ -65,11 +55,21 @@ function check(user,regprofile,tokens,numofargs,victimid)
 			return false
 		end
 	end
-	if victimid then
-		local victim=Core.GetUser(tokens[victimid])
-		if not victim then
-			notify(user,tokens[victimid].." not online")
-			return false
+	if victimid then -- command has a victim
+		local victimnick=tokens[victimid]
+		local victim=Core.GetUser(victimnick)
+		if viconline then -- victim is required to be online for this command to work ex kick
+			if not victim then
+				notify(user,victimnick.." not online")
+				return false
+			end
+		end
+		if not victim then -- victim isnt online but they might be a registered user , we need victim profile id for isHigherRanked function
+			victim = RegMan.GetReg(victimnick)
+			if not victim then -- victim is an offline unregistered user , create fake user table with profile for them
+				victim={}
+				victim.iProfile = -1
+			end
 		end
 		if not isHigherRanked(user,victim) then
 			notify(user,"You dont have the permission to use this command on "..victim.sNick)
@@ -89,33 +89,30 @@ end
 CustomCommands= {
 	["say"]=function(user,tokens)			-- Send a message on mainchat as someone else Syntax - !say <nick>  <message>
 		if not check(user,3,tokens,3) then return false end
-		local msg =substring(tokens,3)
+		local msg =table.concat(tokens," ",4)
 		msg = "<"..tokens[3].."> "..msg
 		SendToRoom("PtokaX",user.sNick.." send a mainchat message saying "..msg,"#[Hub-Feed]" ,3)
 		return msg
 	end,
 	["drop"]=function(user,tokens)		--Disconnect (drop) a user Syntax - !drop <nick>
-		if not check(user,3,tokens,3,3) then return false end
+		if not check(user,3,tokens,3,3,true) then return false end
 		Core.Disconnect(tokens[3])
 		SendToRoom("PtokaX",user.sNick.." dropped " ..tokens[3] ,"#[Hub-Feed]" ,3)
 		return false
 	end,
 	["warn"]=function(user,tokens)		--Send a warning on mainchat as the mainbot Syntax - !warn <nick> <reason>
 		if not check(user,3,tokens,3,3) then return false end
-		local reason =substring(tokens,3)
+		local reason =table.concat(tokens," ",4)
 		local warning = "<PtokaX> "..tokens[3].." has been warned for : "..reason..". If it doesnt calm down it WILL be kicked from the hub."
 		return warning
 	end,
 	["kick"]=function(user,tokens)		--Disconnect the victim and tempban him/her for 10 mins Syntax -!kick <nick> <reason>
-		if not check(user,3,tokens,3,3) then return false end
-		victim=tokens[3]
-		local reason =substring(tokens,3)
+		if not check(user,3,tokens,3,3,true) then return false end
+		local victim=tokens[3]
+		local reason =table.concat(tokens," ",4)
+		if reason == "" then reason = "No reason provided" end
 		BanMan.TempBanNick(victim,10,reason,user.sNick)
-		if reason then
-			SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
-		else
-			SendToRoom(user.sNick, "Kicking "..victim.." .","#[Hub-Feed]" ,3)
-		end
+		SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
 		return false
 	end,
 	["mute"]=function(user,tokens)		--Mute the  victim indefinitely, preventing him/her from posting on mainchat Syntax - !mute <nick>
@@ -196,7 +193,7 @@ CustomCommands= {
 		return false
 	end,
       	["me"]=function(user,tokens)	-- Speak in third person.Identical to /me command on IRC, Syntax - !me <message>
-		local msg =substring(tokens,2)
+		local msg =table.concat(tokens," ",3)
 		msg = user.sNick.." "..msg
 		return msg
 	end,
@@ -216,10 +213,58 @@ CustomCommands= {
 		chan=not chan
 		return false
 	end,
+	--blocking related 
+	["block"]=function(user,tokens)		--Prevent the victim from downloading from the users Syntax - !block <nick> <reason>
+		if not check(user,4,tokens,3,3) then return false end
+		local victim=tokens[3]
+		local nickpair=user.sNick.."$"..victim
+		local reason = table.concat(tokens," ",4) 
+		if reason == "" then reason = "No reason provided" end
+		blocked[nickpair] = reason
+		pickle.store( path.."files/blocks.txt", {blocked=blocked} )
+		--SendToRoom(user.sNick, "Blocking "..victim.." .","#[Hub-Feed]" ,3)
+		local msg=victim.." has been blocked by you for :"..reason
+		notify(user,msg)
+		return false
+	end,
+	["unblock"]=function(user,tokens)		--Unblock the user Syntax - !unblock <nick>
+		if not check(user,4,tokens,3,3) then return false end
+		local victim=tokens[3]
+		local nickpair=user.sNick.."$"..victim
+		if isthere(nickpair,blocked) then
+			blocked[nickpair] = nil
+			pickle.store( path.."files/blocks.txt", {blocked=blocked} )
+			notify(user,"Unblocking "..victim)
+		else
+			notify(user,victim.." is not blocked.|")
+		end
+		return false
+	end,
+	["getblocks"]=function(user,tokens)		--Get all blocks Syntax - !getblocks
+		if not check(user,0) then return false end
+		local msg="The block pairs are\n\t"
+		for nickpair,reason in pairs(blocked) do
+			msg=msg..nickpair.."\t"..reason.."\n\t"
+		end
+		notify(user,msg)
+		return false
+	end,
+	["getmyblocks"]=function(user,tokens)		--Get your blocks Syntax - !getmyblocks
+		if not check(user,4) then return false end
+		local msg="The users blocked by you are\n\t"
+		for nickpair,reason in pairs(blocked) do
+			local blocker,blocked=nickpair:match("([^$]+)$(%S+)")
+			if blocker == user.sNick then
+				msg=msg..blocked.."\t"..reason.."\n\t"
+			end
+		end
+		notify(user,msg)
+		return false
+	end,
 	--adminstrative shortcuts
 	["send"]=function(user,tokens) -- Send message to all in the form of raw data(without adding any dcprotocol keywords) . Syntax - !send <message>
 		if not check(user,0) then return false end
-		local msg =substring(tokens,2)
+		local msg =table.concat(tokens," ",3)
 		return msg
 	end,
 	["changereg"]=function(user,tokens) -- Change the profile of a registered user. Syntax - !changereg <user_nick> <profile_num>
@@ -274,7 +319,7 @@ CustomCommands= {
 
 custcom=function(user,data)
 	local tokens= tokenize(data)
-	_,_,tokens[2]=string.find(tokens[2],".(%S+)")
+	tokens[2]=string.match(tokens[2],".(%S+)")
 	local msg=CustomCommands[tokens[2]](user,tokens)
 	return msg
 end
