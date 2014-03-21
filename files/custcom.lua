@@ -253,7 +253,7 @@ CustomCommands= {
 		if not check(user,4) then return false end
 		local msg="The users blocked by you are\n\t"
 		for nickpair,reason in pairs(blocked) do
-			local _,_,blocker,blocked=nickpair:find("([^$]+)$(%S+)")
+			local blocker,blocked=nickpair:match("([^$]+)$(%S+)")
 			if blocker == user.sNick then
 				msg=msg..blocked.."\t"..reason.."\n\t"
 			end
@@ -319,7 +319,7 @@ CustomCommands= {
 
 custcom=function(user,data)
 	local tokens= tokenize(data)
-	_,_,tokens[2]=string.find(tokens[2],".(%S+)")
+	tokens[2]=string.match(tokens[2],".(%S+)")
 	local msg=CustomCommands[tokens[2]](user,tokens)
 	return msg
 end
