@@ -227,7 +227,7 @@ CustomCommands= {
 		notify(user,msg)
 		return false
 	end,
-	["unblock"]=function(user,tokens)		--Unmute the person Syntax - !unmute <nick>
+	["unblock"]=function(user,tokens)		--Unblock the user Syntax - !unblock <nick>
 		if not check(user,4,tokens,3,3) then return false end
 		local victim=tokens[3]
 		local nickpair=user.sNick.."$"..victim
