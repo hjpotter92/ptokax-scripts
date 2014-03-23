@@ -429,20 +429,18 @@ _G.tOffliner = {
 		return true
 	end,
 
-	am = function( tUser, tInput )
-		local tMagnet = tFunction.FindMagnet( tInput[2], tUser )
+	am = function( tUser, iID, sMagnet )
+		local sModNick = SQLCon:escape( tUser.sNick )
+		local tMagnet = tFunction.FindMagnet( sMagnet, tUser )
 		if not tMagnet then
 			return false
 		end
-		tMagnet.eid, tMagnet.nick = tInput[1], SQLCon:escape( tUser.sNick )
+		tMagnet.eid, tMagnet.nick = iID, sModNick
 		local tOutput = tFunction.InsertProcedure( 'newmagnet', tMagnet )
 		if not tOutput then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
 			return false
 		end
-		local sReply = ("The magnet to entry #%s has been added. The magnet ID is #%s."):format( tInput[1], tOutput.magnetID )
-		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
-		return true
+		return true, tOutput.magnetID
 	end,
 
 	em = function( tUser, tInput )

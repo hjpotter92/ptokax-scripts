@@ -224,19 +224,25 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
-		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
+		local iID, tRow = tonumber( tBreak[1] ), tFunction.FetchRow( tonumber(tBreak[1]) )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
-		if tOffliner.am( tUser, tBreak ) then
-			local sChatMessage = "Magnet "..tBreak[2].." added for entry #"..tostring(tBreak[1]).." - "..tRow.msg
-			tFunction.SendToAll( tUser.sNick, sChatMessage )
-			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
-			return true
-		else
-			return true
+		for iIndex = 2, #tBreak do
+			local sMagnet = tBreak[iIndex]
+			local bFlag, Value = tOffliner.am( tUser, iID, sMagnet )
+			if not bFlag then
+				Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
+			else
+				local sRoomReply, sPersonalReply = "Magnet %s added for entry #%d - %s", "The magnet has been added at ID #%d to entry #%d."
+				sRoomReply = sRoomReply:format(sMagnet, iID, tRow.msg)
+				Core.SendPmToUser( tUser, tCfg.sBotName, sPersonalReply:format(iID, Value) )
+				tFunction.SendToAll( tUser.sNick, sRoomReply )
+				SendToRoom( tUser.sNick, sRoomReply, tCfg.sReportBot, tCfg.iModProfile )
+			end
 		end
+		return true
 
 	elseif sCmd == "em" or sCmd == "editmagnet" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
