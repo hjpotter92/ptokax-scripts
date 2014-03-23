@@ -45,15 +45,17 @@ FOR MODERATORS
 
 +updatelatest( or +ul ) should be followed by the entry ID and new string. If the entry was not made by you, you can not update it.
 
-+dellatest( or +dl ) accepts only a single numerical argument, the entry ID from latest entries. Deleted the row from table.
++dellatest( or +dl ) accepts one or more numerical argument, the entry ID from latest entries. Deletes the specific row(s) from
+    latenst entries table matching the given ID(s). If the row doesn't exist in table, an error is thrown.
 
-+addmagnet( or +am ) requires 2 arguments. The addition entry ID and the magnet to be added. The ID must be a valid entry from
-    the table. Non-numerical values are no accepted.
++addmagnet( or +am ) requires atleast 2 arguments. The addition entry ID and the magnet to be added. The ID must be a valid entry
+    from the table. Non-numerical values are not accepted. You can pass more than one magnet URI for the same entry.
 
 +editmagnet( or +em ) does the same task as `+em` except only for magnet ID. They are shown with the respective magnet in latest
     table display.
 
-+removemagnet( or +rm ) must be passed with a valid numerical magnet ID. It removes the magnet associated with that ID.
++removemagnet( or +rm ) must be passed with a valid numerical magnet ID. It removes the magnet associated with that ID. More
+    than one IDs can be passed by separating each with a space.
 
 
 FOR VIPs & ABOVE USERS
@@ -65,3 +67,13 @@ In addition to all the commands above, following commands have also been made av
     can also add entries to latest database.
 
 +delmod just deletes the user(nick passed as argument) from moderator privileges.
+
+
+FOR HUB OPERATORS & ADMINISTRATORS
+-------------------------------------------------------------
+
+The hub administrators have the following commands available to them in addition to the ones listed above:
+
++addctg to add a new category to the list of available categories for addition of newer entries.
+
++delctg to delete a category from the list of available categories for addition of entries.
