@@ -278,7 +278,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			if tRow and ( tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() ) then
 				if tOffliner.rm( tUser, iMID, tRow.nick ) then
 					local sReply = ("Magnet removed for magnetID #%d attached to entry #%d."):format( iMID, tRow.eid )
-					Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
+					Core.SendPmToUser( tUser, tCfg.sBotName, sReply )
 					SendToRoom( tUser.sNick, sReply, tCfg.sReportBot )
 				end
 			end
