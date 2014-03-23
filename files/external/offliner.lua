@@ -479,7 +479,7 @@ _G.tOffliner = {
 	StoreMessage = function( sSender, sRecipient, sMessage )
 		local tRecipient = Core.GetUser( sRecipient )
 		if tRecipient then
-			Core.SendPmToUser( tUser, sSender, sMessage )
+			Core.SendPmToUser( tRecipient, sSender, sMessage )
 			Core.SendPmToNick( sSender, tConfig.sBotName, "User was online. Message delivered." )
 			return false
 		end
@@ -487,7 +487,7 @@ _G.tOffliner = {
 		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
-		local sReply "The message has been stored with ID: #%d. It'll be delivered to %s when they connect to hub."
+		local sReply = "The message has been stored with ID: #%d. It'll be delivered to %s when they connect to hub."
 		Core.SendPmToNick( sSender, tConfig.sBotName, sReply:format(SQLCon:getlastautoid(), sRecipient) )
 		return true
 	end,
