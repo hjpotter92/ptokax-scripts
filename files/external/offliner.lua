@@ -81,7 +81,7 @@ _G.tFunction = {
 	end,
 
 	GetModerators = function()
-		local tReturn, sCategoryQuery = {}, "SELECT `nick` FROM `modtable` WHERE `active` = 'Y' AND `deletions` < 6 ORDER BY `id` ASC"
+		local tReturn, sCategoryQuery = {}, "SELECT nick FROM modtable WHERE active = 'Y' AND deletions < 11 ORDER BY id ASC"
 		local SQLCur = assert( SQLCon:execute(sCategoryQuery) )
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
@@ -359,17 +359,17 @@ _G.tOffliner = {
 		return true
 	end,
 
-	dl = function( tUser, iID )
-		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*, f.*
+	dl = function( tUser, iID, sModNick )
+		local sDeleteQuery = string.format( [[DELETE e.*, m.*, f.*
 		FROM entries e
 		LEFT JOIN magnets m
 			ON m.eid = e.id
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
-		WHERE e.id = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
+		WHERE e.id = %d]], iID )
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
-			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 2 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
 		end
 		if type(SQLCur) ~= "number" then SQLCur:close() end
 		return true
@@ -462,21 +462,18 @@ _G.tOffliner = {
 		return true
 	end,
 
-	rm = function( tUser, iMID )
-		local tRow, sMagnetQuery = tFunction.FetchMagnetRow( iMID ), string.format( [[DELETE m.*, f.*
+	rm = function( tUser, iMID, sModNick )
+		local sMagnetQuery = string.format( [[DELETE m.*, f.*
 		FROM magnets m
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
 		WHERE m.id = %d ]], iMID )
-		if not tRow then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(iMID).." does not exist." )
-			return false
-		end
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
+		if sModNick:lower() ~= tUser.sNick:lower() then
+			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+		end
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		local sReply = ("The magnet ID: #%s was removed."):format( iMID )
-		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
-		return true, { eid = tRow.eid }
+		return true
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )

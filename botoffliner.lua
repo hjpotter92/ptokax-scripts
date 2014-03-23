@@ -60,9 +60,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match( "%$To: (%S+) From:" )
+	local sTo = sMessage:match "%$To: (%S+) From:"
 	if sTo ~= tCfg.sBotName then return false end
-	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s?(.*)|"
 	if not sCmd then return false end
 	return ExecuteCommand( tUser, sCmd:lower(), sData )
 end
@@ -145,6 +145,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
 		return true
 	end
+
 	local tBreak = Explode( sData )
 
 	if sCmd == "al" or sCmd == "addlatest" then
@@ -169,24 +170,24 @@ function ExecuteCommand( tUser, sCmd, sData )
 		end
 
 	elseif sCmd == "dl" or sCmd == "dellatest" then
-		if not tonumber( tBreak[1] ) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
-			return true
+		for iIndex, iID in pairs( tBreak ) do
+			if not tonumber( iID ) then
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
+			end
+			local iID, tRow = tonumber(iID), tFunction.FetchRow( tonumber(iID) )
+			if not tRow then
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
+			end
+			if tRow and ( tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() ) then
+				tOffliner.dl( tUser, iID, tRow.nick )
+				local sRoomReply, sPersonalReply = "The entry #%d - %s was deleted.", "The following entry was deleted.\n%s"
+				SendToRoom( tUser.sNick, sRoomReply:format(iID, tRow.msg), tCfg.sReportBot )
+				Core.SendPmToUser( tUser, tCfg.sBotName, sPersonalReply:format(tFunction.CreateLatestReading( tRow )) )
+			elseif tRow.nick:lower() ~= tUser.sNick:lower() then
+				Core.SendPmToUser( tUser, tCfg.sBotName, "This entry was not added by you. You can not delete it." )
+			end
 		end
-		local tRow = tFunction.FetchRow( tonumber(tBreak[1]) )
-		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
-			return true
-		end
-		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
-			tOffliner.dl( tUser, tonumber(tBreak[1]) )
-			SendToRoom( tUser.sNick, "The entry #"..tostring(tBreak[1]).." - "..tRow.msg.." was deleted.", tCfg.sReportBot )
-			Core.SendPmToUser( tUser, tCfg.sBotName, "The following entry was deleted.\n"..tFunction.CreateLatestReading(tRow) )
-			return true
-		elseif tRow.nick:lower() ~= tUser.sNick:lower() then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "This entry was not added by you. You can not delete it." )
-			return true
-		end
+		return true
 
 	elseif sCmd == "ul" or sCmd == "updatelatest" then
 		if not tFunction.CheckModerator( tUser.sNick ) then
@@ -267,25 +268,23 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
 		end
-		if not tonumber(tBreak[1]) then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
-			return true
+		for iIndex, iMID in pairs( tBreak ) do
+			if not tonumber(iMID) then
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
+			end
+			local iMID, tRow = tonumber( iMID ), tFunction.FetchMagnetRow( tonumber(iMID) )
+			if not tRow then
+				Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
+			end
+			if tRow and ( tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() ) then
+				if tOffliner.rm( tUser, iMID, tRow.nick ) then
+					local sReply = ("Magnet removed for magnetID #%d attached to entry #%d."):format( iMID, tRow.eid )
+					Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
+					SendToRoom( tUser.sNick, sReply, tCfg.sReportBot )
+				end
+			end
 		end
-		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
-		if not tRow then
-			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
-			return true
-		end
-		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
-			local bStatus, Value = tOffliner.rm( tUser, tonumber(tBreak[1]) )
-			if not bStatus then return true end
-			if type( Value ) ~= "table" then return false end
-			local sChatMessage = "Magnet removed for magnetID #"..tostring(tBreak[1]).." attached to entry #"..tostring(Value.eid).."."
-			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
-			return true
-		else
-			return true
-		end
+		return true
 
 	elseif sCmd == "addmod" then
 		if not tProfiles.AllowVIP[tUser.iProfile] then
