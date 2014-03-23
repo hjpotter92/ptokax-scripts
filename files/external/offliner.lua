@@ -477,11 +477,18 @@ _G.tOffliner = {
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )
+		local tRecipient = Core.GetUser( sRecipient )
+		if tRecipient then
+			Core.SendPmToUser( tUser, sSender, sMessage )
+			Core.SendPmToNick( sSender, tConfig.sBotName, "User was online. Message delivered." )
+			return false
+		end
 		local sStorageQuery = [[INSERT INTO messages (message, `from`, `to`, dated)
 		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
-		Core.SendPmToNick( sSender, tConfig.sBotName, "The message has been stored with ID: #"..tostring(SQLCon:getlastautoid())..". It'll be delivered to "..sRecipient.." when they connect to hub." )
+		local sReply "The message has been stored with ID: #%d. It'll be delivered to %s when they connect to hub."
+		Core.SendPmToNick( sSender, tConfig.sBotName, sReply:format(SQLCon:getlastautoid(), sRecipient) )
 		return true
 	end,
 

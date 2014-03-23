@@ -114,8 +114,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			return true
 		end
 		local tBreak = Explode( sData )
-		tOffliner.StoreMessage( tUser.sNick, tBreak[1], table.concat(tBreak, " ", 2) )
-		return true
+		return tOffliner.StoreMessage( tUser.sNick, tBreak[1], table.concat(tBreak, " ", 2) )
 
 	elseif sCmd == "search" or sCmd == "s" then
 		if (not sData) or sData:len() == 0 then
