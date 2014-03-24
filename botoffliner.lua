@@ -106,8 +106,8 @@ function ExecuteCommand( tUser, sCmd, sData )
 		return true
 
 	elseif sCmd == "m" or sCmd == "msg" then
-		if not sData or sData:len() == 0 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, "No message was specified. Error raised." )
+		if not sData or sData:len() < 20 then
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Message was too short. Error raised." )
 			return true
 		elseif sData:len() > 300 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Message must be less than 300 characters. Error raised." )
@@ -237,7 +237,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 			else
 				local sRoomReply, sPersonalReply = "Magnet %s added for entry #%d - %s", "The magnet has been added at ID #%d to entry #%d."
 				sRoomReply = sRoomReply:format(sMagnet, iID, tRow.msg)
-				Core.SendPmToUser( tUser, tCfg.sBotName, sPersonalReply:format(iID, Value) )
+				Core.SendPmToUser( tUser, tCfg.sBotName, sPersonalReply:format(Value, iID) )
 				tFunction.SendToAll( tUser.sNick, sRoomReply )
 				SendToRoom( tUser.sNick, sRoomReply, tCfg.sReportBot, tCfg.iModProfile )
 			end
