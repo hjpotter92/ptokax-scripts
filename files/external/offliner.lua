@@ -81,7 +81,7 @@ _G.tFunction = {
 	end,
 
 	GetModerators = function()
-		local tReturn, sCategoryQuery = {}, "SELECT `nick` FROM `modtable` WHERE `active` = 'Y' AND `deletions` < 6 ORDER BY `id` ASC"
+		local tReturn, sCategoryQuery = {}, "SELECT nick FROM modtable WHERE active = 'Y' AND deletions < 11 ORDER BY id ASC"
 		local SQLCur = assert( SQLCon:execute(sCategoryQuery) )
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
@@ -359,17 +359,17 @@ _G.tOffliner = {
 		return true
 	end,
 
-	dl = function( tUser, iID )
-		local sDeleteQuery, sModNick = string.format( [[DELETE e.*, m.*, f.*
+	dl = function( tUser, iID, sModNick )
+		local sDeleteQuery = string.format( [[DELETE e.*, m.*, f.*
 		FROM entries e
 		LEFT JOIN magnets m
 			ON m.eid = e.id
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
-		WHERE e.id = %d]], tonumber(iID) ), tFunction.FetchRow(iID).nick
+		WHERE e.id = %d]], iID )
 		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
-			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 2 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
 		end
 		if type(SQLCur) ~= "number" then SQLCur:close() end
 		return true
@@ -429,20 +429,18 @@ _G.tOffliner = {
 		return true
 	end,
 
-	am = function( tUser, tInput )
-		local tMagnet = tFunction.FindMagnet( tInput[2], tUser )
+	am = function( tUser, iID, sMagnet )
+		local sModNick = SQLCon:escape( tUser.sNick )
+		local tMagnet = tFunction.FindMagnet( sMagnet, tUser )
 		if not tMagnet then
 			return false
 		end
-		tMagnet.eid, tMagnet.nick = tInput[1], SQLCon:escape( tUser.sNick )
+		tMagnet.eid, tMagnet.nick = iID, sModNick
 		local tOutput = tFunction.InsertProcedure( 'newmagnet', tMagnet )
 		if not tOutput then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
 			return false
 		end
-		local sReply = ("The magnet to entry #%s has been added. The magnet ID is #%s."):format( tInput[1], tOutput.magnetID )
-		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
-		return true
+		return true, tOutput.magnetID
 	end,
 
 	em = function( tUser, tInput )
@@ -462,29 +460,33 @@ _G.tOffliner = {
 		return true
 	end,
 
-	rm = function( tUser, iMID )
-		local tRow, sMagnetQuery = tFunction.FetchMagnetRow( iMID ), string.format( [[DELETE m.*, f.*
+	rm = function( tUser, iMID, sModNick )
+		local sMagnetQuery = string.format( [[DELETE m.*, f.*
 		FROM magnets m
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
 		WHERE m.id = %d ]], iMID )
-		if not tRow then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "The magnet ID: #"..tostring(iMID).." does not exist." )
-			return false
-		end
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
+		if sModNick:lower() ~= tUser.sNick:lower() then
+			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+		end
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		local sReply = ("The magnet ID: #%s was removed."):format( iMID )
-		Core.SendPmToUser( tUser, tConfig.sBotName, sReply )
-		return true, { eid = tRow.eid }
+		return true
 	end,
 
 	StoreMessage = function( sSender, sRecipient, sMessage )
+		local tRecipient = Core.GetUser( sRecipient )
+		if tRecipient then
+			Core.SendPmToUser( tRecipient, sSender, sMessage )
+			Core.SendPmToNick( sSender, tConfig.sBotName, "User was online. Message delivered." )
+			return false
+		end
 		local sStorageQuery = [[INSERT INTO messages (message, `from`, `to`, dated)
 		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
-		Core.SendPmToNick( sSender, tConfig.sBotName, "The message has been stored with ID: #"..tostring(SQLCon:getlastautoid())..". It'll be delivered to "..sRecipient.." when they connect to hub." )
+		local sReply = "The message has been stored with ID: #%d. It'll be delivered to %s when they connect to hub."
+		Core.SendPmToNick( sSender, tConfig.sBotName, sReply:format(SQLCon:getlastautoid(), sRecipient) )
 		return true
 	end,
 

@@ -1,3 +1,11 @@
+2014-03-23
+----------
+
+- `[BOT]Offliner` accepts multiple IDs for deletion commands.
+- Support for adding more than one magnet to same entry.
+- Enhanced error reporting to end users'.
+- Deliver messages directly for offline message service if recipient is online. Previously, all messages were stored.
+
 2014-03-02
 ----------
 
@@ -15,7 +23,7 @@
 ----------
 
 - Normalize tables
-- Optimise storage and searches for **[BOT]Offliner**.
+- Optimise storage and searches for `[BOT]Offliner`.
 
 2013-09-17
 ----------
@@ -36,7 +44,7 @@
 2013-08-22
 ----------
 
-- Advanced search to support category based searches (for [BOT]Offliner).
+- Advanced search to support category based searches (for `[BOT]Offliner`).
 - Commands specific to bots restricted back to PM only.
 
 2013-07-26
@@ -94,7 +102,7 @@
 
 - [BOT]Info commands shall work from mainchat too.
 - Help command separated for `ToArrival` and `ChatArrival` to avoid duplicate command.
-- Report function added to [BOT]Offliner too.
+- Report function added to `[BOT]Offliner` too.
 - SQL table schema shared.
 
 2013-04-29
