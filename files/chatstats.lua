@@ -37,7 +37,7 @@ end
 
 local tFormat = {
 	sHeader = ( "\t%05s\t%-32s\t%-7s\n\t" ):format( "S.No.", "UserName", "Score" ),
-	sTemplate = "%-3d.\t%-25s\t%-7d",
+	sTemplate = "%3d.\t%-25s\t%-7d",
 }
 
 local function List( sqlCur )
@@ -81,32 +81,32 @@ function IncreaseChatCount(tUser)
 end
 
 function UpdateUserScore( sNick, sDate, iMain, iPM )
-	local sQuery = [[INSERT INTO `scores` (`nick`, `count`, `messages`, `dated`)
+	local sQuery = [[INSERT INTO scores (nick, `count`, messages, dated)
 	VALUES ('%s', %d, %d, '%s')
 	ON DUPLICATE KEY
 		UPDATE `count` = `count` + %d,
-			`messages` = `messages` + %d]]
+			messages = messages + %d]]
 	sQuery = sQuery:format( sqlCon:escape(sNick), iMain, iPM, sDate, iMain, iPM )
 	local sqlCur = assert( sqlCon:execute(sQuery) )
 	sqlCur = nil
 end
 
 function UpdateBotStats( sBotName, sDate, iRegs, iUnregs )
-	local sQuery = [[INSERT INTO `botStats` (`name`, `regs`, `unregs`, `dated`)
+	local sQuery = [[INSERT INTO botStats (name, regs, unregs, dated)
 	VALUES ('%s', %d, %d, '%s')
 	ON DUPLICATE KEY
-		UPDATE `regs` = `regs` + %d,
-			`unregs` = `unregs` + %d]]
+		UPDATE regs = regs + %d,
+			unregs = unregs + %d]]
 	sQuery = sQuery:format( sqlCon:escape(sBotName), iRegs, iUnregs, sDate, iRegs, iUnregs )
 	local sqlCur = assert( sqlCon:execute(sQuery) )
 	sqlCur = nil
 end
 
 function AllTimeTop( iLimit )
-	local sQuery= [[SELECT `nick`,
+	local sQuery= [[SELECT nick,
 		SUM(`count`) AS `total`
-	FROM `scores`
-	GROUP BY `nick`
+	FROM scores
+	GROUP BY nick
 	ORDER BY `total` DESC
 	LIMIT %d]]
 	local tTemp, iCounter ={}, 1
@@ -131,30 +131,30 @@ function DailyTop( iLimit, sDate )
 end
 
 function NickStats( sNick )
-	local sQuery, tRow, sResult = [[SELECT s.`nick` AS `nick`,
-		s.`count` AS `recent`,
+	local sQuery, tRow, sResult = [[SELECT s.nick AS nick,
+		s.`count` AS recent,
 		t.`total` AS `total`,
-		t.`avrg` AS `avrg`,
-		t.`pm` AS `pm`,
-		t.`max` AS `highest`,
-		ss.`dated` AS `dated`,
-		t.`dated` AS `rcntdate`
+		t.avrg AS avrg,
+		t.pm AS pm,
+		t.max AS highest,
+		ss.dated AS dated,
+		t.dated AS rcntdate
 	FROM (
-		SELECT `nick`,
+		SELECT nick,
 			SUM(`count`) AS `total`,
-			AVG(`count`) AS `avrg`,
-			SUM(`messages`) AS `pm`,
-			MAX(`count`) AS `max`,
-			MAX(`dated`) AS `dated`
-		FROM `scores`
-		WHERE `nick` = '%s'
-	) AS `t`
-	INNER JOIN `scores` s
-		ON s.`nick` = t.`nick`
-			AND s.`dated` = t.`dated`
+			AVG(`count`) AS avrg,
+			SUM(messages) AS pm,
+			MAX(`count`) AS max,
+			MAX(dated) AS dated
+		FROM scores
+		WHERE nick = '%s'
+	) AS t
+	INNER JOIN scores s
+		ON s.nick = t.nick
+			AND s.dated = t.dated
 	INNER JOIN scores ss
-		ON ss.`nick` = t.`nick`
-			AND t.`max` = ss.`count`
+		ON ss.nick = t.nick
+			AND t.max = ss.count
 	LIMIT 1]], {}, [[
 
 	HiT Hi FiT Hai: Mainchat stats for %s
@@ -170,7 +170,7 @@ function NickStats( sNick )
 	local sqlCur = assert( sqlCon:execute(sQuery:format( sqlCon:escape(sNick) )) )
 	tRow = sqlCur:fetch( tRow, "a" )
 	if not tRow then
-		return  "No record was obtained.This user might never have used mainchat/sent a PM."
+		return  "No record was obtained. This user might never have used mainchat/sent a PM."
 	else
 		return sResult:format( tRow.nick, tRow.nick, tRow.total, tRow.avrg, tRow.pm, tRow.recent, tRow.rcntdate, tRow.dated, tRow.highest )
 	end
