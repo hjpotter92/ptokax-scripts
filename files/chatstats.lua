@@ -124,7 +124,7 @@ function DailyTop( iLimit, sDate )
 	WHERE dated = %s
 	ORDER BY `total` DESC
 	LIMIT %d]]
-	local sDate = sDate or "CURDATE()"
+	local sDate = ( sDate and "'"..sDate.."'" ) or "CURDATE()"
 	local sqlCur = assert( sqlCon:execute(sQuery:format(sDate, iLimit)) )
 	tTemp = List( sqlCur )
 	return sResult..tFormat.sHeader..table.concat( tTemp, "\n\t" )
