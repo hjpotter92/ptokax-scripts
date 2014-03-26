@@ -9,37 +9,33 @@
 
 function OnStartup()
 	tConfig = {
-		sMainBot = SetMan.GetString( 21 ),
+		sBotName = SetMan.GetString( 21 ),
 		sReportBot = "#[VIPChat]",
-		sPrefixes = "[-+/*?!#]",
 		sChatFilePath = Core.GetPtokaXPath().."scripts/files/chatcore.lua"
 	}
+	tConfig.sAsBot = "<"..tConfig.sBotName.."> "
 	dofile( tConfig.sChatFilePath )
-	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/texts/command.txt", "r+" )
-	sFileCommand = fCommand:read( "*a" )
-	fCommand:close()
+	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/texts/reportMenu.txt", "r+" )
+	sFileCommand = fCommand:read "*a"
+	sFileCommand = sFileCommand:gsub( "%%%[bot%]", tConfig.sBotName )
 	Core.SendToAll( sFileCommand )
+	fCommand:close()
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo, cPrefix = sMessage:find( "^%$To: (%S+) From:.-%b<>%s("..tConfig.sPrefixes..")" )
-	if sTo == tConfig.sMainBot and cPrefix then
-		local _, _, sMessage = sMessage:find( "%b$$(.*)" )
-		ChatArrival( tUser, sMessage )
+	local sTo, sCommand, sData = sMessage:match "^%$To: (%S+) From:.-%b<> [-+/*?!#](%w+)%s?(.*)|"
+	if sTo ~= tConfig.sBotName then return false end
+	if sCommand and sCommand:lower() == "report" then
+		return ExecuteCommand( tUser, sData, true )
 	end
 	return false
 end
 
 function ChatArrival( tUser, sMessage )
-	local _, _, sCommand, sReport = sMessage:find( "%b<>%s"..tConfig.sPrefixes.."(%w+)%s?(.*)|" )
-	if sCommand and string.lower( sCommand ) == "report" then
-		if sReport then
-			local sReport = "(Report): "..sReport
-			SendToRoom( tUser.sNick, sReport, tConfig.sReportBot )
-			return true
-		else
-			return false
-		end
+	local sCommand, sData = sMessage:match( "%b<> [-+/*?!#](%w+)%s?(.*)|" )
+	if not sCommand then return false end
+	if sCommand:lower() == "report" then
+		return ExecuteCommand( tUser, sData, false )
 	end
 	return false
 end
@@ -49,3 +45,23 @@ function UserConnected( tUser )
 end
 
 RegConnected, OpConnected = UserConnected, UserConnected
+
+function Notify( tUser, sMessage, bIsPM )
+	if bIsPM then
+		Core.SendPmToUser( tUser, tConfig.sBotName, sMessage )
+	else
+		Core.SendToUser( tUser, tConfig.sAsBot..sMessage )
+	end
+end
+
+function ExecuteCommand( tUser, sData, bIsPM )
+	if sData:len() < 20 then
+		local sReply = "The report text should be more than 20 characters in length."
+		Notify( tUser, sReply, bIsPM )
+		return true
+	end
+	local sReport, sReply = "(Report): "..sData, "Your message [ %s ] has been reported to %s."
+	SendToRoom( tUser.sNick, sReport, tConfig.sReportBot )
+	Notify( tUser, sReply:format(sData, tConfig.sReportBot), bIsPM )
+	return true
+end

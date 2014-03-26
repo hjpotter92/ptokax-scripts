@@ -1,6 +1,13 @@
 2014-03-23
 ----------
 
+- Right click commands for reporting updated.
+- Various context menu commands supported based on documentation [here](https://github.com/HiT-Hi-FiT-Hai/hhfh-docs/wiki/Custom-user-commands).
+- Notify user of the report on success.
+
+2014-03-23
+----------
+
 - `[BOT]Offliner` accepts multiple IDs for deletion commands.
 - Support for adding more than one magnet to same entry.
 - Enhanced error reporting to end users'.
