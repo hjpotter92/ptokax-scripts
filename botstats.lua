@@ -19,12 +19,13 @@ function OnStartup()
 			sEmail = "do-not@mail.me",
 		},
 		sPath = Core.GetPtokaXPath().."scripts/files/",
-		sExtPath = "external/",
-		sFunctionsFile = "tmp/chatstats.lua",
-		sDepPath = "dependency/",
 		sFuncFile = "functions.lua",
-		sTxtPath = "texts/",
 		sHelpFile = "statsHelp.txt",
+	}
+	tPaths = {
+		sTxtPath = tConfig.sPath.."texts/",
+		sExtPath = tConfig.sPath.."external/",
+		sDepPath = tConfig.sPath.."dependency/",
 	}
 	tToksConfig = {
 		iMinShareLimit = 64,
@@ -39,14 +40,13 @@ function OnStartup()
 	tConfig.iTimerID2=TmrMan.AddTimer( 5 *60*10^3, "UpdateToks" )
 	tConfig.iTimerID3=TmrMan.AddTimer( 24*60*60* 10^3, "Inflation" )
 	tConfig.iTimerID4=TmrMan.AddTimer( 24*60*60* 10^3, "GrantAllowance" )
-
-	local fHelp = io.open( tConfig.sPath..tConfig.sTxtPath..tConfig.sHelpFile, "r" )
+	local fHelp = io.open( tPaths.sTxtPath..tConfig.sHelpFile, "r" )
 	sHelp = fHelp:read( "*a" )
 	fHelp:close()
 
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
 
-	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sFuncFile )
+	dofile( tPaths.sDepPath..tConfig.sFuncFile )
 
 	local luasql
 	if not luasql then
@@ -67,7 +67,6 @@ end
 
 function ToArrival( tUser, sMessage )
 	local sMessage = string.gsub(sMessage,"|","")
-
 	local sTo = sMessage:match( "$To: (%S+)" )
 	local bIsRegUser = (tUser.iProfile ~= -1)
 	local bIsBot = VerifyBots( sTo )

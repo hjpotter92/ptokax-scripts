@@ -11,11 +11,11 @@ function OnStartup()
 	tConfig = {
 		sMainBot = SetMan.GetString( 21 ),
 		sReportBot = "#[VIPChat]",
-		sPrefixes = "[%/%*%-%+%?%#%!%.]",
+		sPrefixes = "[-+/*?!#]",
 		sChatFilePath = Core.GetPtokaXPath().."scripts/files/chatcore.lua"
 	}
 	dofile( tConfig.sChatFilePath )
-	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/command.txt", "r+" )
+	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/texts/command.txt", "r+" )
 	sFileCommand = fCommand:read( "*a" )
 	fCommand:close()
 	Core.SendToAll( sFileCommand )
