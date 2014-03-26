@@ -88,7 +88,7 @@ function ToArrival( tUser, sMessage )
 		end
 		return true
 	elseif sCmd:lower() == "kick" then
-		for sKicked in sData:gmatch( "(%S+)" )
+		for sKicked in sData:gmatch "(%S+)" do
 			if not sKicked then
 				Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
 				return false

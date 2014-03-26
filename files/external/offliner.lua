@@ -443,30 +443,32 @@ _G.tOffliner = {
 		return true, tOutput.magnetID
 	end,
 
-	em = function( tUser, tInput )
-		local iMID, tMagnet = tInput[1], tFunction.FindMagnet( tInput[2] )
-		local sMagnetQuery, sReply = [[UPDATE magnets
+	em = function( tUser, iMID, sMagnet )
+		local tMagnet = tFunction.FindMagnet( sMagnet )
+		local sMagnetQuery, sNameQuery = [[UPDATE magnets
 		SET tth = '%s',
 			size = %s,
 			date = NOW()
-		WHERE id = %s ]], "The magnet entry #%s has been updated."
+		WHERE id = %d ]], [[UPDATE filenames
+		SET filename = '%s'
+		WHERE magnet_id = %d]]
 		if not tMagnet then
 			return false
 		end
-		sMagnetQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID )
+		sMagnetQuery, sNameQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID ), sNameQuery:format( tMagnet.name, iMID )
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
+		SQLCur = assert( SQLCon:execute(sNameQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
-		Core.SendPmToUser( tUser, tConfig.sBotName, sReply:format(iMID) )
 		return true
 	end,
 
 	rm = function( tUser, iMID, sModNick )
-		local sMagnetQuery = string.format( [[DELETE m.*, f.*
+		local sMagnetQuery = [[DELETE m.*, f.*
 		FROM magnets m
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
-		WHERE m.id = %d ]], iMID )
-		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
+		WHERE m.id = %d ]]
+		local SQLCur = assert( SQLCon:execute(sMagnetQuery:format(iMID)) )
 		if sModNick:lower() ~= tUser.sNick:lower() then
 			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
 		end

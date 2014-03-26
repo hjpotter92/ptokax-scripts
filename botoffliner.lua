@@ -253,18 +253,21 @@ function ExecuteCommand( tUser, sCmd, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return true
 		end
-		local tRow = tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
+		local iMID, sMagnet, tRow = tonumber( tBreak[1] ), tBreak[2], tFunction.FetchMagnetRow( tonumber(tBreak[1]) )
 		if not tRow then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 2) )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
-			if not tOffliner.em( tUser, tBreak ) then return true end
-			local sChatMessage = "Magnet "..tBreak[2].." edited for magnetID #"..tostring(tBreak[1]).."."
-			tFunction.SendToAll( tUser.sNick, sChatMessage )
-			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
+			if not tOffliner.em( tUser, iMID, sMagnet ) then return true end
+			local sRoomReply, sPersonalReply = "Magnet %s edited for magnetID #%d.", "The magnet entry #%d has been updated."
+			sRoomReply = sRoomReply:format( sMagnet, iMID )
+			Core.SendPmToUser( tUser, tConfig.sBotName, sPersonalReply:format(iMID) )
+			tFunction.SendToAll( tUser.sNick, sRoomReply )
+			SendToRoom( tUser.sNick, sRoomReply, tCfg.sReportBot, tCfg.iModProfile )
 			return true
 		else
+			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
 			return true
 		end
 
