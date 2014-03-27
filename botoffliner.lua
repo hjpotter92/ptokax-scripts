@@ -262,12 +262,12 @@ function ExecuteCommand( tUser, sCmd, sData )
 			if not tOffliner.em( tUser, iMID, sMagnet ) then return true end
 			local sRoomReply, sPersonalReply = "Magnet %s edited for magnetID #%d.", "The magnet entry #%d has been updated."
 			sRoomReply = sRoomReply:format( sMagnet, iMID )
-			Core.SendPmToUser( tUser, tConfig.sBotName, sPersonalReply:format(iMID) )
+			Core.SendPmToUser( tUser, tCfg.sBotName, sPersonalReply:format(iMID) )
 			tFunction.SendToAll( tUser.sNick, sRoomReply )
 			SendToRoom( tUser.sNick, sRoomReply, tCfg.sReportBot, tCfg.iModProfile )
 			return true
 		else
-			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
+			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong. Contact hjpotter92" )
 			return true
 		end
 

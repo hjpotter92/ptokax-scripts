@@ -456,12 +456,11 @@ _G.tOffliner = {
 		)
 		ON DUPLICATE KEY
 		UPDATE
-			filename = '%s'
-		WHERE magnet_id = %d]]
+			filename = '%s']]
 		if not tMagnet then
 			return false
 		end
-		sMagnetQuery, sNameQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID ), sNameQuery:format( tMagnet.name, iMID )
+		sMagnetQuery, sNameQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID ), sNameQuery:format( iMID, tMagnet.name, tMagnet.name )
 		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
 		SQLCur = assert( SQLCon:execute(sNameQuery) )
 		if type(SQLCur) ~= "number" then SQLCur:close() end
