@@ -449,8 +449,14 @@ _G.tOffliner = {
 		SET tth = '%s',
 			size = %s,
 			date = NOW()
-		WHERE id = %d ]], [[UPDATE filenames
-		SET filename = '%s'
+		WHERE id = %d ]], [[INSERT INTO filenames
+		VALUES (
+			%d,
+			'%s'
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			filename = '%s'
 		WHERE magnet_id = %d]]
 		if not tMagnet then
 			return false
