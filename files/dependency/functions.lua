@@ -14,3 +14,7 @@ function Explode( sInput )
 	end
 	return tReturn
 end
+
+function Trim( sInput )
+	return sInput:gsub( "^%s*(.-)%s*$", "%1" )
+end
