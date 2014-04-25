@@ -194,7 +194,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "requests"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then			
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -215,7 +215,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "suggestions"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -229,7 +229,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	elseif sCommand == "anws" or sCommand == "an" then
 		tInsertData.sTable = "news"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -247,7 +247,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sTable = "guestbook"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -261,7 +261,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	elseif sCommand == "adel" or sCommand == "ad" then
 		tInsertData.sTable = "deletions"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
