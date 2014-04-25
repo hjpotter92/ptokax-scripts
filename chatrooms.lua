@@ -75,7 +75,7 @@ function OnTimer( iID )
 end
 
 function Hide()
-	for sIndex in pairs( tChatRooms ) do
+	for sIndex, tValue in pairs( tChatRooms ) do
 		local sQuitINFO = "$Quit "..sIndex.."|"
 		Core.SendToProfile( -1, sQuitINFO )
 		for iIterate = (tValue.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
