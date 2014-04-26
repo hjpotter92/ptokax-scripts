@@ -15,9 +15,10 @@ dofile(path.."files/dependency/functions.lua" )
 local tokenize=Explode
 
 function chkpriv(user,n)
-	local profile = Core.GetUserValue(user,15)
+	local profile = user.iProfile
+	if n == -1 then return true end
 	if profile == -1 then return false end
-	if profile > n  then return false end
+	if profile > n then return false end
 	return true
 end
 
@@ -86,27 +87,35 @@ function notify(user,msg)
 		Core.SendToUser(user,"<PtokaX> "..msg)
 	end
 end
+
+-- each function in this table should have a line of the type "if not user then return <profile_number>,,syntax,comment end"
+--this is for the custhelp function which calls each function in the table without any argument and using the returned values constructs the customised help file
+--profile_number is the profile to which this command should be available (According to rules defined in chkpriv function)
 CustomCommands= {
-	["say"]=function(user,tokens)			-- Send a message on mainchat as someone else Syntax - !say <nick>  <message>
+	["say"]=function(user,tokens)			
+		if not user then return 3,"!say <nick>  <message>","Send a message on mainchat as someone else " end
 		if not check(user,3,tokens,3) then return false end
 		local msg =table.concat(tokens," ",4)
 		msg = "<"..tokens[3].."> "..msg
 		SendToRoom("PtokaX",user.sNick.." send a mainchat message saying "..msg,"#[Hub-Feed]" ,3)
 		return msg
 	end,
-	["drop"]=function(user,tokens)		--Disconnect (drop) a user Syntax - !drop <nick>
+	["drop"]=function(user,tokens)	
+		if not user then return 3,"!drop <nick>","Disconnect (drop) a user  " end
 		if not check(user,3,tokens,3,3,true) then return false end
 		Core.Disconnect(tokens[3])
 		SendToRoom("PtokaX",user.sNick.." dropped " ..tokens[3] ,"#[Hub-Feed]" ,3)
 		return false
 	end,
-	["warn"]=function(user,tokens)		--Send a warning on mainchat as the mainbot Syntax - !warn <nick> <reason>
+	["warn"]=function(user,tokens)		
+		if not user then return 3,"!warn <nick> <reason>","Send a warning on mainchat as the mainbot " end
 		if not check(user,3,tokens,3,3) then return false end
 		local reason =table.concat(tokens," ",4)
 		local warning = "<PtokaX> "..tokens[3].." has been warned for : "..reason..". If it doesnt calm down it WILL be kicked from the hub."
 		return warning
 	end,
-	["kick"]=function(user,tokens)		--Disconnect the victim and tempban him/her for 10 mins Syntax -!kick <nick> <reason>
+	["kick"]=function(user,tokens)		
+		if not user then return 3,"!kick <nick> <reason>","Disconnect the victim and tempban him/her for 10 mins " end
 		if not check(user,3,tokens,3,3,true) then return false end
 		local victim=tokens[3]
 		local reason =table.concat(tokens," ",4)
@@ -115,14 +124,16 @@ CustomCommands= {
 		SendToRoom(user.sNick, "Kicking "..victim.." for: "..reason,"#[Hub-Feed]" ,3)
 		return false
 	end,
-	["mute"]=function(user,tokens)		--Mute the  victim indefinitely, preventing him/her from posting on mainchat Syntax - !mute <nick>
+	["mute"]=function(user,tokens)		
+		if not user then return 3,"!mute <nick>","Mute the  victim indefinitely, preventing him/her from posting on mainchat  " end
 		if not check(user,3,tokens,3,3) then return false end
 		victim=tokens[3]
 		muted[tokens[3]] = true
 		SendToRoom(user.sNick, "Muting "..victim.." .","#[Hub-Feed]" ,3)
 		return false
 	end,
-	["unmute"]=function(user,tokens)		--Unmute the person Syntax - !unmute <nick>
+	["unmute"]=function(user,tokens)		
+		if not user then return 3,"!unmute <nick>","Unmute the person  " end
 		if not check(user,3,tokens,3,3) then return false end
 		if isthere(tokens[3],muted) then
 			muted[tokens[3]] = nil
@@ -132,13 +143,15 @@ CustomCommands= {
 		end
 		return false
 	end,
-	["foreveralone"]=function(user,tokens)		--Hellban the person i.e only he/she can see their posts on mainchat Syntax - !foreveralone <nick>
+	["foreveralone"]=function(user,tokens)		
+		if not user then return 1,"!foreveralone <nick>","Hellban the person i.e only he/she can see their posts on mainchat  " end
 		if not check(user,3,tokens,3,3) then return false end
 		falone[tokens[3]] = true
 		SendToRoom("PtokaX",tokens[3].." was aloned by ".. user.sNick,"#[Hub-Feed]" ,3)
 		return false
 	end,
-	["nomorealone"]=function(user,tokens)		--Remove the hellban Syntax - !nomorealone <nick>
+	["nomorealone"]=function(user,tokens)		
+		if not user then return 1,"!nomorealone <nick>","Remove the hellban  " end
 		if not check(user,3,tokens,3,3) then return false end
 		if isthere(tokens[3],falone) then
 			falone[tokens[3]] = nil
@@ -148,13 +161,15 @@ CustomCommands= {
 		end
 		return false
 	end,
-	["changenick"]=function(user,tokens)	--Change the nick of the vicitim on mainchat Syntax - !changenick <original_nick> <new_nick>
+	["changenick"]=function(user,tokens)	
+		if not user then return 1,"!changenick <original_nick> <new_nick>","Change the nick of the vicitim on mainchat " end
 		if not check(user,0,tokens,4,3) then return false end
 		nickc[tokens[3]]= tokens[4]
 		SendToRoom("PtokaX",user.sNick.." changed nick of "..tokens[3].." to "..tokens[4],"#[Hub-Feed]" ,3)
 		return false
 	end,
-	["revertnick"]=function(user,tokens)	-- Undo the effect of !changenick Syntax - !revertnick <original_nick>
+	["revertnick"]=function(user,tokens)	
+		if not user then return 1,"!revertnick <original_nick>","Undo the effect of !changenick  " end
 		if not check(user,0,tokens,3,3) then return false end
 		if isthere(tokens[3],nickc) then
 			nickc[tokens[3]] = nil
@@ -166,7 +181,8 @@ CustomCommands= {
 		return false
 	end,
 	-- General Commands
-	["unsub"]=function(user,tokens)	-- Unsubscribe from mainchat - Syntax - !unsub
+	["unsub"]=function(user,tokens)	
+		if not user then return -1,"!unsub","Unsubscribe from mainchat " end
 		if not isthere_key(user.sNick,unsubbed) then
 		key = isthere_key(user.sNick,subbed)
 		while key do
@@ -179,7 +195,8 @@ CustomCommands= {
 		end
 		return false
 	end,
-	["sub"]=function(user,tokens)	-- Subscribe back to mainchat Syntax - !sub
+	["sub"]=function(user,tokens)	
+		if not user then return -1,"!sub","Subscribe back to mainchat " end
 		if not isthere_key(user.sNick,subbed) then
 		key = isthere_key(user.sNick,unsubbed)
 		while key do
@@ -192,29 +209,34 @@ CustomCommands= {
 		end
 		return false
 	end,
-      	["me"]=function(user,tokens)	-- Speak in third person.Identical to /me command on IRC, Syntax - !me <message>
+      	["me"]=function(user,tokens)	
+		if not user then return -1,"!me <message>","Speak in third person.Identical to /me command on IRC, " end
 		local msg =table.concat(tokens," ",3)
 		msg = user.sNick.." "..msg
 		return msg
 	end,
 	--For fun
-	["desu"]=function(user)	--Toggles desu variable .if desu is true , appends desu to every message on mainchat Syntax - !desu
+	["desu"]=function(user)	
+		if not user then return 0,"!desu","Toggles desu variable .if desu is true , appends desu to every message on mainchat " end
 		if not check(user,0) then return false end
 		desu=not desu
 		return false
 	end,
-	["san"]=function(user)	--Toggles san variable.If san is true, appends -san to every nick on mainchat .Example - Brick -> Brick-san Syntax - !san
+	["san"]=function(user)	
+		if not user then return 0,"!san","Toggles san variable.If san is true, appends -san to every nick on mainchat .Example - Brick -> Brick-san  " end
 		if not check(user,0) then return false end
 		san= not san
 		return false
 	end,
-	["chan"]=function(user)	 ---Toggles chan variable.If chan is true, appends -chan to every nick on mainchat .Example - Brick -> Brick-chan Syntax - !san
+	["chan"]=function(user)	 
+		if not user then return 0,"!chan","Toggles chan variable.If chan is true, appends -chan to every nick on mainchat .Example - Brick -> Brick-chan " end
 		if not check(user,0) then return false end
 		chan=not chan
 		return false
 	end,
 	--blocking related 
-	["block"]=function(user,tokens)		--Prevent the victim from downloading from the users Syntax - !block <nick> <reason>
+	["block"]=function(user,tokens)		
+		if not user then return 4,"!block <nick> <reason>","Prevent the victim from downloading from the users" end
 		if not check(user,4,tokens,3,3) then return false end
 		local victim=tokens[3]
 		local nickpair=user.sNick.."$"..victim
@@ -222,12 +244,12 @@ CustomCommands= {
 		if reason == "" then reason = "No reason provided" end
 		blocked[nickpair] = reason
 		pickle.store( path.."files/blocks.txt", {blocked=blocked} )
-		--SendToRoom(user.sNick, "Blocking "..victim.." .","#[Hub-Feed]" ,3)
 		local msg=victim.." has been blocked by you for :"..reason
 		notify(user,msg)
 		return false
 	end,
-	["unblock"]=function(user,tokens)		--Unblock the user Syntax - !unblock <nick>
+	["unblock"]=function(user,tokens)		
+		if not user then return 4,"!unblock <nick>","Unblock the user " end
 		if not check(user,4,tokens,3,3) then return false end
 		local victim=tokens[3]
 		local nickpair=user.sNick.."$"..victim
@@ -240,7 +262,8 @@ CustomCommands= {
 		end
 		return false
 	end,
-	["getblocks"]=function(user,tokens)		--Get all blocks Syntax - !getblocks
+	["getblocks"]=function(user,tokens)		
+		if not user then return 0,"!getblocks","Get all blocks " end
 		if not check(user,0) then return false end
 		local msg="The block pairs are\n\t"
 		for nickpair,reason in pairs(blocked) do
@@ -249,7 +272,8 @@ CustomCommands= {
 		notify(user,msg)
 		return false
 	end,
-	["getmyblocks"]=function(user,tokens)		--Get your blocks Syntax - !getmyblocks
+	["getmyblocks"]=function(user,tokens)		
+		if not user then return 4,"!getmyblocks","Get your blocks " end
 		if not check(user,4) then return false end
 		local msg="The users blocked by you are\n\t"
 		for nickpair,reason in pairs(blocked) do
@@ -262,12 +286,14 @@ CustomCommands= {
 		return false
 	end,
 	--adminstrative shortcuts
-	["send"]=function(user,tokens) -- Send message to all in the form of raw data(without adding any dcprotocol keywords) . Syntax - !send <message>
+	["send"]=function(user,tokens) 
+		if not user then return 0,"!send <message>","Send message to all in the form of raw data(without adding any dcprotocol keywords) " end
 		if not check(user,0) then return false end
 		local msg =table.concat(tokens," ",3)
 		return msg
 	end,
-	["changereg"]=function(user,tokens) -- Change the profile of a registered user. Syntax - !changereg <user_nick> <profile_num>
+	["changereg"]=function(user,tokens) 
+		if not user then return 0,"!changereg <user_nick> <profile_num>","Change the profile of a registered user." end
 		if not check(user,0,tokens,4) then return false end
 		local account=RegMan.GetReg(tokens[3])
 		local profile=ProfMan.GetProfile(tonumber(tokens[4]))
@@ -284,7 +310,8 @@ CustomCommands= {
 		notify(user,"Profile of "..tokens[3].." changed to "..profile.sProfileName)
 		return false
 	end,
-	["getpass"]=function(user,tokens)-- Get the password of a registered user Syntax - !getpass <nick>
+	["getpass"]=function(user,tokens)
+		if not user then return 0,"!getpass <nick>","Get the password of a registered user " end
 		if not check(user,0,tokens,3) then return false end
 		account=RegMan.GetReg(tokens[3])
 		if not account then
@@ -294,7 +321,8 @@ CustomCommands= {
 		notify(user,"Nick="..account.sNick.." Password: "..account.sPassword)
 		return false
 	end,
-        ["clrpassbans"]=function(user,tokens)	--Clear the automatic bans done due to incorrect password imput .Syntax !clrpassbans
+        ["clrpassbans"]=function(user,tokens)	
+		if not user then return 0,"!clrpassbans","Clear the automatic bans done due to incorrect password imput" end
 		if not check(user,0) then return false end
 		local bans = BanMan.GetPermBans()
 		for k,v in ipairs(bans) do
@@ -305,7 +333,8 @@ CustomCommands= {
 		notify(user,"Password Bans Cleared")
 		return false
 	end,
-	["getprofiles"]=function(user,tokens)	--Gives a list of all profiles . Syntax !getprofiles
+	["getprofiles"]=function(user,tokens)	
+		if not user then return 0,"!getprofiles","Gives a list of all profiles" end
 		if not check(user,0) then return false end
 		local profiles = ProfMan.GetProfiles()
 		local msg = "\n\tProfile name\t\tNumber"
@@ -315,6 +344,21 @@ CustomCommands= {
 		notify(user,msg)
 		return false
 	end,
+	["custhelp"]=function(user,tokens)
+		-- To get a list of additional help commands available to a given profile
+		if not user then return -1,"!custhelp","Returns this additional help." end
+		local msg="List of additional commands available to you\n\t"
+		for function_name,func in pairs(CustomCommands) do
+			local profile,syntax,comment=func()	-- --call each function in this table without any arguments , so that user = nil and that special case of each function is invoked
+			if chkpriv(user,profile) then
+				msg=msg..syntax.."\t\t"..comment.."\n\t"
+			end
+		end
+		notify(user,msg)
+		return false
+	end,
+		
+	
 }
 
 custcom=function(user,data)

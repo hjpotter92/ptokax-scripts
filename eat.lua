@@ -68,6 +68,12 @@ ChatArrival = function(user,data)
 		return true
 	end
 	if isthere(cmd,PtokaxCommands) then		-- let ptokax handle inbuilt commands
+		if cmd == "help" then 				-- hack to have custhelp executed each time help is executed
+			data=data:gsub("help","custhelp")
+			inPM=false
+			isCmd=true
+			digest(user,data,isCmd,irc)
+		end
 		return
 	end
 	if isthere(cmd,CustomCommands) then  
@@ -101,6 +107,13 @@ ToArrival = function( user, data)
 		inPM=true
 		digest(user,tempdata,isCmd,irc)
 		return true
+	end
+	if cmd == "help" then 
+		local irc=false
+		tempdata=tempdata:gsub("help","custhelp")
+		isCmd=true
+		inPM=true
+		digest(user,tempdata,isCmd,irc)
 	end
 end
 ConnectToMeArrival=function(user,data)
