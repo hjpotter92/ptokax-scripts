@@ -235,7 +235,7 @@ _G.tInfobot = {
 			Core.SendPmToNick( sRecipient, sSender, sMessage )
 			return 0, "Message delivered"
 		end
-		local sStorageQuery = [[INSERT INTO `messages`(`message`, `from`, `to`, `dated`)
+		local sStorageQuery = [[INSERT INTO messages(message, `from`, `to`, dated)
 			VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
 		local SQLCur = assert( SQLCon:execute(sStorageQuery) )

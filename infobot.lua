@@ -194,7 +194,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "requests"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -215,7 +215,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "suggestions"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -229,7 +229,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	elseif sCommand == "anws" or sCommand == "an" then
 		tInsertData.sTable = "news"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -247,7 +247,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sTable = "guestbook"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -261,7 +261,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 	elseif sCommand == "adel" or sCommand == "ad" then
 		tInsertData.sTable = "deletions"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if not iLastID then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -287,7 +287,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		end
 		tInsertData.sMsg, tInsertData.sTable = table.concat( tBreak, " ", 2 ), "buynsell"
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -311,7 +311,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			return false
 		end
 		iLastID = tInfobot.add( tUser, tInsertData )
-		if ( not tonumber(iLastID) ) or ( tonumber(iLastID) == 0 ) then
+		if not iLastID or iLastID == 0 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
@@ -321,7 +321,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		return true
 
 	elseif sCommand == "fill" or sCommand == "freq" then
-		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
+		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\n"
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -335,9 +335,10 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've filled your request ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
 		tInfobot.fill( tUser, tonumber(tBreak[1], 10) )
 		if iOfflineMessageID ~= 0 then
-			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+			sReply = sReply.."The requesting user will be notified with message ID#%d when they connect."
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, iOfflineMessageID) )
 		else
-			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
+			Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick)..sError )
 		end
 		return true
 
