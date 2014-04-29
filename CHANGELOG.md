@@ -1,3 +1,12 @@
+2014-04-29
+----------
+
+- Add profile based chatrooms, such as `#[ModzChat]` for moderator profile holders.
+- Script to save all profiles, registration etc. details every 10 minutes.
+- List custom commands when using `!help` command.
+- Alias `!custhelp` for custom commands only.
+- Fix an unreported bug for `[BOT]Info` regarding the notifications sent to users when fulfilling a request or closing a thread.
+
 2014-03-27
 ----------
 
