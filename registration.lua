@@ -122,10 +122,13 @@ tRegCmds = {
 	end,
 
 	regflag = function( tUser, sData, sCmd )
-		local sReturn = "The registration flag is set to: "..tostring(tConfig.bRegFlag)
+		local sReturn = "The registration flag is set to: "..tostring( tConfig.bRegFlag )
+		if not tUser then
+			return sReturn, "", ""
+		end
 		if tUser.iProfile == 0 then
 			tConfig.bRegFlag = not tConfig.bRegFlag
-			sReturn = "Registration flag changed to: "..tostring(tConfig.bRegFlag)
+			sReturn = "Registration flag changed to: "..tostring( tConfig.bRegFlag )
 		end
 		return sReturn
 	end,
