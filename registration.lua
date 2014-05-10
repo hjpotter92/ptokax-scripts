@@ -68,6 +68,7 @@ tRegCmds = {
 						return "Your password contains invalid characters. Please choose a new one."
 					end
 					RegMan.AddReg( sNick, sPassword, iRegProfile )
+					RegMan.Save()
 					return tConfig.tTemplates.sRegSuccess:format( sNick, sPassword, tConfig.sRegProfileName )
 				end
 			else
@@ -97,6 +98,7 @@ tRegCmds = {
 							return "Your cannot change to the same password. Please choose a different one."
 						end
 						RegMan.ChangeReg( tUser.sNick, sNewPass, iProfile )
+						RegMan.Save()
 						return tConfig.tTemplates.sPassChange:format( sOldPass, sNewPass )
 					end
 				else
