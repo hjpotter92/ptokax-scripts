@@ -60,7 +60,7 @@ tRegCmds = {
 				if tUser.iProfile ~= -1 then
 					return "Don't be silly "..sNick..". you're already registered here."
 				else
-					local sPassword = sData:find("%b<> .%w+ (%S+)|$")
+					local sPassword = sData:match "%b<> .%w+ (%S+)|$"
 					if not sPassword then
 						return "Error! Usage: "..tConfig.sPrefix..sCmd.." <password>"
 					end
@@ -84,7 +84,7 @@ tRegCmds = {
 			if tUser.iProfile == -1 then
 				return "Don't be silly "..tUser.sNick.." you're not registered here."
 			else
-				local sOldPass, sNewPass = sData:match("%b<> .%w+ (%S+) (%S+)|$")
+				local sOldPass, sNewPass = sData:match "%b<> .%w+ (%S+) (%S+)|$"
 				if sOldPass and sNewPass then
 					local sPassword, iProfile = RegMan.GetReg( tUser.sNick ).sPassword, tUser.iProfile
 					if sPassword and iProfile then
