@@ -67,7 +67,7 @@ tRegCmds = {
 					if PasswordCheck(sPassword) then
 						return "Your password contains invalid characters. Please choose a new one."
 					end
-					RegMan.AddReg( sNick, sPassword, iRegProfile )
+					RegMan.AddReg( sNick, sPassword, tConfig.iRegProfile )
 					RegMan.Save()
 					return tConfig.tTemplates.sRegSuccess:format( sNick, sPassword, tConfig.sRegProfileName )
 				end
