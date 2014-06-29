@@ -13,7 +13,7 @@ local tConfig = {
 	sBotName = "[BOT]Info",
 	sHub = SetMan.GetString( 2 ) or "localhost",
 }
-tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%04d"
+tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sErrorCode )
