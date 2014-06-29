@@ -340,7 +340,7 @@ _G.tOffliner = {
 
 	al = function( tUser, tInput )
 		local sCategory, sEntry, sMagnet = tInput[1], table.concat( tInput, " ", 2, #tInput - 1 ), tInput[ #tInput ]
-		local tMagnet = tFunction.FindMagnet( sMagnet, tUser )
+		local tMagnet, sError = tFunction.FindMagnet( sMagnet, tUser ), "Something went wrong. Contact hjpotter92"
 		if not tMagnet then
 			return false
 		end
@@ -351,7 +351,11 @@ _G.tOffliner = {
 		tMagnet.ctg, tMagnet.msg, tMagnet.nick = sCategory, SQLCon:escape( sEntry ), SQLCon:escape( tUser.sNick )
 		local tOutput = tFunction.InsertProcedure( 'newentry', tMagnet )
 		if not tOutput then
-			Core.SendPmToUser( tUser, tConfig.sBotName, "Something went wrong. Contact hjpotter92" )
+			Core.SendPmToUser( tUser, tConfig.sBotName, sError )
+			return false
+		end
+		if tOutput.entryID == -1 or tOutput.magnetID == -1 then
+			Core.SendPmToUser( tUser, tConfig.sBotName, sError )
 			return false
 		end
 		local sReply = ("Your message has been added to database at entry ID #%s and magnet ID #%s."):format( tOutput.entryID, tOutput.magnetID )
@@ -437,7 +441,7 @@ _G.tOffliner = {
 		end
 		tMagnet.eid, tMagnet.nick = iID, sModNick
 		local tOutput = tFunction.InsertProcedure( 'newmagnet', tMagnet )
-		if not tOutput then
+		if not tOutput or tOutput.magnetID == -1 then
 			return false
 		end
 		return true, tOutput.magnetID
