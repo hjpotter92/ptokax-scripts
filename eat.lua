@@ -9,7 +9,8 @@
 
 path = Core.GetPtokaXPath().."scripts/files/"
 bot = SetMan.GetString(21)
-dofile(path.."digest.lua")
+mpath, dpath = path.."external/metabolism/", path.."dependency/"
+dofile(mpath.."digest.lua")
 nickc = {}
 falone = {}
 muted = {}

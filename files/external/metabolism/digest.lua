@@ -7,9 +7,9 @@
 
 --]]
 
-dofile(path.."custcom.lua")
-dofile(path.."modifiers.lua")
-dofile(path.."expel.lua")
+dofile(mpath.."custcom.lua")
+dofile(mpath.."modifiers.lua")
+dofile(mpath.."expel.lua")
 dofile(path.."dependency/pickle.lua" )
 
 digest = function( user, data, isCmd, irc )

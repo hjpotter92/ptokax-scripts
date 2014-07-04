@@ -9,8 +9,8 @@
 
 --custom commands
 
-dofile(path.."chatcore.lua")
-dofile(path.."dependency/functions.lua" )
+dofile(dpath.."chatcore.lua")
+dofile(dpath.."functions.lua" )
 local tokenize = Explode
 
 function chkpriv(user, n)
