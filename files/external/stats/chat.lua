@@ -8,11 +8,11 @@
 --]]
 
 function VerifyBots( sInput )
-	if sInput:find( "^%[BOT%]" ) then
+	if sInput:find "^%[BOT%]" then
 		return true
-	elseif sInput:find( "^#%[" ) then
+	elseif sInput:find "^#%[" then
 		return true
-	elseif sInput:find( "OpChat" ) then
+	elseif sInput:find "OpChat" then
 		return true
 	elseif sInput == SetMan.GetString( 21 ) then
 		return true
@@ -50,6 +50,7 @@ local function List( sqlCur )
 	sqlCur = nil
 	return tTemp
 end
+
 function IncreaseBotCount(sBot,bIsRegUser)
 	local sDate = os.date( "%Y-%m-%d" )
 	if type( tBotStats[sDate] ) ~= "table" then
@@ -71,6 +72,7 @@ function IncreasePMCount(tUser)
 	if not tUserStats[sDate][tUser.sNick] then tUserStats[sDate][tUser.sNick] = { msg = 0, main = 0 } end
 	tUserStats[sDate][tUser.sNick].msg = ( tUserStats[sDate][tUser.sNick].msg or 0 ) + 1
 end
+
 function IncreaseChatCount(tUser)
 	local sDate = os.date( "%Y-%m-%d" )
 	if type( tUserStats[sDate] ) ~= "table" then
@@ -131,7 +133,7 @@ function DailyTop( iLimit, sDate )
 end
 
 function NickStats( sNick )
-	local sQuery, tRow, sResult = [[SELECT s.nick AS nick,
+	local tRow, sQuery, sResult = {}, [[SELECT s.nick AS nick,
 		s.`count` AS recent,
 		t.`total` AS `total`,
 		t.avrg AS avrg,
@@ -155,7 +157,7 @@ function NickStats( sNick )
 	INNER JOIN scores ss
 		ON ss.nick = t.nick
 			AND t.max = ss.count
-	LIMIT 1]], {}, [[
+	LIMIT 1]], [[
 
 	HiT Hi FiT Hai: Mainchat stats for %s
 	-------------------------------------

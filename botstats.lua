@@ -10,8 +10,6 @@
 function OnStartup()
 	package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
 	local Connection = require 'config'
-	dofile( Core.GetPtokaXPath().."scripts/files/chatstats.lua" )
-	dofile( Core.GetPtokaXPath().."scripts/files/toks.lua" )
 	tConfig = {
 		tBot = {
 			sName = "[BOT]Stats",
@@ -35,17 +33,19 @@ function OnStartup()
 		fVipAllowance=500,
 		fOpAllowance=800,
 	}
-	tUserStats, tBotStats={}, {}
-	tConfig.iTimerID1=TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )
-	tConfig.iTimerID2=TmrMan.AddTimer( 5 *60*10^3, "UpdateToks" )
-	tConfig.iTimerID3=TmrMan.AddTimer( 24*60*60* 10^3, "Inflation" )
-	tConfig.iTimerID4=TmrMan.AddTimer( 24*60*60* 10^3, "GrantAllowance" )
+	tUserStats, tBotStats = {}, {}
+	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )							-- Every 90 seconds
+	tConfig.iTimerID2 = TmrMan.AddTimer( 5 * 60 * 10^3, "UpdateToks" )					-- Every 5 minutes
+	tConfig.iTimerID3 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "Inflation" )					-- Once every day
+	tConfig.iTimerID4 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "GrantAllowance" )		-- Once every day
 	local fHelp = io.open( tPaths.sTxtPath..tConfig.sHelpFile, "r" )
 	sHelp = fHelp:read( "*a" )
 	fHelp:close()
 
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
 
+	dofile( tPaths.sExtPath.."stats/chat.lua" )
+	dofile( tPaths.sExtPath.."stats/toks.lua" )
 	dofile( tPaths.sDepPath..tConfig.sFuncFile )
 
 	local luasql
@@ -80,15 +80,6 @@ function ToArrival( tUser, sMessage )
 	local sFchar = sMessage:match( "%b$$%b<> ([-+*/?#!]).*" )
 	if not sFchar then return false end
 	return ExecuteCommand( tUser, sMessage, true )
-end
-
-function OnExit()
-	Core.UnregBot( tConfig.tBot.sName )
-	TmrMan.RemoveTimer( tConfig.iTimerID1 )
-	TmrMan.RemoveTimer( tConfig.iTimerID2 )
-	TmrMan.RemoveTimer( tConfig.iTimerID4 )
-	sqlCon:close()
-	sqlEnv:close()
 end
 
 function ExecuteCommand( tUser,sMessage, bIsPm )
@@ -162,4 +153,14 @@ function Reply( tUser, sMessage, bIsPm )
 	else
 		Core.SendToUser( tUser, "<"..tConfig.tBot.sName.."> "..sMessage )
 	end
+end
+
+function OnExit()
+	Core.UnregBot( tConfig.tBot.sName )
+	TmrMan.RemoveTimer( tConfig.iTimerID1 )
+	TmrMan.RemoveTimer( tConfig.iTimerID2 )
+	TmrMan.RemoveTimer( tConfig.iTimerID3 )
+	TmrMan.RemoveTimer( tConfig.iTimerID4 )
+	sqlCon:close()
+	sqlEnv:close()
 end
