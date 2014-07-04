@@ -50,7 +50,7 @@ function OnStartup()
 	}
 	dofile( tPaths.sExternal..tCfg.sExternalFile )
 	dofile( tPaths.sDependency.."functions.lua" )
-	dofile( tCfg.sPath..tCfg.sChatFile )
+	dofile( tPaths.sDependency..tCfg.sChatFile )
 	local fHelp = io.open( tPaths.sTexts..tCfg.sHelpFile, "r" )
 	local fRules = io.open( tPaths.sTexts..tCfg.sRulesFile, "r" )
 	sHelp = fHelp:read( "*a" )

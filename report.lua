@@ -11,7 +11,7 @@ function OnStartup()
 	tConfig = {
 		sBotName = SetMan.GetString( 21 ),
 		sReportBot = "#[VIPChat]",
-		sChatFilePath = Core.GetPtokaXPath().."scripts/files/chatcore.lua"
+		sChatFilePath = Core.GetPtokaXPath().."scripts/files/dependency/chatcore.lua"
 	}
 	tConfig.sAsBot = "<"..tConfig.sBotName.."> "
 	dofile( tConfig.sChatFilePath )
