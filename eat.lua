@@ -49,11 +49,9 @@ fileread = function()
 end
 
 ChatArrival = function(user,data)
-	local data = date:gsub( "|", "" ) --remove terminating |
-	local tempdata = data.." "
-	cmd = tempdata:match( "%b<> [!/+](%S+)%s")
-	local isCmd = false
-	local irc = false
+	local tempdata = data:gsub( "|", " " )			--remove terminating |
+	local cmd = tempdata:match( "%b<> [!/+](%S+)%s")
+	local isCmd, irc = false, false
 	if not cmd then
 		isCmd = false
 		digest(user,data,isCmd,irc)
@@ -81,18 +79,17 @@ ChatArrival = function(user,data)
 end
 
 ToArrival = function( user, data )
-	local tempdata = date:gsub( "|", "" ).." "			-- Remove terminating |
-	local to, from = tempdata:match "$To:%s(%S+)%sFrom:%s(%S+)%s$%b<>%s.*"
+	local tempdata = data:gsub( "|", " " )			-- remove terminating |
+	local to, from = tempdata:match "$To: (%S+) From: (%S+)"
 	if  to ~= bot then
 		return
 	end
-	local fchar, cmd = tempdata:match "%b$$%b<> [!/+](%S+)%s"
-	if  not cmdchars[fchar] then
+	local cmd = tempdata:match "%b$$%b<> [!/+](%S+)%s"
+	if  not cmd then
 		return
 	end
 	if isthere(cmd,CustomCommands) then
-		local isCmd = true
-		local irc = false
+		local isCmd, irc = true, false
 		inPM = true
 		digest(user,tempdata,isCmd,irc)
 		return true
@@ -104,6 +101,7 @@ ToArrival = function( user, data )
 		inPM = true
 		digest(user,tempdata,isCmd,irc)
 	end
+	return
 end
 
 ConnectToMeArrival = function(user,data)
