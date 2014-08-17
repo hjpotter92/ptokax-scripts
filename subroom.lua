@@ -9,6 +9,7 @@
 
 function OnStartup()
 	tConfig = {
+		iMaxHistory = 100,
 		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
@@ -20,28 +21,32 @@ function OnStartup()
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."gameSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[QuizRoom]"] = {
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
 			sLogFile = nil,
 			sSubscribersFile = tConfig.sPath.."texts/".."quizSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[Anime]"] = {
 			sBotDescription = "Discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."animSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[NSFW]"] = {
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."nsfwSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		}
 	}
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sPickleFile )
@@ -56,9 +61,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match( "$To: (%S+) From:" )
+	local sTo = sMessage:match "$To: (%S+) From:"
 	if not tRooms[sTo] then return false end
-	local sCmd, sData = sMessage:match( "%b<>%s+[-+*/!#?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match "%b<>%s+[-+*/!#?](%w+)%s?(.*)|"
 	SaveToFile( sTo, sMessage:match("%b$$(.*)|") )
 	if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) and not sCmd then
 		SendToSubscribers( tUser.sNick, sTo, sMessage )
@@ -164,10 +169,15 @@ function OnExit()
 end
 
 function SaveToFile( sRoomName, sChatMessage )
-	if not tRooms[sRoomName].sLogFile then
+	local tCurrentRoom = tRooms[sRoomName]
+	if not tCurrentRoom.sLogFile then
 		return false
 	end
-	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tRooms[sRoomName].sLogFile, "a" )
+	table.insert( tCurrentRoom.tChatHistory, sChatMessage )
+	if tCurrentRoom.tChatHistory[tConfig.iMaxHistory + 1] then
+		table.remove( tCurrentRoom.tChatHistory, 1 )
+	end
+	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
