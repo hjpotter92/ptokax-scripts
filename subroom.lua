@@ -179,11 +179,11 @@ function SaveToFile( sRoomName, sChatMessage )
 	if not tCurrentRoom.sLogFile then
 		return false
 	end
-	table.insert( tCurrentRoom.tChatHistory, sChatMessage )
+	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
+	table.insert( tCurrentRoom.tChatHistory, sStoreMessage )
 	if tCurrentRoom.tChatHistory[tConfig.iMaxHistory + 1] then
 		table.remove( tCurrentRoom.tChatHistory, 1 )
 	end
-	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
