@@ -20,6 +20,7 @@ Currently, the scripts in the repository are for following operations:
   3. Listing subscribed users
   4. Denying messages from unsubscribed users
   5. Message logging
+  6. Individual chat history
 - Restricting unregistered users from chat.
 - Users' daily activity on mainchat stored to database. Applicable for registered users only.
 - Subscribable mainchat.

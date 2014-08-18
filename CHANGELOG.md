@@ -1,3 +1,9 @@
+2014-08-17
+----------
+
+- Add chat history for each chatroom.
+- Establish user command to access chat history
+
 2014-04-29
 ----------
 

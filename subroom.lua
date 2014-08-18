@@ -9,6 +9,7 @@
 
 function OnStartup()
 	tConfig = {
+		iMaxHistory = 35,
 		sPath = Core.GetPtokaXPath().."scripts/files/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
@@ -20,28 +21,32 @@ function OnStartup()
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."gameSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[QuizRoom]"] = {
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
 			sLogFile = nil,
 			sSubscribersFile = tConfig.sPath.."texts/".."quizSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[Anime]"] = {
 			sBotDescription = "Discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."animSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		},
 		["#[NSFW]"] = {
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."nsfwSub.txt",
-			tSubscribers = { tModerators = {} }
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 		}
 	}
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sPickleFile )
@@ -56,9 +61,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match( "$To: (%S+) From:" )
+	local sTo = sMessage:match "$To: (%S+) From:"
 	if not tRooms[sTo] then return false end
-	local sCmd, sData = sMessage:match( "%b<>%s+[-+*/!#?](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match "%b<>%s+[-+*/!#?](%w+)%s?(.*)|"
 	SaveToFile( sTo, sMessage:match("%b$$(.*)|") )
 	if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) and not sCmd then
 		SendToSubscribers( tUser.sNick, sTo, sMessage )
@@ -69,7 +74,8 @@ function ToArrival( tUser, sMessage )
 	end
 	if sData and sData:len() == 0 then sData = nil end
 	if not sCmd then return false end
-	if sCmd:lower() == "join" or sCmd:lower() == "subscribe" then
+	sCmd = sCmd:lower()
+	if sCmd == "join" or sCmd == "subscribe" then
 		if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 			Core.SendPmToUser( tUser, sTo, "You are already subscribed to this chatroom." )
 			return false
@@ -78,7 +84,7 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "Your subscription was successful." )
 		pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 		return true
-	elseif sCmd:lower() == "leave" or sCmd:lower() == "unsubscribe" then
+	elseif sCmd == "leave" or sCmd == "unsubscribe" then
 		if FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 			table.remove( tRooms[sTo].tSubscribers, FindSubscription(tRooms[sTo].tSubscribers, tUser.sNick) )
 			Core.SendPmToUser( tUser, sTo, "Your unsubscription was successful." )
@@ -87,7 +93,7 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "You are not a part of this room yet." )
 		end
 		return true
-	elseif sCmd:lower() == "kick" then
+	elseif sCmd == "kick" then
 		for sKicked in sData:gmatch "(%S+)" do
 			if not sKicked then
 				Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
@@ -114,7 +120,7 @@ function ToArrival( tUser, sMessage )
 				return false
 			end
 		end
-	elseif sCmd:lower() == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
+	elseif sCmd == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 		local sGuest = sData and sData:match( "^(%S+)" )
 		if not sGuest then
 			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
@@ -129,11 +135,11 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "User with nick "..sGuest.." is not online." )
 			return false
 		end
-	elseif sCmd:lower() == "l" or sCmd:lower() == "list" then
+	elseif sCmd == "l" or sCmd == "list" then
 		local sTemplate = ("There are %02d current subscribers participating:\n\n\t"):format( #(tRooms[sTo].tSubscribers) )
 		Core.SendPmToUser( tUser, sTo, sTemplate..table.concat(tRooms[sTo].tSubscribers, ", ") )
 		return true
-	elseif sCmd:lower() == "h" or sCmd:lower() == "help" then
+	elseif sCmd == "h" or sCmd == "help" then
 		if tUser.iProfile ~= 0 and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, tUser.sNick ) then
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite and leave" )
 			return true
@@ -141,7 +147,7 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite, kick, police and leave" )
 			return true
 		end
-	elseif sCmd:lower() == "mod" or sCmd:lower() == "police" and ('01'):find( tostring(tUser.iProfile) ) then
+	elseif sCmd == "mod" or sCmd == "police" and ('01'):find( tostring(tUser.iProfile) ) then
 		local sNewMod = sData and sData:match( "^(%S+)" )
 		local IsInRoom = FindSubscription( tRooms[sTo].tSubscribers, sNewMod )
 		if sNewMod and IsInRoom and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, sNewMod ) then
@@ -150,6 +156,11 @@ function ToArrival( tUser, sMessage )
 			SendToSubscribers( sTo, sTo, sReply, true )
 			return true
 		end
+	elseif sCmd == "history" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
+		local sReply = "Past %d messages to { %s }: \n\n\t%s\n\n"
+		sReply = sReply:format( #(tRooms[sTo].tChatHistory), sTo, table.concat(tRooms[sTo].tChatHistory, "\n\t") )
+		Core.SendPmToUser( tUser, sTo, sReply )
+		return true
 	else
 		SendToSubscribers( tUser.sNick, sTo, sMessage )
 		return true
@@ -164,10 +175,15 @@ function OnExit()
 end
 
 function SaveToFile( sRoomName, sChatMessage )
-	if not tRooms[sRoomName].sLogFile then
+	local tCurrentRoom = tRooms[sRoomName]
+	if not tCurrentRoom.sLogFile then
 		return false
 	end
-	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tRooms[sRoomName].sLogFile, "a" )
+	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
+	table.insert( tCurrentRoom.tChatHistory, sStoreMessage )
+	if tCurrentRoom.tChatHistory[tConfig.iMaxHistory + 1] then
+		table.remove( tCurrentRoom.tChatHistory, 1 )
+	end
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()

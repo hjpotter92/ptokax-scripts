@@ -85,7 +85,7 @@ function Hide()
 end
 
 function ToArrival( tUser, sMessage )
-	local _, _, sTo = sMessage:find( "%$To: (%S+)" )
+	local sTo = sMessage:match "%$To: (%S+)"
 	if not tChatRooms[sTo] or tUser.iProfile == -1 then
 		return false
 	end
@@ -93,7 +93,7 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
 		return true
 	else
-		local _, _, sChat = sMessage:find( "%b$$(.*)|" )
+		local sChat = sMessage:match "%b$$(.*)|"
 		SendToRoom( tUser, sTo, sChat )
 		return true
 	end
