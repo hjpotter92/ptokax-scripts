@@ -12,7 +12,7 @@ function OnStartup()
 		sBotName = "[BOT]Info",
 		sBotDescription = "All informatory works are performed.",
 		sBotEmail = "do-not@mail.me",
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sFunctionsFile = "info.lua",
 		sChatFile = "chatcore.lua",
 		sHelpFile = "ihelp.txt",

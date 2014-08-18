@@ -12,7 +12,7 @@ function OnStartup()
 		sBotName = "[BOT]Offliner",
 		sBotDescription = "The database of newest additions to hub.",
 		sBotEmail = "do-not@mail.me",
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sExternalFile = "offliner.lua",
 		sChatFile = "chatcore.lua",
 		sHelpFile = "ohelp.txt",

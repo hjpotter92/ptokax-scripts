@@ -9,7 +9,7 @@
 
 function OnStartup()
 	tConfig = {
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
 		sLogPath = "/www/ChatLogs/"..os.date( "%Y/" ),

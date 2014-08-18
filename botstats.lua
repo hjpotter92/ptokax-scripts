@@ -8,7 +8,7 @@
 --]]
 
 function OnStartup()
-	package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+	package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
 	local Connection = require 'config'
 	tConfig = {
 		tBot = {
@@ -16,7 +16,7 @@ function OnStartup()
 			sDescription = "Statistics collection and fetching tasks.",
 			sEmail = "do-not@mail.me",
 		},
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sFuncFile = "functions.lua",
 		sHelpFile = "statsHelp.txt",
 	}

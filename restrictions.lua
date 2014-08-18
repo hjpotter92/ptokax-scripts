@@ -10,7 +10,7 @@
 function OnStartup()
 	tConfig, tList = {
 		sPath = Core.GetPtokaXPath().."scripts/",
-		sFiles = "files/external/restrict/",
+		sFiles = "external/restrict/",
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",
 	}, {
@@ -19,7 +19,7 @@ function OnStartup()
 		"nicks.lua",
 		"search.lua",
 	}
-	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq.php?code=%s&num=%04d"
+	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq/%s/%04d"
 	for iIndex, sScript in ipairs( tList ) do
 		dofile( tConfig.sPath..tConfig.sFiles..sScript )
 	end
