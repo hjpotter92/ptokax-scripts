@@ -11,7 +11,7 @@ function OnStartup()
 	tConfig = {
 		sBotName = SetMan.GetString( 21 ),
 		sAsBot = "<"..( SetMan.GetString(21) or "PtokaX" ).."> ",
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
 		sTextPath = "texts/",
 		sFunctionsPath = "dependency/",
 		sExternalPath = "external/",

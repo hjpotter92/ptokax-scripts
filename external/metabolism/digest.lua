@@ -7,19 +7,18 @@
 
 --]]
 
+dofile(mpath.."custcom.lua")
+dofile(mpath.."modifiers.lua")
+dofile(mpath.."expel.lua")
+dofile(path.."dependency/pickle.lua" )
 
-dofile(path.."files/custcom.lua")
-dofile(path.."files/modifiers.lua")
-dofile(path.."files/expel.lua")
-dofile(path.."files/dependency/pickle.lua" )
-digest =function( user,data,isCmd,irc)
-		
+digest = function( user, data, isCmd, irc )
 	if isCmd then
-		msg=custcom(user,data)
+		msg = custcom(user,data)
 	else
-		msg=modifiers(user,data)
+		msg = modifiers(user,data)
 	end
-	if msg ~=false then
+	if msg then
 		dcmcout(msg)
 		if irc then
 			ircout(msg)

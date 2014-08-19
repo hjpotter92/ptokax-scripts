@@ -13,7 +13,7 @@ local tConfig = {
 	sBotName = "[BOT]Info",
 	sHub = SetMan.GetString( 2 ) or "localhost",
 }
-tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq.php?code=%s&num=%04d"
+tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sErrorCode )
@@ -72,7 +72,7 @@ _G.tFunction = {
 	end,
 
 	FetchRow = function( sTable, iID )
-		local sFields, sQuery, tReturn = "`msg`, `nick`", "SELECT %s FROM `%s` WHERE `id` = %d LIMIT 1", {}
+		local sFields, sQuery, tReturn = "msg, nick", "SELECT %s FROM `%s` WHERE id = %d LIMIT 1", {}
 		if sTable == "requests" or sTable == "suggestions" then
 			sFields = "`ctg`, "..sFields
 		elseif sTable == "buynsell" then
@@ -86,7 +86,7 @@ _G.tFunction = {
 	end,
 
 	FetchReplies = function( iID )
-		local sReturn, tTemporary, sQuery = "", {}, ([[SELECT `id`, `nick`, `msg`, `dated` FROM `replies` WHERE `bns_id` = %d ORDER BY `id` ASC]]):format( iID )
+		local sReturn, tTemporary, sQuery = "", {}, ([[SELECT id, nick, msg, dated FROM replies WHERE bns_id = %d ORDER BY id ASC]]):format( iID )
 		local SQLCur = assert( SQLCon:execute(sQuery) )
 		local tRow = SQLCur:fetch( {}, "a" )
 		if tRow then
@@ -138,10 +138,10 @@ _G.tInfobot = {
 			FROM (
 				SELECT %s
 				FROM `%s`
-				ORDER BY `id` DESC
+				ORDER BY id DESC
 				LIMIT %d
 			) `temp`
-			ORDER BY `id` ASC]], {}
+			ORDER BY id ASC]], {}
 		for iIndex, sTableName in pairs( tAllTables ) do
 			local sList = tInfobot.readOne( sTableName:lower(), iLimit, true )
 			if sList then
@@ -157,10 +157,10 @@ _G.tInfobot = {
 			FROM (
 				SELECT %s
 				FROM `%s`
-				ORDER BY `id` DESC
+				ORDER BY id DESC
 				LIMIT %d
 			) `temp`
-			ORDER BY `id` ASC]], {}, "%d. %s (Added by %s on %s)"
+			ORDER BY id ASC]], {}, "%d. %s (Added by %s on %s)"
 		if bReadAll then
 			sReturnList = "Table: "..sTable:upper().."\t\t\tLimit: "..tostring(iLimit).."\n\n"
 		end
@@ -256,11 +256,11 @@ _G.tInfobot = {
 	end,
 
 	fill = function( tUser, iID, bClosure )
-		local sUpdateQuery = [[UPDATE `requests`
-			SET `filled` = '%s',
-				`filldate` = NOW(),
-				`filledby` = '%s'
-			WHERE `id` = %d
+		local sUpdateQuery = [[UPDATE requests
+			SET filled = '%s',
+				filldate = NOW(),
+				filledby = '%s'
+			WHERE id = %d
 			LIMIT 1]]
 		sUpdateQuery = sUpdateQuery:format( (bClosure and 'C') or 'Y', SQLCon:escape(tUser.sNick), iID )
 		local SQLCur = assert( SQLCon:execute(sUpdateQuery) )

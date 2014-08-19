@@ -12,16 +12,22 @@ function OnStartup()
 		sBotName = "[BOT]Info",
 		sBotDescription = "All informatory works are performed.",
 		sBotEmail = "do-not@mail.me",
-		sFunctionsFile = "botinfo.lua",
-		sHelpFile = "ihelp.txt",
-		sPath = Core.GetPtokaXPath().."scripts/files/",
+		sPath = Core.GetPtokaXPath().."scripts/",
+		sFunctionsFile = "info.lua",
 		sChatFile = "chatcore.lua",
+		sHelpFile = "ihelp.txt",
 		sReportBot = "#[Hub-Feed]",
+		sAdditionNotify = "New%s: %s has been added to [ %s ] table. Use %s for more information.",
 		sHelp = "",
 		sAllCategories = "",
 		iMaxStringLength = 250,
 		iModProfile = 4,
 		iRegProfile = 5
+	}
+	tPaths = {
+		sTexts = tCfg.sPath.."texts/",
+		sExternal = tCfg.sPath.."external/",
+		sDependency = tCfg.sPath.."dependency/",
 	}
 	tProfiles = {
 		AllowVIP = {
@@ -38,9 +44,9 @@ function OnStartup()
 			[4] = true			-- Mods
 		}
 	}
-	dofile( tCfg.sPath..tCfg.sFunctionsFile )
-	dofile( tCfg.sPath..tCfg.sChatFile )
-	local fHelp = io.open( tCfg.sPath..tCfg.sHelpFile )
+	dofile( tPaths.sExternal..tCfg.sFunctionsFile )
+	dofile( tPaths.sDependency..tCfg.sChatFile )
+	local fHelp = io.open( tPaths.sTexts..tCfg.sHelpFile )
 	if fHelp then
 		tCfg.sHelp = fHelp:read( "*a" )
 		fHelp:close()
@@ -50,9 +56,9 @@ function OnStartup()
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match( "%$To: (%S+) From:" )
+	local sTo = sMessage:match "$To: (%S+) From:"
 	if sTo ~= tCfg.sBotName then return false end
-	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
+	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s*(.*)|"
 	if not sCmd then return false end
 	if sData and sData:len() > tCfg.iMaxStringLength then
 		Core.SendPmToUser( tUser, tCfg.sBotName, "All command length must be below "..tostring(tCfg.iMaxStringLength).." characters." )
@@ -170,7 +176,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		return false
 	end
 
-	local tInsertData, iLastID, sAdditionNotify = { sMsg = sData, sTable = "all" }, 0, "New %s has been added to [ %s ] table. Use %s for more information."
+	local tInsertData, iLastID = { sMsg = sData, sTable = "all" }, 0
 
 	if not tInsertData.sMsg then
 		Core.SendPmToUser( tUser, tCfg.sBotName, "No message provided." )
@@ -198,7 +204,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( ("%s: %s"):format(tInsertData.sCtg:upper(), tInsertData.sMsg), tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -219,7 +225,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( ("%s: %s"):format(tInsertData.sCtg:upper(), tInsertData.sMsg), tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -233,7 +239,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -251,7 +257,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -265,7 +271,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -291,7 +297,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = sAdditionNotify:format( ("%s: %s"):format(tBreak[1]:upper(), tInsertData.sMsg), tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.sAdditionNotify:format( tBreak[1]:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -382,11 +388,11 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		if tUser.sNick:lower() == tRow.nick:lower() or tProfiles.AllowMods[tUser.iProfile] then
 			tInfobot.switch( tInsertData.iID )
 			if tUser.sNick:lower() ~= tRow.nick:lower() then
-				local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've switched your buy and sell thread ID#"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
+				local iOfflineMessageID, sError = tInfobot.StoreMessage( tUser.sNick, tRow.nick, "I've switched your buy and sell thread ID #"..tostring(tInsertData.iID).." - "..tRow.msg.."." )
 				if iOfflineMessageID ~= 0 then
-					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
+					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.type, tRow.msg, tRow.nick, tonumber(iOfflineMessageID)) )
 				else
-					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.ctg, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
+					Core.SendPmToUser( tUser, tCfg.sBotName, sReply:format(tInsertData.iID, tRow.type, tRow.msg, tRow.nick, tonumber(iOfflineMessageID))..sError )
 				end
 			else
 				Core.SendPmToUser( tUser, tCfg.sBotName, "Status switched successfully." )

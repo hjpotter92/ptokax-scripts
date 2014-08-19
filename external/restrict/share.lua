@@ -12,11 +12,8 @@ local tSettings = {
 	sAllowedProfiles = "01236",
 	iBanTime = 6,
 	iShareLimit = 64,		-- In gibibytes
-	iExponent = 3,
-	iConversionFactor = 2^10,
+	iDivisionFactor = (2^10)^3,
 }
-
-tSettings.iDivisionFactor = tSettings.iConversionFactor ^ tSettings.iExponent
 
 function SearchArrival( tUser, sData )
 	tUser.iShareSize = Core.GetUserValue( tUser, 16 ) / tSettings.iDivisionFactor

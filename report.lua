@@ -11,11 +11,11 @@ function OnStartup()
 	tConfig = {
 		sBotName = SetMan.GetString( 21 ),
 		sReportBot = "#[VIPChat]",
-		sChatFilePath = Core.GetPtokaXPath().."scripts/files/chatcore.lua"
+		sChatFilePath = Core.GetPtokaXPath().."scripts/dependency/chatcore.lua"
 	}
 	tConfig.sAsBot = "<"..tConfig.sBotName.."> "
 	dofile( tConfig.sChatFilePath )
-	local fCommand = io.open( Core.GetPtokaXPath().."scripts/files/texts/reportMenu.txt", "r+" )
+	local fCommand = io.open( Core.GetPtokaXPath().."scripts/texts/reportMenu.txt", "r+" )
 	sFileCommand = fCommand:read "*a"
 	sFileCommand = sFileCommand:gsub( "%%%[bot%]", tConfig.sBotName )
 	Core.SendToAll( sFileCommand )
@@ -32,7 +32,7 @@ function ToArrival( tUser, sMessage )
 end
 
 function ChatArrival( tUser, sMessage )
-	local sCommand, sData = sMessage:match( "%b<> [-+/*?!#](%w+)%s?(.*)|" )
+	local sCommand, sData = sMessage:match "%b<> [-+/*?!#](%w+)%s?(.*)|"
 	if not sCommand then return false end
 	if sCommand:lower() == "report" then
 		return ExecuteCommand( tUser, sData, false )

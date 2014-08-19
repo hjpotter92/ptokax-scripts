@@ -13,7 +13,7 @@ local tConfig = {
 	sBotName = "[BOT]Offliner",
 	sHub = SetMan.GetString( 2 ) or "localhost"
 }
-tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%s"
+tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sError )

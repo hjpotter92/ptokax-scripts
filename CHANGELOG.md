@@ -1,3 +1,9 @@
+2014-08-19
+----------
+
+- Remove user logging script due to detrimental effects on database.
+- Optimize directory structure.
+
 2014-08-17
 ----------
 
