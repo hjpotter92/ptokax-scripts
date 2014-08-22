@@ -7,14 +7,13 @@
 
 --]]
 
-package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
 local Connection = require 'config'
 local tConfig = {
 	sBotName = "[BOT]Info",
 	sHub = SetMan.GetString( 2 ) or "localhost",
 }
 tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
-tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sErrorCode )
 	Core.SendPmToNick( "hjpotter92", "lol", "INFO: "..sErrorCode )

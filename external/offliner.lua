@@ -7,7 +7,7 @@
 
 --]]
 
-package.path = Core.GetPtokaXPath().."scripts/files/dependency/?.lua;"..package.path
+package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
 local Connection = require 'config'
 local tConfig = {
 	sBotName = "[BOT]Offliner",
