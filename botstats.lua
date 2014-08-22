@@ -65,6 +65,7 @@ function ChatArrival( tUser, sMessage )
 	if bIsRegUser then
 		IncreaseChatCount( tUser )
 	end
+	if not sCmd then return false end
 	if sCmd:lower() == 'topic' and ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then
 		if sData:len() == 0 then return false end
 		NewHubTopic( tUser.sNick, sData )

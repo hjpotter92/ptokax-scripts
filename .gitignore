@@ -1,2 +1,7 @@
-files/dependency/config.lua
-files/texts/*Sub.txt
+dependency/config.lua
+texts/*Sub.txt
+texts/tnp.txt
+texts/blocks.txt
+texts/mcunsubs.txt
+texts/notice.txt
+texts/lost.txt
