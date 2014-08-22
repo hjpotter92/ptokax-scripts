@@ -82,78 +82,71 @@ function ToArrival( tUser, sMessage )
 		IncreaseBotCount( sTo, bIsRegUser )
 	end
 	local sCmd, sData = sMessage:match "%b<> [-+/#!?](%S+)%s*(.*)"
-	if sCmd:lower() == 'topic' and ProfMan.GetProfilePermission( tUser.iProfile, 7 ) and sTo == tConfig.sHubBot then
+	if not sCmd then return false end
+	sCmd = sCmd:lower()
+	if sCmd == 'topic' and ProfMan.GetProfilePermission( tUser.iProfile, 7 ) and sTo == tConfig.sHubBot then
 		if sData:len() == 0 then return false end
 		NewHubTopic( tUser.sNick, sData )
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	if not sCmd then return false end
-	return ExecuteCommand( tUser, sMessage, true )
+	return ExecuteCommand( tUser, sCmd, sData, true )
 end
 
-function ExecuteCommand( tUser, sMessage, bIsPm )
-	tTokens = Explode( sMessage )
-	local sCmd = tTokens[6]:lower():match ".(.*)"
+function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
+	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
 	if sCmd == "h" or sCmd == "help" and bIsPm then
-		Reply( tUser, sHelp, bIsPm )
-		return true
+		sReply = sHelp
 	elseif sCmd == "see" or sCmd == "score" then
-		local sNick = tTokens[7] or tUser.sNick
-		if not RegMan.GetReg( sNick ) then
-			Reply( tUser, "Available only for registered users.", bIsPm )
-			return true
+		local sNick = tTokens[1] or tUser.sNick
+		if not bIsRegUser then
+			sReply = "Available only for registered users."
+		else
+			sReply = NickStats(sNick)
 		end
-		Reply( tUser, NickStats(sNick), bIsPm )
 	elseif sCmd == "top" then
-		local iLimit=tonumber(tTokens[7])
+		local iLimit=tonumber( tTokens[1] )
 		if not iLimit then
-			iLimit = 0
-			tTokens[8] = tTokens[7]
+			iLimit, tTokens[2] = 0, tTokens[1]
 		end
 		if iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		Reply( tUser, DailyTop(iLimit, tTokens[8]), bIsPm )
-		return true
+		sReply = DailyTop(iLimit, tTokens[2])
 	elseif sCmd == "topall" then
-		local iLimit=tonumber(tTokens[7])
+		local iLimit=tonumber(tTokens[1])
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		Reply( tUser, AllTimeTop(iLimit), bIsPm )
-		return true
+		sReply = AllTimeTop(iLimit)
 	elseif sCmd == "toks" then
-		local sNick = tTokens[7] or tUser.sNick
-		if not RegMan.GetReg( sNick ) then
-			Reply( tUser, "Available only for registered nicks.", bIsPm )
-			return true
+		local sNick = tTokens[1] or tUser.sNick
+		if not bIsRegUser then
+			sReply = "Available only for registered nicks."
+		else
+			sReply = NickToks( tUser, sNick )
 		end
-		local sReply = NickToks( tUser,sNick)
+	elseif sCmd == "rich" then
+		local iLimit = tonumber( tTokens[1] )
+		if not iLimit then iLimit = 15 end
+		if iLimit > 100 then iLimit = 100 end
+		sReply = CurrentTopToks( iLimit )
+	elseif sCmd == "richest" then
+		local iLimit = tonumber( tTokens[1] )
+		if not iLimit then iLimit =15 end
+		if iLimit > 100 then iLimit = 100 end
+		sReply = AllTimeTopToks( iLimit )
+	elseif sCmd == "gift" then
+		local sToNick, fAmount = tTokens[1], tonumber(tTokens[2]) or 0
+		if sToNick and fAmount then
+			sReply = gift( tUser.sNick, sToNick, fAmount, sData )
+		else
+			sReply = "Incomplete parameters"
+		end
+	elseif sCmd == "transactions" then
+		local sNick = tTokens[1] or tUser.sNick
+		sReply = Transactions(tUser,sNick)
+	end
+	if sReply then
 		Reply( tUser, sReply, bIsPm )
 		return true
-	elseif sCmd == "rich" then
-		local iLimit=tonumber(tTokens[7])
-		if not iLimit then iLimit =15 end
-		if iLimit > 100 then iLimit = 100 end
-		Reply( tUser, CurrentTopToks(iLimit), bIsPm )
-		return true
-	elseif sCmd == "richest" then
-		local iLimit=tonumber(tTokens[7])
-		if not iLimit then iLimit =15 end
-		if iLimit > 100 then iLimit = 100 end
-		Reply( tUser, AllTimeTopToks(iLimit), bIsPm )
-		return true
-	elseif sCmd == "gift" then
-		local sToNick=tTokens[7]
-		local fAmount =tonumber(tTokens[8]) or 0
-		local sMessage = table.concat(tTokens," ",9)
-		if sToNick and fAmount then
-			Reply( tUser, gift(tUser.sNick,sToNick,fAmount,sMessage), bIsPm )
-		else
-			Reply( tUser, "Incomplete parameters", bIsPm )
-		end
-		return true
-	elseif sCmd == "transactions" then
-		local sNick = tTokens[7] or tUser.sNick
-		Reply( tUser, Transactions(tUser,sNick), bIsPm )
-		return true
 	end
+	return false
 end
 
 function Reply( tUser, sMessage, bIsPm )
