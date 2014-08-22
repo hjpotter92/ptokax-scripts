@@ -8,8 +8,6 @@
 --]]
 
 function OnStartup()
-	package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
-	local Connection = require 'config'
 	tConfig = {
 		tBot = {
 			sName = "[BOT]Stats",
@@ -19,12 +17,15 @@ function OnStartup()
 		sPath = Core.GetPtokaXPath().."scripts/",
 		sFuncFile = "functions.lua",
 		sHelpFile = "statsHelp.txt",
+		sHubBot = SetMan.GetString(21),
 	}
 	tPaths = {
 		sTxtPath = tConfig.sPath.."texts/",
 		sExtPath = tConfig.sPath.."external/",
 		sDepPath = tConfig.sPath.."dependency/",
 	}
+	package.path = tPaths.sDepPath.."?.lua;"..package.path
+	local Connection = require 'config'
 	tToksConfig = {
 		iMinShareLimit = 64,
 		fInflationConstant=0.99,
@@ -46,6 +47,7 @@ function OnStartup()
 
 	dofile( tPaths.sExtPath.."stats/chat.lua" )
 	dofile( tPaths.sExtPath.."stats/toks.lua" )
+	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )
 	dofile( tPaths.sDepPath..tConfig.sFuncFile )
 
 	local luasql
@@ -59,32 +61,39 @@ function OnStartup()
 end
 
 function ChatArrival( tUser, sMessage )
-	local bIsRegUser = (tUser.iProfile ~= -1)
+	local bIsRegUser, sCmd, sData = (tUser.iProfile ~= -1), sMessage:match "%b<> [-+/#!?](%S+)%s*(.*)|$"
 	if bIsRegUser then
 		IncreaseChatCount( tUser )
+	end
+	if sCmd:lower() == 'topic' and ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then
+		if sData:len() == 0 then return false end
+		NewHubTopic( tUser.sNick, sData )
 	end
 end
 
 function ToArrival( tUser, sMessage )
-	local sMessage = string.gsub(sMessage,"|","")
-	local sTo = sMessage:match( "$To: (%S+)" )
-	local bIsRegUser = (tUser.iProfile ~= -1)
-	local bIsBot = VerifyBots( sTo )
+	local sMessage = sMessage:gsub( "|", "" )
+	local sTo = sMessage:match "$To: (%S+)"
+	local bIsRegUser, bIsBot = (tUser.iProfile ~= -1), VerifyBots( sTo )
 	if bIsRegUser then
 		IncreasePMCount( tUser )
 	end
 	if bIsBot then
-		IncreaseBotCount(sTo,bIsRegUser)
+		IncreaseBotCount( sTo, bIsRegUser )
+	end
+	local sCmd, sData = sMessage:match "%b<> [-+/#!?](%S+)%s*(.*)"
+	if sCmd:lower() == 'topic' and ProfMan.GetProfilePermission( tUser.iProfile, 7 ) and sTo == tConfig.sHubBot then
+		if sData:len() == 0 then return false end
+		NewHubTopic( tUser.sNick, sData )
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	local sFchar = sMessage:match( "%b$$%b<> ([-+*/?#!]).*" )
-	if not sFchar then return false end
+	if not sCmd then return false end
 	return ExecuteCommand( tUser, sMessage, true )
 end
 
-function ExecuteCommand( tUser,sMessage, bIsPm )
+function ExecuteCommand( tUser, sMessage, bIsPm )
 	tTokens = Explode( sMessage )
-	local sCmd = tTokens[6]:lower():match(".(.*)")
+	local sCmd = tTokens[6]:lower():match ".(.*)"
 	if sCmd == "h" or sCmd == "help" and bIsPm then
 		Reply( tUser, sHelp, bIsPm )
 		return true
@@ -94,7 +103,7 @@ function ExecuteCommand( tUser,sMessage, bIsPm )
 			Reply( tUser, "Available only for registered users.", bIsPm )
 			return true
 		end
-		Reply( tUser, NickStats( sNick), bIsPm )
+		Reply( tUser, NickStats(sNick), bIsPm )
 	elseif sCmd == "top" then
 		local iLimit=tonumber(tTokens[7])
 		if not iLimit then
