@@ -347,10 +347,11 @@ CustomCommands = {
 		-- To get a list of additional help commands available to a given profile
 		if not user then return -1, "!custhelp", "Returns this additional help." end
 		local msg, tempList = "List of additional commands available to you\n\t", {}
+		table.insert( tempList, msg)
 		for function_name, func in pairs(CustomCommands) do
 			local profile, syntax, comment = func()	-- --call each function in this table without any arguments , so that user = nil and that special case of each function is invoked
 			if chkpriv(user, profile) then
-				table.insert( tempList, msg..syntax.."\t\t"..comment.."\n\t" )
+				table.insert( tempList, syntax.."\t\t"..comment.."\n\t" )
 			end
 		end
 		notify( user, msg..table.concat(tempList, "") )

@@ -54,27 +54,27 @@ ChatArrival = function(user,data)
 	local isCmd, irc = false, false
 	if not cmd then
 		isCmd = false
-		digest(user,data,isCmd,irc)
+		digest(user,tempdata,isCmd,irc)
 		return true
 	end
 	if isthere(cmd, PtokaxCommands) then		-- let ptokax handle inbuilt commands
 		if cmd == "help" then				-- hack to have custhelp executed each time help is executed
-			data = data:gsub("help","custhelp")
+			tempdata = tempdata:gsub("help","custhelp")
 			inPM = false
 			isCmd = true
-			digest(user,data,isCmd,irc)
+			digest(user,tempdata,isCmd,irc)
 		end
 		return
 	end
 	if isthere(cmd, CustomCommands) then
 		isCmd = true
 		inPM = false
-		digest(user,data,isCmd,irc)
+		digest(user,tempdata,isCmd,irc)
 		return true
 	end
 	--message begins with a command character but the command is not found . Treat it as a normal message
 	isCmd = false
-	digest(user,data,isCmd,irc)
+	digest(user,tempdata,isCmd,irc)
 	return true
 end
 
@@ -84,7 +84,10 @@ ToArrival = function( user, data )
 	if  to ~= bot then
 		return
 	end
-	local cmd = tempdata:match "%b$$%b<> [!/+](%S+)%s"
+	--Remove the To and From parts 
+	tempdata=tempdata:match("$.*$(.*)")
+	
+	local cmd= tempdata:match( "%b<> [!/+](%S+)%s")
 	if  not cmd then
 		return
 	end
