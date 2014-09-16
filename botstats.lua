@@ -34,6 +34,12 @@ function OnStartup()
 		fVipAllowance=500,
 		fOpAllowance=800,
 	}
+
+	dofile( tPaths.sDepPath..tConfig.sFuncFile )
+	dofile( tPaths.sExtPath.."stats/chat.lua" )
+	dofile( tPaths.sExtPath.."stats/toks.lua" )
+	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )
+
 	tUserStats, tBotStats = {}, {}
 	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )							-- Every 90 seconds
 	tConfig.iTimerID2 = TmrMan.AddTimer( 5 * 60 * 10^3, "UpdateToks" )					-- Every 5 minutes
@@ -44,11 +50,6 @@ function OnStartup()
 	fHelp:close()
 
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
-
-	dofile( tPaths.sExtPath.."stats/chat.lua" )
-	dofile( tPaths.sExtPath.."stats/toks.lua" )
-	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )
-	dofile( tPaths.sDepPath..tConfig.sFuncFile )
 
 	local luasql
 	if not luasql then
