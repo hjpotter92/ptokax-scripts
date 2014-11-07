@@ -94,6 +94,7 @@ function ToArrival( tUser, sMessage )
 		end
 		return true
 	elseif sCmd == "kick" then
+		local tKicked = {}
 		for sKicked in sData:gmatch "(%S+)" do
 			if not sKicked then
 				Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
@@ -110,16 +111,17 @@ function ToArrival( tUser, sMessage )
 				pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
 				return false
 			else
-				Core.SendPmToUser( tUser, sTo, "Kicking "..sKicked.." from "..sTo.." chatroom." )
 				table.remove( tRooms[sTo].tSubscribers, IsInRoom )
 				local IsModerator = FindSubscription( tRooms[sTo].tSubscribers.tModerators, sKicked )
 				if tUser.iProfile == 0 and IsModerator then
 					table.remove( tRooms[sTo].tSubscribers.tModerators, IsModerator )
 				end
 				pickle.store( tRooms[sTo].sSubscribersFile, {tTemp = tRooms[sTo].tSubscribers} )
-				return false
+				table.insert( tKicked, sKicked )
 			end
 		end
+		Core.SendPmToUser( tUser, sTo, "The following users were kicked from this chatroom: "..table.concat(tKicked, ", ") )
+		return false
 	elseif sCmd == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
 		local sGuest = sData and sData:match( "^(%S+)" )
 		if not sGuest then
