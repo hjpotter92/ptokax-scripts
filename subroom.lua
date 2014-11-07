@@ -180,10 +180,6 @@ function SaveToFile( sRoomName, sChatMessage )
 		return false
 	end
 	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
-	table.insert( tCurrentRoom.tChatHistory, sStoreMessage )
-	if tCurrentRoom.tChatHistory[tConfig.iMaxHistory + 1] then
-		table.remove( tCurrentRoom.tChatHistory, 1 )
-	end
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
@@ -191,7 +187,7 @@ function SaveToFile( sRoomName, sChatMessage )
 end
 
 function SendToSubscribers( sSelfNick, sRoomName, sIncoming, bNotice )
-	local sIncoming, sRawString = sIncoming:match( "%b$$(.*)|" ), "$To: %s From: %s $%s|"
+	local tCurrentHistory, sIncoming, sRawString = tRooms[sRoomName].tChatHistory, sIncoming:match "%b$$(.*)|", "$To: %s From: %s $%s|"
 	if sRoomName == "#[NSFW]" and not bNotice then
 		sIncoming = "<Anonymous>"..sIncoming:match( "%b<>(.*)" )
 	end
@@ -199,6 +195,10 @@ function SendToSubscribers( sSelfNick, sRoomName, sIncoming, bNotice )
 		if sNick:lower() ~= sSelfNick:lower() then
 			Core.SendToNick( sNick, sRawString:format(sNick, sRoomName, sIncoming) )
 		end
+	end
+	table.insert( tCurrentHistory, os.date("[%Y-%m-%d %H:%M:%S] ")..sIncoming )
+	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] then
+		table.remove( tCurrentHistory, 1 )
 	end
 	return true
 end
