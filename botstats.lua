@@ -91,12 +91,12 @@ function ToArrival( tUser, sMessage )
 		NewHubTopic( tUser.sNick, sData )
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	return ExecuteCommand( tUser, sCmd, sData, true )
+	return ExecuteCommand( tUser, sCmd, sData)
 end
 
-function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
+function ExecuteCommand( tUser, sCmd, sMessage)
 	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
-	if sCmd == "h" or sCmd == "help" and bIsPm then
+	if sCmd == "h" or sCmd == "help" then
 		sReply = sHelp
 	elseif sCmd == "see" or sCmd == "score" then
 		local sNick = tTokens[1] or tUser.sNick
@@ -145,18 +145,14 @@ function ExecuteCommand( tUser, sCmd, sMessage, bIsPm )
 		sReply = Transactions(tUser,sNick)
 	end
 	if sReply then
-		Reply( tUser, sReply, bIsPm )
+		Reply( tUser, sReply)
 		return true
 	end
 	return false
 end
 
-function Reply( tUser, sMessage, bIsPm )
-	if bIsPm then
-		Core.SendPmToUser( tUser, tConfig.tBot.sName, sMessage )
-	else
-		Core.SendToUser( tUser, "<"..tConfig.tBot.sName.."> "..sMessage )
-	end
+function Reply( tUser, sMessage)
+	Core.SendPmToUser( tUser, tConfig.tBot.sName, sMessage )
 end
 
 function OnExit()
