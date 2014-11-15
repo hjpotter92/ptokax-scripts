@@ -91,10 +91,10 @@ function ToArrival( tUser, sMessage )
 		NewHubTopic( tUser.sNick, sData )
 	end
 	if sTo ~= tConfig.tBot.sName then return false end
-	return ExecuteCommand( tUser, sCmd, sData)
+	return ExecuteCommand( tUser, sCmd, sData )
 end
 
-function ExecuteCommand( tUser, sCmd, sMessage)
+function ExecuteCommand( tUser, sCmd, sMessage )
 	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
 	if sCmd == "h" or sCmd == "help" then
 		sReply = sHelp
@@ -145,13 +145,13 @@ function ExecuteCommand( tUser, sCmd, sMessage)
 		sReply = Transactions(tUser,sNick)
 	end
 	if sReply then
-		Reply( tUser, sReply)
+		Reply( tUser, sReply )
 		return true
 	end
 	return false
 end
 
-function Reply( tUser, sMessage)
+function Reply( tUser, sMessage )
 	Core.SendPmToUser( tUser, tConfig.tBot.sName, sMessage )
 end
 
