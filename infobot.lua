@@ -67,11 +67,11 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, tCfg.sBotName, tCfg.sHelp )
 		return false
 	else
-		return ExecuteCommand( tUser, sCmd:lower(), sData, true )
+		return ExecuteCommand( tUser, sCmd:lower(), sData )
 	end
 end
 
-function ExecuteCommand( tUser, sCommand, sData, bIsPM )
+function ExecuteCommand( tUser, sCommand, sData )
 	if sCommand == "readall" or sCommand == "rall" then
 		if ( not sData ) or ( sData and not tonumber(sData) ) then
 			iLimit = 15
@@ -171,7 +171,7 @@ function ExecuteCommand( tUser, sCommand, sData, bIsPM )
 		return true
 	end
 
-	if sData:len() == 0 and bIsPM then
+	if sData:len() == 0 then
 		Core.SendPmToUser( tUser, tCfg.sBotName, "You did not pass anything as argument." )
 		return false
 	end
