@@ -17,7 +17,7 @@ function OnStartup()
 		sChatFile = "chatcore.lua",
 		sHelpFile = "ihelp.txt",
 		sReportBot = "#[Hub-Feed]",
-		sAdditionNotify = "New%s: %s has been added to [ %s ] table. Use %s for more information.",
+		sAdditionNotify = "New %s: %s has been added to [ %s ] table. Use %s for more information.",
 		sHelp = "",
 		sAllCategories = "",
 		iMaxStringLength = 250,
