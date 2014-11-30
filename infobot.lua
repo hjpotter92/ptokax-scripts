@@ -20,7 +20,7 @@ function OnStartup()
 		tTemplates = {
 			sNotify = "New: %s has been added to [ %s ] table. Use %s for more information.",
 			sCategNotify = "New %s: %s has been added to [ %s ] table. Use %s for more information.",
-		}
+		},
 		sAdditionNotify = "New %s: %s has been added to [ %s ] table. Use %s for more information.",
 		sHelp = "",
 		sAllCategories = "",
@@ -46,7 +46,7 @@ function OnStartup()
 			[2] = true,			-- OP
 			[3] = true,			-- VIP
 			[4] = true,			-- Mods
-		}
+		},
 	}
 	dofile( tPaths.sExternal..tCfg.sFunctionsFile )
 	dofile( tPaths.sDependency..tCfg.sChatFile )
