@@ -19,7 +19,7 @@ function OnStartup()
 		sRulesFile = "general.txt",
 		sReportBot = "#[Hub-Feed]",
 		iModProfile = 4,
-		iRegProfile = 5
+		iRegProfile = 5,
 	}
 	tPaths = {
 		sDependency = tCfg.sPath.."dependency/",
@@ -35,18 +35,18 @@ function OnStartup()
 			[4] = false,		-- Mods
 			[5] = false,		-- Reg
 			[6] = false,		-- sVIP
-			[7] = false			-- gymkhana
+			[7] = false,		-- gymkhana
 		},
 		AllowAdmin = {
 			[0] = true,			-- Admin
-			[1] = false,			-- God
+			[1] = false,		-- God
 			[2] = true,			-- OP
-			[3] = false,			-- VIP
+			[3] = false,		-- VIP
 			[4] = false,		-- Mods
 			[5] = false,		-- Reg
 			[6] = false,		-- sVIP
-			[7] = false			-- gymkhana
-		}
+			[7] = false,		-- gymkhana
+		},
 	}
 	dofile( tPaths.sExternal..tCfg.sExternalFile )
 	dofile( tPaths.sDependency.."functions.lua" )
@@ -146,7 +146,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	local tBreak = Explode( sData )
-
+	
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
@@ -189,6 +189,14 @@ function ExecuteCommand( tUser, sCmd, sData )
 		return true
 
 	elseif sCmd == "ul" or sCmd == "updatelatest" then
+		local bSendToAll = false
+		if tBreak[1] == "-m" then
+			bSendToAll = true
+			table.remove( tBreak, 1 )
+		elseif tBreak[#tBreak] == "-m" then
+			bSendToAll = true
+			table.remove( tBreak, #tBreak )
+		end
 		if not tFunction.CheckModerator( tUser.sNick ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("off", 120) )
 			return true
@@ -205,8 +213,10 @@ function ExecuteCommand( tUser, sCmd, sData )
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
 			tOffliner.ul( tUser, tBreak )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The message has been updated." )
-			local sChatMessage = "Entry #"..tostring(tBreak[1]).." was updated. "
-			tFunction.SendToAll( tUser.sNick, sChatMessage.."Older entry was: "..tRow.msg )
+			local sChatMessage = "Entry #"..tostring(tBreak[1]).." was updated. Older entry was: "..tRow.msg
+			if bSendToAll then	
+				tFunction.SendToAll( tUser.sNick, sChatMessage )
+			end
 			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 			return true
 		elseif tRow.nick:lower() ~= tUser.sNick:lower() then

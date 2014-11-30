@@ -1,3 +1,9 @@
+2014-11-30
+----------
+
+- Stop displaying `+ul` info on mainchat without `-m` flag.
+- Add two templates for `[BOT]Info` additions.
+
 2014-08-19
 ----------
 
@@ -8,7 +14,7 @@
 ----------
 
 - Add chat history for each chatroom.
-- Establish user command to access chat history
+- Establish user command to access chat history.
 
 2014-04-29
 ----------
