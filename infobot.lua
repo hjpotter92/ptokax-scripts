@@ -17,12 +17,16 @@ function OnStartup()
 		sChatFile = "chatcore.lua",
 		sHelpFile = "ihelp.txt",
 		sReportBot = "#[Hub-Feed]",
+		tTemplates = {
+			sNotify = "New: %s has been added to [ %s ] table. Use %s for more information.",
+			sCategNotify = "New %s: %s has been added to [ %s ] table. Use %s for more information.",
+		}
 		sAdditionNotify = "New %s: %s has been added to [ %s ] table. Use %s for more information.",
 		sHelp = "",
 		sAllCategories = "",
 		iMaxStringLength = 250,
 		iModProfile = 4,
-		iRegProfile = 5
+		iRegProfile = 5,
 	}
 	tPaths = {
 		sTexts = tCfg.sPath.."texts/",
@@ -34,14 +38,14 @@ function OnStartup()
 			[0] = true,			-- Admin
 			[1] = true,			-- God
 			[2] = true,			-- OP
-			[3] = true			-- VIP
+			[3] = true,			-- VIP
 		},
 		AllowMods = {
 			[0] = true,			-- Admin
 			[1] = true,			-- God
 			[2] = true,			-- OP
 			[3] = true,			-- VIP
-			[4] = true			-- Mods
+			[4] = true,			-- Mods
 		}
 	}
 	dofile( tPaths.sExternal..tCfg.sFunctionsFile )
@@ -204,7 +208,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sCategNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -225,7 +229,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sCategNotify:format( tInsertData.sCtg:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -239,7 +243,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -257,7 +261,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -271,7 +275,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( '', tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sNotify:format( tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
@@ -297,7 +301,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, "Something went wrong." )
 			return false
 		end
-		local sChatMessage = tCfg.sAdditionNotify:format( tBreak[1]:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
+		local sChatMessage = tCfg.tTemplates.sCategNotify:format( tBreak[1]:upper(), tInsertData.sMsg, tInsertData.sTable:upper(), tCfg.sBotName )
 		SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot )
 		tFunction.SendToAll( tUser.sNick, sChatMessage )
 		sChatMessage = nil
