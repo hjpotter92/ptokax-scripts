@@ -146,7 +146,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	local tBreak = Explode( sData )
-
+	
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
@@ -189,6 +189,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 		return true
 
 	elseif sCmd == "ul" or sCmd == "updatelatest" then
+	        local bSendToAll = false
 	       	if tBreak[1] == "-m" then
 		        bSendToAll = true
 			table.remove( tBreak, 1 )
