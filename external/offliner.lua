@@ -390,6 +390,7 @@ _G.tOffliner = {
 			return true
 		else
 			Core.SendPmToUser( tUser, tConfig.sBotName, "Sorry! You must remove magnet when updating." )
+			return false
 		end
 	end,
 
