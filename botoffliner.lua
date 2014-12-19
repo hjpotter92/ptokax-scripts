@@ -146,7 +146,7 @@ function ExecuteCommand( tUser, sCmd, sData )
 	end
 
 	local tBreak = Explode( sData )
-	
+
 	if sCmd == "al" or sCmd == "addlatest" then
 		if #tBreak < 3 then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 4) )
@@ -211,10 +211,10 @@ function ExecuteCommand( tUser, sCmd, sData )
 			return true
 		end
 		if tProfiles.AllowVIP[tUser.iProfile] or tRow.nick:lower() == tUser.sNick:lower() then
-			tOffliner.ul( tUser, tBreak )
+			if not tOffliner.ul( tUser, tBreak ) then return true end
 			Core.SendPmToUser( tUser, tCfg.sBotName, "The message has been updated." )
 			local sChatMessage = "Entry #"..tostring(tBreak[1]).." was updated. Older entry was: "..tRow.msg
-			if bSendToAll then	
+			if bSendToAll then
 				tFunction.SendToAll( tUser.sNick, sChatMessage )
 			end
 			SendToRoom( tUser.sNick, sChatMessage, tCfg.sReportBot, tCfg.iModProfile )
