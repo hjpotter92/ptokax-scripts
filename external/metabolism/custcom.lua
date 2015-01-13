@@ -9,8 +9,8 @@
 
 --custom commands
 
-dofile(dpath.."chatcore.lua")
-dofile(dpath.."functions.lua" )
+dofile( dpath.."chatcore.lua" )
+dofile( dpath.."functions.lua" )
 local tokenize = Explode
 
 function chkpriv(user, n)
@@ -86,6 +86,15 @@ function notify(user, msg)
 		Core.SendToUser(user, "<"..bot.."> "..msg)
 	end
 end
+--[[
+
+--~ *******************    MAINTAINER'S NOTE    *******************
+
+--~ I think the following method of execution can be improved
+--~ drastically. If you have any ideas as to how, feel free to share
+--~ them as a new issue on https://github.com/HiT-Hi-FiT-Hai/hhfh-issues/issues
+
+]]--
 
 -- each function in this table should have a line of the type "if not user then return <profile_number>, , syntax, comment end"
 --this is for the custhelp function which calls each function in the table without any argument and using the returned values constructs the customised help file
@@ -110,7 +119,7 @@ CustomCommands = {
 		if not user then return 3, "!warn <nick> <reason>", "Send a warning on mainchat as the mainbot " end
 		if not check(user, 3, tokens, 3, 3) then return false end
 		local reason = table.concat(tokens, " ", 4)
-		local warning = "<PtokaX> "..tokens[3].." has been warned for : "..reason..". If it doesnt calm down it WILL be kicked from the hub."
+		local warning = ("<%s> %s has been warned for: %s. If it doesnt calm down it WILL BE kicked from the hub."):format( bot, tokens[3], reason )
 		return warning
 	end,
 	["kick"] = function(user, tokens)
@@ -243,7 +252,7 @@ CustomCommands = {
 		if reason == "" then reason = "No reason provided" end
 		blocked[nickpair] = reason
 		pickle.store( path.."texts/blocks.txt", {blocked = blocked} )
-		local msg = victim.." has been blocked by you for :"..reason
+		local msg = victim.." has been blocked by you for: "..reason
 		notify(user, msg)
 		return false
 	end,
