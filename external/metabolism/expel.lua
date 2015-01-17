@@ -29,8 +29,9 @@ ircout = function (data)
 end
 
 dcmcout = function(data)
+	local sForward = Trim( data )
 	for k, v in ipairs(subbed) do
-		Core.SendToNick( v, Trim(data) )
+		Core.SendToNick( v, sForward )
 	end
 end
 
