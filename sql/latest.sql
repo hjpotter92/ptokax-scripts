@@ -1,10 +1,10 @@
 -- --------------------------------------------------------
--- Server version:               5.5.28-1-log - (Debian)
+-- Server version:               5.5.35-0+wheezy1 - (Debian)
 -- Server OS:                    debian-linux-gnu
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `entries` (
 CREATE TABLE IF NOT EXISTS `filenames` (
   `magnet_id` int(10) unsigned NOT NULL,
   `filename` tinytext NOT NULL,
-  KEY `magnet_id` (`magnet_id`)
+  UNIQUE KEY `magnet_id` (`magnet_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table to track all filenames extracted from magnets attached to entries';
 
 -- Dumping structure for table latest.guestbook
@@ -128,39 +128,54 @@ CREATE DEFINER=`offliner`@`localhost` PROCEDURE `NewEntry`(IN `ctg` VARCHAR(15),
 )
     COMMENT 'Automated procedure to insert a new entry'
 BEGIN
-	INSERT INTO entries (msg, nick, date, ctg)
-	SELECT
-		msg,
-		m.id,
-		NOW(),
-		c.id
-	FROM modtable m, ctgtable c
-	WHERE c.name = ctg
-		AND m.nick = nick
-	LIMIT 1;
-	SET eid = LAST_INSERT_ID();
-	CALL NewMagnet( tth, name, size, eid, maid );
+    DECLARE exit HANDLER
+    FOR SQLEXCEPTION, SQLWARNING
+        BEGIN
+            SET maid = -1;
+            ROLLBACK;
+        END;
+    START TRANSACTION;
+    INSERT INTO entries (msg, nick, date, ctg)
+    SELECT
+        msg,
+        m.id,
+        NOW(),
+        c.id
+    FROM modtable m, ctgtable c
+    WHERE c.name = ctg
+        AND m.nick = nick
+    LIMIT 1;
+    SET eid = LAST_INSERT_ID();
+    CALL NewMagnet( nick, tth, name, size, eid, maid );
+    COMMIT;
 END//
 DELIMITER ;
 
 -- Dumping structure for procedure latest.NewMagnet
 DELIMITER //
-CREATE DEFINER=`offliner`@`localhost` PROCEDURE `NewMagnet`(IN `nick` vaRCHAR(32), IN `tth` CHAR(39), IN `name` TINYTEXT, IN `size` BIGINT, IN `eid` INT, OUT `maid` INT
-)
+CREATE DEFINER=`offliner`@`localhost` PROCEDURE `NewMagnet`(IN `nick` VARCHAR(32), IN `tth` CHAR(39), IN `name` TINYTEXT, IN `size` BIGINT, IN `eid` INT, OUT `maid` INT)
     COMMENT 'Automated insertion to magnets and filename tables'
 BEGIN
-	INSERT INTO magnets (eid, tth, size, nick, date)
-	SELECT
-		eid,
-		tth,
-		size,
-		m.id,
-		NOW()
-	FROM modtable m
-	WHERE m.nick = nick;
-	SET maid = LAST_INSERT_ID();
-	INSERT INTO filenames
-	VALUES( LAST_INSERT_ID(), name );
+    DECLARE exit HANDLER
+    FOR SQLEXCEPTION, SQLWARNING
+        BEGIN
+            SET maid = -1;
+            ROLLBACK;
+        END;
+    START TRANSACTION;
+    INSERT INTO magnets (eid, tth, size, nick, date)
+    SELECT
+        eid,
+        tth,
+        size,
+        m.id,
+        NOW()
+    FROM modtable m
+    WHERE m.nick = nick;
+    SET maid = LAST_INSERT_ID();
+    INSERT INTO filenames
+    VALUES( LAST_INSERT_ID(), name );
+    COMMIT;
 END//
 DELIMITER ;
 
