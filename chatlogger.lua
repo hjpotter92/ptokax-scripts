@@ -53,41 +53,6 @@ end
 
 RegConnected, OpConnected = UserConnected, UserConnected
 
-function ExecuteCommand( sCmd, sData, tUser, bIsPM )
-	if sCmd == "history" then
-		local sSendValue, iLimit = "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %d messages\n\t", tonumber(sData)
-		if (not iLimit) or iLimit > tConfig.iMaxLines or iLimit < 0 then iLimit = 15 end
-		sSendValue = sSendValue:format( tConfig.sBotName, iLimit )..History( iLimit )
-		if bIsPM then
-			Core.SendPmToUser( tUser, tConfig.sBotName, sSendValue )
-		else
-			Core.SendToUser( tUser, sSendValue )
-		end
-		return true
-	elseif sCmd == "hubtopic" then
-		local sTopic = "<%s> Current hub topic is: %s."
-		sTopic = sTopic:format(tConfig.sBotName, (SetMan.GetString(10) or "Sorry! No hub topic exists."))
-		if bIsPM then
-			Core.SendPmToUser( tUser, tConfig.sBotName, sTopic )
-		else
-			Core.SendToUser( tUser, sTopic )
-		end
-		return true
-	elseif sCmd == "topic" and ProfMan.GetProfilePermission(tUser.iProfile, 7) then
-		if not sData or sData:len() == 0 then
-			Core.SendToAll( "<"..tConfig.sBotName.."> Hub topic was erased by [ "..tUser.sNick.." ]." )
-			SetMan.SetString( 10, "" )
-			return true
-		end
-		local sAlert = "<%s> Hub topic was changed by [ %s ] to %s"
-		Core.SendToAll( sAlert:format(tConfig.sBotName, tUser.sNick, sData) )
-		SetMan.SetString( 10, sData )
-		return true
-	else
-		return false
-	end
-end
-
 function History( iNumLines )
 	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
 	if #tChatHistory < iNumLines then
@@ -108,3 +73,47 @@ function LogMessage( sLine )
 	fWrite:flush()
 	fWrite:close()
 end
+
+function Reply( tUser, sMessage, bIsPM )
+	if bIsPM then
+		Core.SendPmToUser( tUser, tConfig.sBotName, sMessage )
+	else
+		Core.SendToUser( tUser, sMessage )
+	end
+	return true
+end
+
+ExecuteCommand = {
+	history = function()
+		local sPrefix = ( "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %%d messages\n\t" ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			local iLimit = tonumber( sData )
+			if (not iLimit) or iLimit > tConfig.iMaxLines or iLimit < 0 then iLimit = 15 end
+			local sReply = sPrefix:format(iLimit)..History(iLimit)
+			return Reply( tUser, sReply, bIsPM )
+		end
+	end,
+
+	hubtopic = function()
+		local sPrefix, sNoTopic = ( "<%s> Current hub topic is: %%s." ):format( tConfig.sBotName ), "Sorry! No hub topic exists."
+		return function( tUser, sData, bIsPM )
+			local sReply = sPrefix:format( SetMan.GetString(10) or sNoTopic )
+			return Reply( tUser, sReply, bIsPM )
+		end
+	end,
+
+	topic = function()
+		local sErased, sUpdated = ( "<%s> Hub topic was erased by [ %%s ]." ):format( tConfig.sBotName ), ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
+			if sData:len() == 0 then
+				Core.SendToAll( sErased:format(tUser.sNick) )
+				SetMan.SetString( 10, "" )
+				return true
+			end
+			SetMan.SetString( 10, sData )
+			Core.SendToAll( sUpdated:format(tUser.sNick, sData) )
+			return true
+		end
+	end,
+}
