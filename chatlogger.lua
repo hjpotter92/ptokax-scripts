@@ -15,6 +15,9 @@ function OnStartup()
 		sTimeFormat = "[%I:%M:%S %p] ",
 		iMaxLines = 100,
 	}, { "Hi!" }
+	for Index, Callback in pairs( ExecuteCommand ) do
+		ExecuteCommand[Index] = Callback()
+	end
 end
 
 function ChatArrival( tUser, sMessage )
@@ -28,8 +31,9 @@ function ChatArrival( tUser, sMessage )
 			table.remove( tChatHistory, 1 )
 		end
 	end
-	if sCmd then
-		return ExecuteCommand( sCmd:lower(), sData, tUser )
+	sCmd = sCmd:lower()
+	if ExecuteCommand[sCmd] then
+		return ExecuteCommand[sCmd]( tUser, sData, false )
 	end
 	return false
 end
@@ -38,8 +42,9 @@ function ToArrival( tUser, sMessage )
 	local sTo, sFrom = sMessage:match "$To: (%S+) From: (%S+)"
 	if sTo ~= tConfig.sBotName then return false end
 	local sCmd, sData = sMessage:match "%b$$%b<> [-+*/?!#](%w+)%s?(.*)|"
-	if sCmd then
-		return ExecuteCommand( sCmd:lower(), sData, tUser, true )
+	sCmd = sCmd:lower()
+	if ExecuteCommand[sCmd] then
+		return ExecuteCommand[sCmd]( tUser, sData, true )
 	end
 	return false
 end
