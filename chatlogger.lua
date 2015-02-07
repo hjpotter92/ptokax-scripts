@@ -12,15 +12,16 @@ function OnStartup()
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sProfiles = "012",		-- No history for commands from users with profiles
 		sLogsPath = "/www/ChatLogs/",
+		sTimeFormat = "[%I:%M:%S %p] ",
 		iMaxLines = 100,
 	}, { "Hi!" }
 end
 
 function ChatArrival( tUser, sMessage )
 	LogMessage( sMessage:sub(1, -2) )
-	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
-	local sTime = os.date( "%I:%M:%S %p" )
-	local sChatLine = "["..sTime.."] "..sMessage:sub( 1, -2 )
+	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s?(.*)|"
+	local sTime = os.date( tConfig.sTimeFormat )
+	local sChatLine = sTime..sMessage:sub( 1, -2 )
 	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
 		table.insert( tChatHistory, sChatLine )
 		if tChatHistory[tConfig.iMaxLines + 1] then
@@ -34,9 +35,9 @@ function ChatArrival( tUser, sMessage )
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo, sFrom = sMessage:match("$To: (%S+) From: (%S+)")
+	local sTo, sFrom = sMessage:match "$To: (%S+) From: (%S+)"
 	if sTo ~= tConfig.sBotName then return false end
-	local sCmd, sData = sMessage:match("%b$$%b<> [-+*/?!#](%w+)%s?(.*)|")
+	local sCmd, sData = sMessage:match "%b$$%b<> [-+*/?!#](%w+)%s?(.*)|"
 	if sCmd then
 		return ExecuteCommand( sCmd:lower(), sData, tUser, true )
 	end
@@ -103,8 +104,8 @@ function History( iNumLines )
 end
 
 function LogMessage( sLine )
-	local sTime = os.date( "%I:%M:%S %p" )
-	local sChatLine, sFileName = "["..sTime.."] "..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
+	local sTime = os.date( tConfig.sTimeFormat )
+	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
 	sChatLine = sChatLine:gsub( "&#124;", "|" ):gsub( "&#36;", "$" ):gsub( "[\n\r]+", "\n\t" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
