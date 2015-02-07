@@ -24,7 +24,7 @@ function ChatArrival( tUser, sMessage )
 	local sChatLine = sTime..sMessage:sub( 1, -2 )
 	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
 		table.insert( tChatHistory, sChatLine )
-		if tChatHistory[tConfig.iMaxLines + 1] then
+		if tChatHistory[ tConfig.iMaxLines + 1 ] then
 			table.remove( tChatHistory, 1 )
 		end
 	end
@@ -55,9 +55,9 @@ RegConnected, OpConnected = UserConnected, UserConnected
 
 function ExecuteCommand( sCmd, sData, tUser, bIsPM )
 	if sCmd == "history" then
-		local sSendValue, sData = "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %d messages\n", tonumber(sData)
-		if (not sData) or sData > 100 or sData < 0 then sData = 15 end
-		sSendValue = sSendValue:format( tConfig.sBotName, sData )..History( sData )
+		local sSendValue, iLimit = "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %d messages\n\t", tonumber(sData)
+		if (not iLimit) or iLimit > tConfig.iMaxLines or iLimit < 0 then iLimit = 15 end
+		sSendValue = sSendValue:format( tConfig.sBotName, iLimit )..History( iLimit )
 		if bIsPM then
 			Core.SendPmToUser( tUser, tConfig.sBotName, sSendValue )
 		else
@@ -92,12 +92,8 @@ function History( iNumLines )
 	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
 	if #tChatHistory < iNumLines then
 		iStartIndex = 1
-	else
-		iStartIndex = #tChatHistory - iNumLines + 1
 	end
-	if iStartIndex == 0 then
-		iStartIndex = 1
-	elseif iStartIndex > #tChatHistory then
+	if iStartIndex > #tChatHistory then
 		iStartIndex = #tChatHistory
 	end
 	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
