@@ -36,8 +36,8 @@ function OnStartup()
 			tChatHistory = {},
 		}
 	}
-	for sIndex, sValue in pairs(tChatRooms) do
-		Core.RegBot( sIndex, sValue.BOT.sDescription, sValue.BOT.sEmail, true )
+	for sIndex, tValue in pairs( tChatRooms ) do
+		Core.RegBot( sIndex, tValue.BOT.sDescription, tValue.BOT.sEmail, true )
 	end
 	if tConfig.iTimerID == 0 then
 		tConfig.iTimerID = TmrMan.AddTimer( tConfig.iRefreshRate )
@@ -47,7 +47,7 @@ end
 
 function SaveToFile( sChatMessage, sRoom )
 	local sStoreMessage = os.date( tConfig.sTimeFormat )..sChatMessage
-	local fWrite = io.open( tConfig.sGlobalPath..os.date( "%Y/%m/" )..tChatRooms[sRoom].sFileName, "a" )
+	local fWrite = io.open( tConfig.sGlobalPath..os.date("%Y/%m/")..tChatRooms[sRoom].sFileName, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
@@ -56,7 +56,7 @@ end
 
 function SendToRoom( tSelfUser, sRoom, sIncoming )
 	local tCurrentHistory = tChatRooms[sRoom].tChatHistory
-	table.insert( tCurrentHistory, os.date( tConfig.sTimeFormat )..sIncoming )
+	table.insert( tCurrentHistory, os.date(tConfig.sTimeFormat)..sIncoming )
 	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] do
 		table.remove( tCurrentHistory, 1 )
 	end
@@ -101,18 +101,18 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
 		return true
 	else
-		local sChat = sMessage:match "%b$$(.*)|" 
-		SaveToFile(sChat, sTo)
-		local sCmd, sData = sMessage:match "%b$$%b<>%s+[-+*/?!#](%w+)%s?(.*)|" 
+		local sChat = sMessage:match "%b$$(.*)|"
+		SaveToFile( sChat, sTo )
+		local sCmd, sData = sMessage:match "%b$$%b<>%s+[-+*/?!#](%w+)%s?(.*)|"
 		if not sCmd then
 			SendToRoom( tUser, sTo, sChat )
 		elseif sCmd:lower() == "history" then
-			local sReply, sData = "Past %d messages: \n\n\t%s\n\n", tonumber( sData )
-			if (not sData) or sData > 35 or sData < 0 then sData = 15 end
-			sReply = sReply:format( sData, History( sData, sTo ) )
-			Core.SendPmToUser( tUser, sTo, sReply)
+			local sReply, iLimit = "Past %d messages: \n\n\t%s\n\n", tonumber( sData )
+			if (not iLimit) or iLimit > 35 or iLimit < 0 then iLimit = 15 end
+			sReply = sReply:format( iLimit, History(iLimit, sTo) )
+			Core.SendPmToUser( tUser, sTo, sReply )
 		else
-			SendToRoom( tUser, sTo, sChat)
+			SendToRoom( tUser, sTo, sChat )
 		end
 		return true
 	end
@@ -131,7 +131,7 @@ function History( iNumLines, sBotName )
 end
 
 function OnExit()
-	for sIndex, sValue in pairs(tChatRooms) do
+	for sIndex, tValue in pairs( tChatRooms ) do
 		Core.UnregBot( sIndex )
 	end
 end
