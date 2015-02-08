@@ -15,9 +15,6 @@ function OnStartup()
 		sTimeFormat = "[%I:%M:%S %p] ",
 		iMaxLines = 100,
 	}, { "Hi!" }
-	for Index, Callback in pairs( ExecuteCommand ) do
-		ExecuteCommand[Index] = Callback()
-	end
 end
 
 function ChatArrival( tUser, sMessage )
@@ -72,7 +69,9 @@ end
 function LogMessage( sLine )
 	local sTime = os.date( tConfig.sTimeFormat )
 	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
-	sChatLine = sChatLine:gsub( "&#124;", "|" ):gsub( "&#36;", "$" ):gsub( "[\n\r]+", "\n\t" )
+	sChatLine = sChatLine:gsub( "&#(%d+);", function(x)
+			return string.char( tonumber(x) )
+		end ):gsub( "[\n\r]+", "\n\t" ):gsub(  "&amp;", "&" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
 	fWrite:flush()
@@ -89,7 +88,7 @@ function Reply( tUser, sMessage, bIsPM )
 end
 
 ExecuteCommand = {
-	history = function()
+	history = ( function()
 		local sPrefix = ( "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %%d messages\n\t" ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			local iLimit = tonumber( sData )
@@ -97,17 +96,17 @@ ExecuteCommand = {
 			local sReply = sPrefix:format(iLimit)..History(iLimit)
 			return Reply( tUser, sReply, bIsPM )
 		end
-	end,
+	end )(),
 
-	hubtopic = function()
+	hubtopic = ( function()
 		local sPrefix, sNoTopic = ( "<%s> Current hub topic is: %%s." ):format( tConfig.sBotName ), "Sorry! No hub topic exists."
 		return function( tUser, sData, bIsPM )
 			local sReply = sPrefix:format( SetMan.GetString(10) or sNoTopic )
 			return Reply( tUser, sReply, bIsPM )
 		end
-	end,
+	end )(),
 
-	topic = function()
+	topic = ( function()
 		local sErased, sUpdated = ( "<%s> Hub topic was erased by [ %%s ]." ):format( tConfig.sBotName ), ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
@@ -120,5 +119,5 @@ ExecuteCommand = {
 			Core.SendToAll( sUpdated:format(tUser.sNick, sData) )
 			return true
 		end
-	end,
+	end )(),
 }
