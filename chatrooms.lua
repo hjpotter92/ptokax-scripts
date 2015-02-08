@@ -9,10 +9,12 @@
 
 function OnStartup()
 	tConfig = {
+		iMaxHistory = 35,
 		sGlobalPath = "/www/ChatLogs/",
 		iTotalProfiles = table.getn( ProfMan.GetProfiles() ),
 		iTimerID = 0,					-- This will store the ID of timer set by PtokaX
-		iRefreshRate = 20 * 1000			-- Time in ms when the MyINFO will be refreshed. Right now, 20 seconds.
+		iRefreshRate = 20 * 1000,			-- Time in ms when the MyINFO will be refreshed. Right now, 20 seconds.
+		sTimeFormat = "[%Y-%m-%d %H:%M:%S] ",
 	}
 	tChatRooms = {
 		["#[ModzChat]"] = {
@@ -21,7 +23,8 @@ function OnStartup()
 				sDescription = "Chatroom for moderators.",
 				sEmail = "donot@mail.me"
 			},
-			sFileName = "ModsChat.txt"
+			sFileName = "ModsChat.txt",
+			tChatHistory = {},
 		},
 		["#[VIPChat]"] = {
 			iMaxProfile = 3,
@@ -29,7 +32,8 @@ function OnStartup()
 				sDescription = "Chatroom for usage by VIPs.",
 				sEmail = "donot@mail.me"
 			},
-			sFileName = "VIPChat.txt"
+			sFileName = "VIPChat.txt",
+			tChatHistory = {},
 		}
 	}
 	for sIndex, sValue in pairs(tChatRooms) do
@@ -42,7 +46,7 @@ function OnStartup()
 end
 
 function SaveToFile( sChatMessage, sRoom )
-	local sStoreMessage = os.date("[%Y-%m-%d %H:%M:%S]").." "..sChatMessage
+	local sStoreMessage = os.date( tConfig.sTimeFormat )..sChatMessage
 	local fWrite = io.open( tConfig.sGlobalPath..os.date( "%Y/%m/" )..tChatRooms[sRoom].sFileName, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
@@ -51,6 +55,11 @@ function SaveToFile( sChatMessage, sRoom )
 end
 
 function SendToRoom( tSelfUser, sRoom, sIncoming )
+	local tCurrentHistory = tChatRooms[sRoom].tChatHistory
+	table.insert( tCurrentHistory, os.date( tConfig.sTimeFormat )..sIncoming )
+	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] do
+		table.remove( tCurrentHistory, 1 )
+	end
 	for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
 		local tUsers = Core.GetOnlineUsers( iIterate )
 		if tUsers then
@@ -61,7 +70,6 @@ function SendToRoom( tSelfUser, sRoom, sIncoming )
 			end
 		end
 	end
-	SaveToFile( sIncoming, sRoom )
 	return true
 end
 
@@ -93,10 +101,33 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
 		return true
 	else
-		local sChat = sMessage:match "%b$$(.*)|"
-		SendToRoom( tUser, sTo, sChat )
+		local sChat = sMessage:match "%b$$(.*)|" 
+		SaveToFile(sChat, sTo)
+		local sCmd, sData = sMessage:match "%b$$%b<>%s+[-+*/?!#](%w+)%s?(.*)|" 
+		if not sCmd then
+			SendToRoom( tUser, sTo, sChat )
+		elseif sCmd:lower() == "history" then
+			local sReply, sData = "Past %d messages: \n\n\t%s\n\n", tonumber( sData )
+			if (not sData) or sData > 35 or sData < 0 then sData = 15 end
+			sReply = sReply:format( sData, History( sData, sTo ) )
+			Core.SendPmToUser( tUser, sTo, sReply)
+		else
+			SendToRoom( tUser, sTo, sChat)
+		end
 		return true
 	end
+end
+
+function History( iNumLines, sBotName )
+	local tChatHistory = tChatRooms[sBotName].tChatHistory
+	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
+	if #tChatHistory < iNumLines then
+		iStartIndex = 1
+	end
+	if iStartIndex > #tChatHistory then
+		iStartIndex = #tChatHistory
+	end
+	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
 end
 
 function OnExit()
