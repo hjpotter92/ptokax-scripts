@@ -1,3 +1,10 @@
+2015-02-09
+----------
+
+- Code cleanup for chat logger script.
+- Use hash tables for command execution instead of `if-else` statement blocks.
+- Fix the conversion of `&amp;` etc. entities before writing to log file.
+
 2014-11-30
 ----------
 
