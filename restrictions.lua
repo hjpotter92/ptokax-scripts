@@ -18,6 +18,7 @@ function OnStartup()
 		"share.lua",
 		"nicks.lua",
 		"search.lua",
+		"passive.lua",
 	}
 	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq/%s/%04d"
 	for iIndex, sScript in ipairs( tList ) do
