@@ -11,6 +11,8 @@ function OnStartup()
 	tConfig = {
 		iMaxHistory = 35,
 		sGlobalPath = "/www/ChatLogs/",
+		sPath = Core.GetPtokaXPath().."scripts/",
+		sExtPath = "external/",
 		iTotalProfiles = table.getn( ProfMan.GetProfiles() ),
 		iTimerID = 0,					-- This will store the ID of timer set by PtokaX
 		iRefreshRate = 20 * 1000,			-- Time in ms when the MyINFO will be refreshed. Right now, 20 seconds.
@@ -25,6 +27,7 @@ function OnStartup()
 			},
 			sFileName = "ModsChat.txt",
 			tChatHistory = {},
+			tUsers = {},
 		},
 		["#[VIPChat]"] = {
 			iMaxProfile = 3,
@@ -34,11 +37,20 @@ function OnStartup()
 			},
 			sFileName = "VIPChat.txt",
 			tChatHistory = {},
-		}
+			tUsers = {},
+		},
 	}
 	for sIndex, tValue in pairs( tChatRooms ) do
 		Core.RegBot( sIndex, tValue.BOT.sDescription, tValue.BOT.sEmail, true )
 	end
+	dofile( sPath..sExtPath.."offliner.lua" )
+	local tModerators = tFunction.GetModerators()
+	tChatRooms["#[ModzChat]"].tUsers = tModerators
+	for sNick in tModerators do
+			local tUser = Core.GetUser( sNick )
+			if tUser then
+				if tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
+					table.insert( tChatRooms["#[VIPChat]"].tUsers, tUser.sNick )
 	if tConfig.iTimerID == 0 then
 		tConfig.iTimerID = TmrMan.AddTimer( tConfig.iRefreshRate )
 	end
@@ -111,6 +123,9 @@ function ToArrival( tUser, sMessage )
 			if (not iLimit) or iLimit > 35 or iLimit < 0 then iLimit = 15 end
 			sReply = sReply:format( iLimit, History(iLimit, sTo) )
 			Core.SendPmToUser( tUser, sTo, sReply )
+		elseif sCmd:lower() == "l" or sCmd:lower == "list" then
+			local sTemplate = ("There are %d current users allowed here:\n\n\t"):format( #(tChatRooms[sTo].tUsers) )
+			Core.SendPmToUser( tUser, sTo, sTemplate..table.concat(tChatRooms[sTo].tUsers, ", ") )
 		else
 			SendToRoom( tUser, sTo, sChat )
 		end

@@ -13,7 +13,7 @@ function OnStartup()
 		sPath = Core.GetPtokaXPath().."scripts/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
-		sLogPath = "/www/ChatLogs/"..os.date( "%Y/" ),
+		sLogPath = "/www/ChatLogs/",
 	}
 	tRooms = {
 		["#[Gamers]"] = {
@@ -47,7 +47,7 @@ function OnStartup()
 			sSubscribersFile = tConfig.sPath.."texts/".."nsfwSub.txt",
 			tSubscribers = { tModerators = {} },
 			tChatHistory = {},
-		}
+		},
 	}
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sPickleFile )
 	for sBotName, tInfo in pairs( tRooms ) do
