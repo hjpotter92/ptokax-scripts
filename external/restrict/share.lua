@@ -16,6 +16,7 @@ function RestrictSearch( sBotName, Error )
 			Core.SendToUser( tUser, sError )
 			return true
 		end
+		return false
 	end
 end
 

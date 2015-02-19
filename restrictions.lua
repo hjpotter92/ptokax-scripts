@@ -31,3 +31,19 @@ end
 function Error( sCode, iNum )
 	return tConfig.sHubFAQ:format( sCode:upper(), iNum )
 end
+
+function ChatArrival( tUser, sMessage )
+	return tList.chat( tUser, sMessage )
+end
+
+function UserConnected( tUser )
+	tList.nick( tUser )
+	tList.passive( tUser )
+end
+
+function SearchArrival( tUser, sQuery )
+	return tList.share( tUser, sQuery ) or tList.search( tUser, sQuery )
+end
+
+RegConnected, OpConnected = UserConnected, UserConnected
+ConnectToMeArrival, MultiConnectToMeArrival, RevConnectToMeArrival = SearchArrival, SearchArrival, SearchArrival

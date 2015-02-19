@@ -8,10 +8,10 @@
 --]]
 
 function RestrictChat( sBotName, Error )
-	local Error, sAsBot = Error, "<"..SetMan.GetString( 21 ).."> "
+	local sError = ( "<%s> %s" ):format( sBotName, Error("gen", 2) )
 	return function( tUser, sMessage )
 		if tUser.iProfile == -1 then
-			Core.SendToUser( tUser, sAsBot..Error("gen", 2) )
+			Core.SendToUser( tUser, sError )
 			return true
 		end
 	end
