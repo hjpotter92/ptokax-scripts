@@ -9,20 +9,22 @@
 
 function OnStartup()
 	tConfig, tList = {
-		sPath = Core.GetPtokaXPath().."scripts/",
-		sFiles = "external/restrict/",
+		sBotName = SetMan.GetString( 21 ) or "PtokaX",
+		sRequirePath = "external.restrict.",
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",
 	}, {
-		"chat.lua",
-		"share.lua",
-		"nicks.lua",
-		"search.lua",
-		"passive.lua",
+		"chat",
+		"share",
+		"nicks",
+		"search",
+		"passive",
 	}
 	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq/%s/%04d"
 	for iIndex, sScript in ipairs( tList ) do
-		dofile( tConfig.sPath..tConfig.sFiles..sScript )
+		local r = require( tConfig.sRequirePath..sScript )
+		tList[sScript] = r( tConfig.sBotName, Error )
+		r = nil
 	end
 end
 

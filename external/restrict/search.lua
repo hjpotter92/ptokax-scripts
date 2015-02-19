@@ -7,39 +7,38 @@
 
 --]]
 
-local tSettings = {
-	sAllowedProfiles = "0123",
-	tBannedWords = {
-		"pondy",
-		"porn",
-		"xxx",
-		"rape",
-		"sanhita",
-	},
-	tBannedTTH = {
-		"RYLUZGTHGGUS6CE465VUTHT7TKWFJFZ55M6KPKY",
-	},
-}
-
-local function IsBanned( sData )
-	for iIndex, sWord in ipairs( tSettings.tBannedWords ) do
-		if sData:find( "%?"..sWord ) then
-			return iIndex
+function RestrictSearch( sBotName, Error )
+	local tBannedTTH, tBannedWords, sAllowedProfiles = {
+			"RYLUZGTHGGUS6CE465VUTHT7TKWFJFZ55M6KPKY",
+		}, {
+			"pondy",
+			"porn",
+			"xxx",
+			"rape",
+			"sanhita",
+		}, "0123"
+	}
+	local function IsBanned( sData )
+		for iIndex, sWord in ipairs( tBannedWords ) do
+			if sData:find( "%?"..sWord ) then
+				return iIndex
+			end
 		end
-	end
-	for iIndex, sHash in ipairs( tSettings.tBannedTTH ) do
-		if sData:find( "TTH:"..sHash ) then
-			return iIndex
+		for iIndex, sHash in ipairs( tBannedTTH ) do
+			if sData:find( "TTH:"..sHash ) then
+				return iIndex
+			end
 		end
-	end
-	return false
-end
-
-function SearchArrival( tUser, sQuery )
-	if tSettings.sAllowedProfiles:find( tUser.iProfile ) then
 		return false
 	end
-	if IsBanned( sQuery ) then
-		return true
+	return function( tUser, sQuery )
+		if sAllowedProfiles:find( tUser.iProfile ) then
+			return false
+		end
+		if IsBanned( sQuery ) then
+			return true
+		end
 	end
 end
+
+return RestrictSearch

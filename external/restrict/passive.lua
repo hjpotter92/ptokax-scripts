@@ -7,17 +7,15 @@
 
 --]]
 
-local tSettings = {
-	sBotName = SetMan.GetString( 21 ) or "PtokaX",
-	iBanTime = 60,
-}
-
-function UserConnected( tUser )
-	local sMode = tUser.GetUserValue( 0 ) or "P"
-	if sMode:lower() == "p" then
-		BanMan.TempBan( tUser, tSettings.iBanTime, Error("gen", 3), tSettings.sBotName, true )
-		Core.Disconnect( tUser )
+function RestrictUser( sBotName, Error )
+	local Error, sBotName, iBanTime = Error, sBotName, 60
+	return function( tUser )
+		local sMode = tUser.GetUserValue( 0 ) or "P"
+		if sMode:lower() == "p" then
+			BanMan.TempBan( tUser, iBanTime, Error("gen", 3), sBotName, true )
+			Core.Disconnect( tUser )
+		end
 	end
 end
 
-RegConnected = UserConnected
+return RestrictUser
