@@ -17,7 +17,6 @@ function RestrictSearch( sBotName, Error )
 			"rape",
 			"sanhita",
 		}, "0123"
-	}
 	local function IsBanned( sData )
 		for iIndex, sWord in ipairs( tBannedWords ) do
 			if sData:find( "%?"..sWord ) then
@@ -38,6 +37,7 @@ function RestrictSearch( sBotName, Error )
 		if IsBanned( sQuery ) then
 			return true
 		end
+		return false
 	end
 end
 

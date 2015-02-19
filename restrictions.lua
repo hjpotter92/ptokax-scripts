@@ -8,12 +8,13 @@
 --]]
 
 function OnStartup()
-	tConfig, tList = {
+	local tConfig = {
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sRequirePath = "external.restrict.",
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",
-	}, {
+	}
+	tList = {
 		"chat",
 		"share",
 		"nicks",
@@ -21,15 +22,13 @@ function OnStartup()
 		"passive",
 	}
 	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq/%s/%04d"
+	local function Error( sCode, iNum )
+		return tConfig.sHubFAQ:format( sCode:upper(), iNum )
+	end
 	for iIndex, sScript in ipairs( tList ) do
 		local r = require( tConfig.sRequirePath..sScript )
 		tList[sScript] = r( tConfig.sBotName, Error )
-		r = nil
 	end
-end
-
-function Error( sCode, iNum )
-	return tConfig.sHubFAQ:format( sCode:upper(), iNum )
 end
 
 function ChatArrival( tUser, sMessage )
@@ -37,7 +36,7 @@ function ChatArrival( tUser, sMessage )
 end
 
 function UserConnected( tUser )
-	tList.nick( tUser )
+	tList.nicks( tUser )
 	tList.passive( tUser )
 end
 

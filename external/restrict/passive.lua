@@ -8,11 +8,14 @@
 --]]
 
 function RestrictUser( sBotName, Error )
-	local Error, sBotName, iBanTime = Error, sBotName, 60
+	local sAllowedProfiles, sBotName, iBanTime = "012", sBotName, 60
+	local sError = ( "<%s> Connection in passive mode is not allowed: %s" ):format( sBotName, Error("gen", 3) )
 	return function( tUser )
-		local sMode = tUser.GetUserValue( 0 ) or "P"
+		if sAllowedProfiles:find( tUser.iProfile ) then return end
+		local sMode = Core.GetUserValue( tUser, 0 ) or "P"
 		if sMode:lower() == "p" then
-			BanMan.TempBan( tUser, iBanTime, Error("gen", 3), sBotName, true )
+			Core.SendToUser( tUser, sError )
+			BanMan.TempBan( tUser, iBanTime, sError, sBotName, true )
 			Core.Disconnect( tUser )
 		end
 	end
