@@ -8,6 +8,7 @@
 --]]
 
 function OnStartup()
+	package.path = Core.GetPtokaXPath().."scripts/?.lua;"..package.path
 	local tConfig = {
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sRequirePath = "external.restrict.",
