@@ -7,20 +7,17 @@
 
 --]]
 
-local tSettings = {
-	sAsBot = "<"..(SetMan.GetString( 21 ) or "PtokaX").."> Minimum sharesize required to search and download is %d GiB.",
-	sAllowedProfiles = "01236",
-	iBanTime = 6,
-	iShareLimit = 64,		-- In gibibytes
-	iDivisionFactor = (2^10)^3,
-}
-
-function SearchArrival( tUser, sData )
-	tUser.iShareSize = Core.GetUserValue( tUser, 16 ) / tSettings.iDivisionFactor
-	if tUser.iShareSize < tSettings.iShareLimit and not tSettings.sAllowedProfiles:find( tUser.iProfile ) then
-		Core.SendToUser( tUser, tSettings.sAsBot:format(tSettings.iShareLimit) )
-		return true
+function RestrictSearch( sBotName, Error )
+	local sAllowedProfiles, iBanTime, iShareLimit, iDivisionFactor = "01236", 6, 64, ( 2^10 )^3
+	local sError = ( "<%s> Minimum sharesize required to search and download is %d GiB." ):format( sBotName, iShareLimit )
+	return function( tUser, sQuery )
+		tUser.iShareSize = Core.GetUserValue( tUser, 16 ) / iDivisionFactor
+		if tUser.iShareSize < iShareLimit and not sAllowedProfiles:find( tUser.iProfile ) then
+			Core.SendToUser( tUser, sError )
+			return true
+		end
+		return false
 	end
 end
 
-ConnectToMeArrival, MultiConnectToMeArrival, RevConnectToMeArrival = SearchArrival, SearchArrival, SearchArrival
+return RestrictSearch

@@ -8,23 +8,41 @@
 --]]
 
 function OnStartup()
-	tConfig, tList = {
-		sPath = Core.GetPtokaXPath().."scripts/",
-		sFiles = "external/restrict/",
+	local tConfig = {
+		sBotName = SetMan.GetString( 21 ) or "PtokaX",
+		sRequirePath = "external.restrict.",
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",
-	}, {
-		"chat.lua",
-		"share.lua",
-		"nicks.lua",
-		"search.lua",
+	}
+	tList = {
+		"chat",
+		"share",
+		"nicks",
+		"search",
+		"passive",
 	}
 	tConfig.sHubFAQ = tConfig.sProtocol..tConfig.sHubAddress.."/faq/%s/%04d"
+	local function Error( sCode, iNum )
+		return tConfig.sHubFAQ:format( sCode:upper(), iNum )
+	end
 	for iIndex, sScript in ipairs( tList ) do
-		dofile( tConfig.sPath..tConfig.sFiles..sScript )
+		local r = require( tConfig.sRequirePath..sScript )
+		tList[sScript] = r( tConfig.sBotName, Error )
 	end
 end
 
-function Error( sCode, iNum )
-	return tConfig.sHubFAQ:format( sCode:upper(), iNum )
+function ChatArrival( tUser, sMessage )
+	return tList.chat( tUser, sMessage )
 end
+
+function UserConnected( tUser )
+	tList.nicks( tUser )
+	tList.passive( tUser )
+end
+
+function SearchArrival( tUser, sQuery )
+	return tList.share( tUser, sQuery ) or tList.search( tUser, sQuery )
+end
+
+RegConnected, OpConnected = UserConnected, UserConnected
+ConnectToMeArrival, MultiConnectToMeArrival, RevConnectToMeArrival = SearchArrival, SearchArrival, SearchArrival

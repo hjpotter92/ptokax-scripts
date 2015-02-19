@@ -7,14 +7,14 @@
 
 --]]
 
-local tSettings = {
-	sAsBot = "<"..(SetMan.GetString( 21 ) or "PtokaX").."> ",
-	sBotName = SetMan.GetString( 21 ) or "PtokaX",
-}
-
-function ChatArrival( tUser, sMessage )
-	if tUser.iProfile == -1 then
-		Core.SendToUser( tUser, tSettings.sAsBot..Error("gen", 2) )
-		return true
+function RestrictChat( sBotName, Error )
+	local sError = ( "<%s> %s" ):format( sBotName, Error("gen", 2) )
+	return function( tUser, sMessage )
+		if tUser.iProfile == -1 then
+			Core.SendToUser( tUser, sError )
+			return true
+		end
 	end
 end
+
+return RestrictChat

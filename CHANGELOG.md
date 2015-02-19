@@ -1,3 +1,9 @@
+2015-02-19
+----------
+
+- Ban users for an interval of 1 hour if connecting in _passive_ mode.
+- Rewrite the restriction scripts. No more squashed up definitions or overwriting variables.
+
 2014-11-30
 ----------
 
