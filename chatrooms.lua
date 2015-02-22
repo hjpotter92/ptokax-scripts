@@ -43,14 +43,21 @@ function OnStartup()
 	for sIndex, tValue in pairs( tChatRooms ) do
 		Core.RegBot( sIndex, tValue.BOT.sDescription, tValue.BOT.sEmail, true )
 	end
-	dofile( sPath..sExtPath.."offliner.lua" )
-	local tModerators = tFunction.GetModerators()
-	tChatRooms["#[ModzChat]"].tUsers = tModerators
-	for sNick in tModerators do
-			local tUser = Core.GetUser( sNick )
-			if tUser then
-				if tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
-					table.insert( tChatRooms["#[VIPChat]"].tUsers, tUser.sNick )
+	
+	for iIterate = 0, tChatRooms["#[ModzChat]"].iMaxProfile do
+		local tProfUsers = Core.GetOnlineUsers( iIterate )
+		if tProfUsers then
+			if iIterate == tChatRooms["#[ModzChat]"].iMaxProfile then
+				for tProfUser in tProfUsers do
+					table.insert( tChatRooms["#[ModzChat]"].tUsers, tProfUser.sNick )
+				end
+			else
+				for tProfUser in tProfUsers do
+					table.insert( tChatRooms["VIPChat"].tUsers, tProfUser.sNick )
+				end
+			end
+		end
+	end
 	if tConfig.iTimerID == 0 then
 		tConfig.iTimerID = TmrMan.AddTimer( tConfig.iRefreshRate )
 	end
@@ -72,13 +79,11 @@ function SendToRoom( tSelfUser, sRoom, sIncoming )
 	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] do
 		table.remove( tCurrentHistory, 1 )
 	end
-	for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
-		local tUsers = Core.GetOnlineUsers( iIterate )
-		if tUsers then
-			for iIndex, tRecipient in ipairs( tUsers ) do
-				if tRecipient.sNick:lower() ~= tSelfUser.sNick:lower() then
-					Core.SendToUser( tRecipient, "$To: "..tRecipient.sNick.." From: "..sRoom.." $"..sIncoming.."|" )
-				end
+	local tUsers = tChatRooms[sRoom].tUsers
+	if tUsers then
+		for iIndex, sNick in ipairs( tUsers ) do
+			if sNick:lower() ~= tSelfUser.sNick:lower() then
+				Core.SendToNick( sNick, "$To: "..tRecipient.sNick.." From: "..sRoom.." $"..sIncoming.."|" )
 			end
 		end
 	end
@@ -88,18 +93,50 @@ end
 function UserConnected( tUser )
 	Hide( tUser )
 end
-RegConnected = UserConnected
+
+function RegConnected( tUser )
+	if tUser.iProfile == tChatRooms["#[ModzChat]"].iMaxProfile then
+		table.insert( tChatRooms["#[ModzChat]"].tUsers, tUser.sNick )
+	elseif tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
+		table.insert( tChatRooms["#[VIPChat]"], tUser.sNick )
+	else
+		Hide( tUser )
+	end
+end
+
+function RegDisconnected( tUser )
+	if tUser.iProfile == tChatRooms["#[ModzChat]"].iMaxProfile then
+		DelNick( tChatRooms["#[ModzChat]"].tUsers, tUser.sNick:lower() )
+	elseif tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
+		DelNick( tChatRooms["#[VIPChat]"].tUsers, tUser.sNick:lower() )
+	end
+end
+
+OpConnected, OpDisconnected = RegConnected, RegDisconnected
 
 function OnTimer( iID )
 	Hide()
 end
 
-function Hide()
+function Hide( tUser )
 	for sIndex, tValue in pairs( tChatRooms ) do
 		local sQuitINFO = "$Quit "..sIndex.."|"
-		Core.SendToProfile( -1, sQuitINFO )
-		for iIterate = (tValue.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
-			Core.SendToProfile( iIterate, sQuitINFO )
+		if tUser then
+			Core.SendPmToUser( tUser, sQuitINFO )
+		else
+			Core.SendToProfile( -1, sQuitINFO )
+			for iIterate = (tValue.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
+				Core.SendToProfile( iIterate, sQuitINFO )
+			end
+		end
+	end
+end
+
+function DelNick( tTable, sDelNick )
+	for iIndex, sNick in ipairs( tTable ) do
+		if sNick:lower() == sDelNick then
+			table.remove( tTable, iIndex )
+			break
 		end
 	end
 end
