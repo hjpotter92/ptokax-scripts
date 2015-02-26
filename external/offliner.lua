@@ -7,8 +7,8 @@
 
 --]]
 
-package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
-local Connection = require 'config'
+package.path = Core.GetPtokaXPath().."scripts/?.lua;"..package.path
+local Connection = require 'dependency.config'
 local tConfig = {
 	sBotName = "[BOT]Offliner",
 	sHub = SetMan.GetString( 2 ) or "localhost"
@@ -40,6 +40,7 @@ _G.tFunction = {
 
 	FindMagnet = function( sInput, tUser )
 		local sTTH, sSize, sName = sInput:match "^.*magnet[:]%?xt=urn[:]tree[:]tiger[:](%w+)&xl=(%d+)&dn=(.+)$"
+		if not ( sTTH and sSize and sName ) then return false end
 		if sTTH:len() == 0 or sSize:len() == 0 or sName:len() == 0 then
 			return false
 		elseif sTTH:len() ~= 39 then
@@ -339,7 +340,7 @@ _G.tOffliner = {
 	end,
 
 	al = function( tUser, tInput )
-		local sCategory, sEntry, sMagnet = tInput[1], table.concat( tInput, " ", 2, #tInput - 1 ), tInput[ #tInput ]
+		local sCategory, sEntry, sMagnet = tInput[1], table.concat( tInput, " ", 2, #tInput - 1 ), tInput[#tInput]
 		local tMagnet, sError = tFunction.FindMagnet( sMagnet, tUser ), "Something went wrong. Contact hjpotter92"
 		if not tMagnet then
 			return false
