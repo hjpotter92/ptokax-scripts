@@ -56,22 +56,20 @@ end
 RegConnected, OpConnected = UserConnected, UserConnected
 
 function History( iNumLines )
-	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
-	if #tChatHistory < iNumLines then
+	local iStartIndex, iTotalLines = ( #tChatHistory - iNumLines ) + 1, #tChatHistory
+	if iTotalLines < iNumLines then
 		iStartIndex = 1
 	end
-	if iStartIndex > #tChatHistory then
-		iStartIndex = #tChatHistory
+	if iStartIndex > iTotalLines then
+		iStartIndex = iTotalLines
 	end
-	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
+	return table.concat( tChatHistory, "\n\t", iStartIndex, iTotalLines )
 end
 
 function LogMessage( sLine )
 	local sTime = os.date( tConfig.sTimeFormat )
 	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
-	sChatLine = sChatLine:gsub( "&#(%d+);", function(x)
-			return string.char( tonumber(x) )
-		end ):gsub( "[\n\r]+", "\n\t" ):gsub(  "&amp;", "&" )
+	sChatLine = sChatLine:gsub( "&#(%d+);", string.char ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
 	fWrite:flush()
