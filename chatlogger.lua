@@ -8,13 +8,22 @@
 --]]
 
 function OnStartup()
-	tConfig, tChatHistory = {
+	tConfig, tChatHistory, tTopics = {
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sProfiles = "012",		-- No history for commands from users with profiles
 		sLogsPath = "/www/ChatLogs/",
 		sTimeFormat = "[%I:%M:%S %p] ",
+		sPath = Core.GetPtokaXPath().."scripts/texts/",
+		sTickersList = "tickers.txt",
 		iMaxLines = 100,
-	}, { "Hi!" }
+		iTickerDelay = 6 * 60 * 60 * 10^3,		-- 6 hours to milliseconds
+		iTickerID = false,
+		iTopicIndex = 0,
+	}, { "Hi!" }, {}
+	for sLine in io.lines( tConfig.sPath..tConfig.sTickersList ) do
+		local sNick, sTopic = sLine:match "^(%S+) (.+)$"
+		table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
+	end
 end
 
 function ChatArrival( tUser, sMessage )
@@ -53,6 +62,17 @@ function UserConnected( tUser )
 	Core.SendToUser( tUser, sLastLines )
 end
 
+function OnTimer( iTimerID )
+	if tConfig.iTickerID ~= iTimerID then
+		return false
+	end
+	tConfig.iTopicIndex = ( tConfig.iTopicIndex + 1 ) % #tTopics
+	local tCurrentTopic, sUpdated = tTopics[ tConfig.iTopicIndex ], ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
+	SetMan.SetString( 10, tCurrentTopic.sTopic )
+	Core.SendToAll( sUpdated:format(tCurrentTopic.sNick, tCurrentTopic.sTopic) )
+	return true
+end
+
 RegConnected, OpConnected = UserConnected, UserConnected
 
 function History( iNumLines )
@@ -71,7 +91,7 @@ function LogMessage( sLine )
 	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
 	sChatLine = sChatLine:gsub( "&#(%d+);", function(x)
 			return string.char( tonumber(x) )
-		end ):gsub( "[\n\r]+", "\n\t" ):gsub(  "&amp;", "&" )
+		end ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
 	fWrite:flush()
@@ -110,14 +130,27 @@ ExecuteCommand = {
 		local sErased, sUpdated = ( "<%s> Hub topic was erased by [ %%s ]." ):format( tConfig.sBotName ), ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
-			if sData:len() == 0 then
+			if sData:len() == 0 or sData:lower() == "off" then
 				Core.SendToAll( sErased:format(tUser.sNick) )
-				SetMan.SetString( 10, "" )
-				return true
+				return ExecuteCommand.ticker( tUser, sData, bIsPM )
+			end
+			if tConfig.iTickerID then
+				TmrMan.RemoveTimer( tConfig.iTickerID )
+				tConfig.iTickerID = false
 			end
 			SetMan.SetString( 10, sData )
 			Core.SendToAll( sUpdated:format(tUser.sNick, sData) )
 			return true
+		end
+	end )(),
+
+	ticker = ( function()
+		local sReply = ( "<%s> Topics ticker has been activated." ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
+			if tConfig.iTickerID then return false end
+			tConfig.iTickerID = TmrMan.AddTimer( tConfig.iTickerDelay )
+			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
 }
