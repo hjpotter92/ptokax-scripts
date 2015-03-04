@@ -4,6 +4,13 @@
 - Ban users for an interval of 1 hour if connecting in _passive_ mode.
 - Rewrite the restriction scripts. No more squashed up definitions or overwriting variables.
 
+2015-02-09
+----------
+
+- Code cleanup for chat logger script.
+- Use hash tables for command execution instead of `if-else` statement blocks.
+- Fix the conversion of `&amp;` etc. entities before writing to log file.
+
 2014-11-30
 ----------
 

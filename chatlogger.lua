@@ -12,33 +12,36 @@ function OnStartup()
 		sBotName = SetMan.GetString( 21 ) or "PtokaX",
 		sProfiles = "012",		-- No history for commands from users with profiles
 		sLogsPath = "/www/ChatLogs/",
+		sTimeFormat = "[%I:%M:%S %p] ",
 		iMaxLines = 100,
 	}, { "Hi!" }
 end
 
 function ChatArrival( tUser, sMessage )
 	LogMessage( sMessage:sub(1, -2) )
-	local sCmd, sData = sMessage:match( "%b<> [-+*/?!#](%w+)%s?(.*)|" )
-	local sTime = os.date( "%I:%M:%S %p" )
-	local sChatLine = "["..sTime.."] "..sMessage:sub( 1, -2 )
+	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s?(.*)|"
+	local sTime = os.date( tConfig.sTimeFormat )
+	local sChatLine = sTime..sMessage:sub( 1, -2 )
 	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
 		table.insert( tChatHistory, sChatLine )
-		if tChatHistory[tConfig.iMaxLines + 1] then
+		if tChatHistory[ tConfig.iMaxLines + 1 ] then
 			table.remove( tChatHistory, 1 )
 		end
 	end
-	if sCmd then
-		return ExecuteCommand( sCmd:lower(), sData, tUser )
+	sCmd = sCmd:lower()
+	if ExecuteCommand[sCmd] then
+		return ExecuteCommand[sCmd]( tUser, sData, false )
 	end
 	return false
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo, sFrom = sMessage:match("$To: (%S+) From: (%S+)")
+	local sTo, sFrom = sMessage:match "$To: (%S+) From: (%S+)"
 	if sTo ~= tConfig.sBotName then return false end
-	local sCmd, sData = sMessage:match("%b$$%b<> [-+*/?!#](%w+)%s?(.*)|")
-	if sCmd then
-		return ExecuteCommand( sCmd:lower(), sData, tUser, true )
+	local sCmd, sData = sMessage:match "%b$$%b<> [-+*/?!#](%w+)%s?(.*)|"
+	sCmd = sCmd:lower()
+	if ExecuteCommand[sCmd] then
+		return ExecuteCommand[sCmd]( tUser, sData, true )
 	end
 	return false
 end
@@ -52,62 +55,67 @@ end
 
 RegConnected, OpConnected = UserConnected, UserConnected
 
-function ExecuteCommand( sCmd, sData, tUser, bIsPM )
-	if sCmd == "history" then
-		local sSendValue, sData = "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %d messages\n", tonumber(sData)
-		if (not sData) or sData > 100 or sData < 0 then sData = 15 end
-		sSendValue = sSendValue:format( tConfig.sBotName, sData )..History( sData )
-		if bIsPM then
-			Core.SendPmToUser( tUser, tConfig.sBotName, sSendValue )
-		else
-			Core.SendToUser( tUser, sSendValue )
-		end
-		return true
-	elseif sCmd == "hubtopic" then
-		local sTopic = "<%s> Current hub topic is: %s."
-		sTopic = sTopic:format(tConfig.sBotName, (SetMan.GetString(10) or "Sorry! No hub topic exists."))
-		if bIsPM then
-			Core.SendPmToUser( tUser, tConfig.sBotName, sTopic )
-		else
-			Core.SendToUser( tUser, sTopic )
-		end
-		return true
-	elseif sCmd == "topic" and ProfMan.GetProfilePermission(tUser.iProfile, 7) then
-		if not sData or sData:len() == 0 then
-			Core.SendToAll( "<"..tConfig.sBotName.."> Hub topic was erased by [ "..tUser.sNick.." ]." )
-			SetMan.SetString( 10, "" )
-			return true
-		end
-		local sAlert = "<%s> Hub topic was changed by [ %s ] to %s"
-		Core.SendToAll( sAlert:format(tConfig.sBotName, tUser.sNick, sData) )
-		SetMan.SetString( 10, sData )
-		return true
-	else
-		return false
-	end
-end
-
 function History( iNumLines )
-	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
-	if #tChatHistory < iNumLines then
+	local iStartIndex, iTotalLines = ( #tChatHistory - iNumLines ) + 1, #tChatHistory
+	if iTotalLines < iNumLines then
 		iStartIndex = 1
-	else
-		iStartIndex = #tChatHistory - iNumLines + 1
 	end
-	if iStartIndex == 0 then
-		iStartIndex = 1
-	elseif iStartIndex > #tChatHistory then
-		iStartIndex = #tChatHistory
+	if iStartIndex > iTotalLines then
+		iStartIndex = iTotalLines
 	end
-	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
+	return table.concat( tChatHistory, "\n\t", iStartIndex, iTotalLines )
 end
 
 function LogMessage( sLine )
-	local sTime = os.date( "%I:%M:%S %p" )
-	local sChatLine, sFileName = "["..sTime.."] "..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
-	sChatLine = sChatLine:gsub( "&#124;", "|" ):gsub( "&#36;", "$" ):gsub( "[\n\r]+", "\n\t" )
+	local sTime = os.date( tConfig.sTimeFormat )
+	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
+	sChatLine = sChatLine:gsub( "&#(%d+);", string.char ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
 	local fWrite = io.open( sFileName, "a" )
 	fWrite:write( sChatLine.."\n" )
 	fWrite:flush()
 	fWrite:close()
 end
+
+function Reply( tUser, sMessage, bIsPM )
+	if bIsPM then
+		Core.SendPmToUser( tUser, tConfig.sBotName, sMessage )
+	else
+		Core.SendToUser( tUser, sMessage )
+	end
+	return true
+end
+
+ExecuteCommand = {
+	history = ( function()
+		local sPrefix = ( "<%s> \n\r\t\tChat history bot for HiT Hi FiT Hai\n\tShowing the mainchat history for past %%d messages\n\t" ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			local iLimit = tonumber( sData )
+			if (not iLimit) or iLimit > tConfig.iMaxLines or iLimit < 0 then iLimit = 15 end
+			local sReply = sPrefix:format(iLimit)..History(iLimit)
+			return Reply( tUser, sReply, bIsPM )
+		end
+	end )(),
+
+	hubtopic = ( function()
+		local sPrefix, sNoTopic = ( "<%s> Current hub topic is: %%s." ):format( tConfig.sBotName ), "Sorry! No hub topic exists."
+		return function( tUser, sData, bIsPM )
+			local sReply = sPrefix:format( SetMan.GetString(10) or sNoTopic )
+			return Reply( tUser, sReply, bIsPM )
+		end
+	end )(),
+
+	topic = ( function()
+		local sErased, sUpdated = ( "<%s> Hub topic was erased by [ %%s ]." ):format( tConfig.sBotName ), ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
+			if sData:len() == 0 then
+				Core.SendToAll( sErased:format(tUser.sNick) )
+				SetMan.SetString( 10, "" )
+				return true
+			end
+			SetMan.SetString( 10, sData )
+			Core.SendToAll( sUpdated:format(tUser.sNick, sData) )
+			return true
+		end
+	end )(),
+}
