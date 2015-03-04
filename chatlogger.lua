@@ -98,6 +98,11 @@ function LogMessage( sLine )
 	fWrite:close()
 end
 
+function CheckPermission( iProfile )
+	if not ProfMan.GetProfilePermission( iProfile, 7 ) then return false end
+	return true
+end
+
 function Reply( tUser, sMessage, bIsPM )
 	if bIsPM then
 		Core.SendPmToUser( tUser, tConfig.sBotName, sMessage )
@@ -129,7 +134,7 @@ ExecuteCommand = {
 	topic = ( function()
 		local sErased, sUpdated = ( "<%s> Hub topic was erased by [ %%s ]." ):format( tConfig.sBotName ), ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
-			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
+			if not CheckPermission( tUser.iProfile ) then return false end
 			if sData:len() == 0 or sData:lower() == "off" then
 				Core.SendToAll( sErased:format(tUser.sNick) )
 				return ExecuteCommand.ticker( tUser, sData, bIsPM )
@@ -147,10 +152,22 @@ ExecuteCommand = {
 	ticker = ( function()
 		local sReply = ( "<%s> Topics ticker has been activated." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
-			if not ProfMan.GetProfilePermission( tUser.iProfile, 7 ) then return false end
+			if not CheckPermission( tUser.iProfile ) then return false end
 			if tConfig.iTickerID then return false end
 			tConfig.iTickerID = TmrMan.AddTimer( tConfig.iTickerDelay )
 			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
+
+	tickeradd = ( function()
+		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sFileName, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s\n"
+		return function( tUser, sData, bIsPM )
+			if not CheckPermission( tUser.iProfile ) then return false end
+			local fTickerHandle = io.open( sFilePath, "a+" )
+			fTickerHandle:write( sTemplate:format(tUser.sNick, sData) )
+			fTickerHandle:flush()
+			fTickerHandle:close()
+			return Reply( tUser, sReply, bIsPM )
+		end
+	end )()
 }
