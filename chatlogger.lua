@@ -20,10 +20,7 @@ function OnStartup()
 		iTickerID = false,
 		iTopicIndex = 0,
 	}, { "Hi!" }, {}
-	for sLine in io.lines( tConfig.sPath..tConfig.sTickersList ) do
-		local sNick, sTopic = sLine:match "^(%S+) (.+)$"
-		table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
-	end
+	ExecuteCommand.reloadtickers()
 end
 
 function ChatArrival( tUser, sMessage )
@@ -169,5 +166,24 @@ ExecuteCommand = {
 			fTickerHandle:close()
 			return Reply( tUser, sReply, bIsPM )
 		end
-	end )()
+	end )(),
+
+	reloadtickers = ( function()
+		local sFilePath, sReply = tConfig.sPath..tConfig.sFileName, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			local fTickerHandle = io.open( sFilePath )
+			if not fTickerHandle then
+				return false
+			end
+			for sLine in fTickerHandle:lines "*l" do
+				local sNick, sTopic = sLine:match "^(%S+) (.+)$"
+				table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
+			end
+			fTickerHandle:close()
+			if tUser then
+				Reply( tUser, sReply, bIsPM )
+			end
+			return true
+		end
+	end )(),
 }
