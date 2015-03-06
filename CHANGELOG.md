@@ -1,3 +1,11 @@
+2015-03-07
+----------
+
+- Add hub topic ticker feature.
+- Users with permission to update topics can activate tickers.
+- New tickers can be added by users with sufficient profile permission.
+- Optional `-u` flag can be passed whick adding tickers to add message from someone else.
+
 2015-02-19
 ----------
 
