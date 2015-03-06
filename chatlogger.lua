@@ -7,19 +7,20 @@
 
 --]]
 
+local tConfig, tChatHistory, tTopics = {
+	sBotName = SetMan.GetString( 21 ) or "PtokaX",
+	sProfiles = "012",		-- No history for commands from users with profiles
+	sLogsPath = "/www/ChatLogs/",
+	sTimeFormat = "[%I:%M:%S %p] ",
+	sPath = Core.GetPtokaXPath().."scripts/texts/",
+	sTickersList = "tickers.txt",
+	iMaxLines = 100,
+	iTickerDelay = 6 * 60 * 60 * 10^3,		-- 6 hours to milliseconds
+	iTickerID = false,
+	iTopicIndex = 0,
+}, { "Hi!" }, {}
+
 function OnStartup()
-	tConfig, tChatHistory, tTopics = {
-		sBotName = SetMan.GetString( 21 ) or "PtokaX",
-		sProfiles = "012",		-- No history for commands from users with profiles
-		sLogsPath = "/www/ChatLogs/",
-		sTimeFormat = "[%I:%M:%S %p] ",
-		sPath = Core.GetPtokaXPath().."scripts/texts/",
-		sTickersList = "tickers.txt",
-		iMaxLines = 100,
-		iTickerDelay = 6 * 60 * 60 * 10^3,		-- 6 hours to milliseconds
-		iTickerID = false,
-		iTopicIndex = 0,
-	}, { "Hi!" }, {}
 	ExecuteCommand.reloadtickers()
 end
 
@@ -155,7 +156,7 @@ ExecuteCommand = {
 	end )(),
 
 	tickeradd = ( function()
-		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sFileName, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s\n"
+		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sTickersList, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s\n"
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
 			local fTickerHandle, sNick, sTopic = io.open( sFilePath, "a+" ), sData:match "%-u (%S+) (.+)"
@@ -170,7 +171,7 @@ ExecuteCommand = {
 	end )(),
 
 	reloadtickers = ( function()
-		local sFilePath, sReply = tConfig.sPath..tConfig.sFileName, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
+		local sFilePath, sReply = tConfig.sPath..tConfig.sTickersList, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			local fTickerHandle = io.open( sFilePath )
 			if not fTickerHandle then
