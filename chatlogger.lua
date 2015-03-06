@@ -160,8 +160,11 @@ ExecuteCommand = {
 		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sFileName, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s\n"
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
-			local fTickerHandle = io.open( sFilePath, "a+" )
-			fTickerHandle:write( sTemplate:format(tUser.sNick, sData) )
+			local fTickerHandle, sNick, sTopic = io.open( sFilePath, "a+" ), sData:match "%-u (%S+) (.+)"
+			if not sNick then
+				sNick, sTopic = tUser.sNick, sData
+			end
+			fTickerHandle:write( sTemplate:format(sNick, sTopic) )
 			fTickerHandle:flush()
 			fTickerHandle:close()
 			return Reply( tUser, sReply, bIsPM )
