@@ -35,6 +35,9 @@ function ChatArrival( tUser, sMessage )
 			table.remove( tChatHistory, 1 )
 		end
 	end
+	if not sCmd then
+		return false
+	end
 	sCmd = sCmd:lower()
 	if ExecuteCommand[sCmd] then
 		return ExecuteCommand[sCmd]( tUser, sData, false )
@@ -46,6 +49,9 @@ function ToArrival( tUser, sMessage )
 	local sTo, sFrom = sMessage:match "$To: (%S+) From: (%S+)"
 	if sTo ~= tConfig.sBotName then return false end
 	local sCmd, sData = sMessage:match "%b$$%b<> [-+*/?!#](%w+)%s?(.*)|"
+	if not sCmd then
+		return false
+	end
 	sCmd = sCmd:lower()
 	if ExecuteCommand[sCmd] then
 		return ExecuteCommand[sCmd]( tUser, sData, true )
