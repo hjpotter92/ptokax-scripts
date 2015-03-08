@@ -70,7 +70,7 @@ function OnTimer( iTimerID )
 	if tConfig.iTickerID ~= iTimerID then
 		return false
 	end
-	tConfig.iTopicIndex = ( tConfig.iTopicIndex + 1 ) % #tTopics
+	tConfig.iTopicIndex = ( tConfig.iTopicIndex % #tTopics ) + 1
 	local tCurrentTopic, sUpdated = tTopics[ tConfig.iTopicIndex ], ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
 	SetMan.SetString( 10, tCurrentTopic.sTopic )
 	Core.SendToAll( sUpdated:format(tCurrentTopic.sNick, tCurrentTopic.sTopic) )
@@ -156,7 +156,9 @@ ExecuteCommand = {
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
 			if tConfig.iTickerID then return false end
+			tConfig.iTickerDelay = ( tonumber(sData) or tConfig.iTickerDelay ) * 60 * 60 * 10^3
 			tConfig.iTickerID = TmrMan.AddTimer( tConfig.iTickerDelay )
+			OnTimer( tConfig.iTickerID )
 			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
