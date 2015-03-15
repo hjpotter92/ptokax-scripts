@@ -90,14 +90,17 @@ function History( iNumLines )
 	return table.concat( tChatHistory, "\n\t", iStartIndex, iTotalLines )
 end
 
+function WriteFile( sFilePath, sLine )
+	local fHandle = io.open( sFilePath, 'a' )
+	fHandle:write( sLine, "\n" )
+	fHandle:close()
+end
+
 function LogMessage( sLine )
 	local sTime = os.date( tConfig.sTimeFormat )
 	local sChatLine, sFileName = sTime..sLine, tConfig.sLogsPath..os.date( "%Y/%m/%d_%m_%Y" )..".txt"
 	sChatLine = sChatLine:gsub( "&#(%d+);", string.char ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
-	local fWrite = io.open( sFileName, "a" )
-	fWrite:write( sChatLine.."\n" )
-	fWrite:flush()
-	fWrite:close()
+	return WriteFile( sFileName, sChatLine )
 end
 
 function CheckPermission( iProfile )
@@ -164,16 +167,15 @@ ExecuteCommand = {
 	end )(),
 
 	tickeradd = ( function()
-		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sTickersList, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s\n"
+		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sTickersList, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s"
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
-			local fTickerHandle, sNick, sTopic = io.open( sFilePath, "a+" ), sData:match "%-u (%S+) (.+)"
+			local sNick, sTopic = sData:match "%-u (%S+) (.+)"
 			if not sNick then
 				sNick, sTopic = tUser.sNick, sData
 			end
-			fTickerHandle:write( sTemplate:format(sNick, sTopic) )
-			fTickerHandle:flush()
-			fTickerHandle:close()
+			table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
+			WriteFile( sFilePath, sTemplate:format(sNick, sTopic) )
 			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
@@ -181,17 +183,18 @@ ExecuteCommand = {
 	reloadtickers = ( function()
 		local sFilePath, sReply = tConfig.sPath..tConfig.sTickersList, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
-			local fTickerHandle = io.open( sFilePath )
+			local fTickerHandle, tList = io.open( sFilePath, "r" ), {}
 			if not fTickerHandle then
 				return false
 			end
 			for sLine in fTickerHandle:lines "*l" do
 				local sNick, sTopic = sLine:match "^(%S+) (.+)$"
-				table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
+				table.insert( tList, {sNick = sNick, sTopic = sTopic} )
 			end
 			fTickerHandle:close()
+			tTopics = tList
 			if tUser then
-				Reply( tUser, sReply, bIsPM )
+				return Reply( tUser, sReply, bIsPM )
 			end
 			return true
 		end
