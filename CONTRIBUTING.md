@@ -24,7 +24,7 @@ Before you actually start making changes to the scripts, make sure that you are 
 
     git checkout -b issues/25
 
-## <a name="commit></a>Committing etiquettes
+## <a name="commit"></a>Committing etiquettes
 When you're committing the changes to your branch, make sure that the commits follow a simple style structure:
 
     The commit title is a maximum of 72 characters
