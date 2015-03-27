@@ -11,9 +11,7 @@ function OnStartup()
 	tConfig = {
 		iMaxHistory = 35,
 		sGlobalPath = "/www/ChatLogs/",
-		sPath = Core.GetPtokaXPath().."scripts/",
-		sExtPath = "external/",
-		iTotalProfiles = table.getn( ProfMan.GetProfiles() ),
+		iTotalProfiles = #ProfMan.GetProfiles(),
 		iTimerID = 0,					-- This will store the ID of timer set by PtokaX
 		iRefreshRate = 20 * 1000,			-- Time in ms when the MyINFO will be refreshed. Right now, 20 seconds.
 		sTimeFormat = "[%Y-%m-%d %H:%M:%S] ",
@@ -43,10 +41,10 @@ function OnStartup()
 	for sRoom, tRoom in pairs( tChatRooms ) do
 		Core.RegBot( sRoom, tRoom.BOT.sDescription, tRoom.BOT.sEmail, true )
 		for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
-			local tProfUsers = Core.GetOnlineUsers( iIterate )
-			if tProfUsers then
-				for tProfUser in tProfUsers do
-					table.insert( tChatRooms[sRoom].tUsers, tProfUser.sNick )
+			local tRoomUsers = Core.GetOnlineUsers( iIterate )
+			if tRoomUsers then
+				for tUser in tRoomUsers do
+					table.insert( tChatRooms[sRoom].tUsers, tUser.sNick )
 				end
 			end
 		end
@@ -88,14 +86,16 @@ function UserConnected( tUser )
 end
 
 function RegConnected( tUser )
-    local bIsSubscribed = false
-    for sRoom, tRoom in pairs( tChatRooms ) do
-        if tRoom.iMaxProfile >= tUser.iProfile then
-            table.insert( tRoom.tUsers, tUser.sNick )
-            bIsSubscribed = true
-        end
-    end
-    if not bIsSubscribed then Hide( tUser ) end
+	local bIsSubscribed = false
+	for sRoom, tRoom in pairs( tChatRooms ) do
+		if tRoom.iMaxProfile >= tUser.iProfile then
+			table.insert( tRoom.tUsers, tUser.sNick )
+			bIsSubscribed = true
+		end
+	end
+	if not bIsSubscribed then 
+		Hide( tUser ) 
+	end
 end
 
 function RegDisconnected( tUser )
@@ -113,13 +113,13 @@ function OnTimer( iID )
 end
 
 function Hide( tUser )
-	for sIndex, tValue in pairs( tChatRooms ) do
-		local sQuitINFO = "$Quit "..sIndex.."|"
+	for sRoom, tRoom in pairs( tChatRooms ) do
+		local sQuitINFO = "$Quit "..sRoom.."|"
 		if tUser then
 			Core.SendPmToUser( tUser, sQuitINFO )
 		else
 			Core.SendToProfile( -1, sQuitINFO )
-			for iIterate = (tValue.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
+			for iIterate = (tRoom.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
 				Core.SendToProfile( iIterate, sQuitINFO )
 			end
 		end
@@ -177,7 +177,7 @@ function History( iNumLines, sBotName )
 end
 
 function OnExit()
-	for sIndex, tValue in pairs( tChatRooms ) do
-		Core.UnregBot( sIndex )
+	for sRoom, tRoom in pairs( tChatRooms ) do
+		Core.UnregBot( sRoom )
 	end
 end
