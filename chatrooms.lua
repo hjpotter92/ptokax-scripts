@@ -40,20 +40,13 @@ function OnStartup()
 			tUsers = {},
 		},
 	}
-	for sIndex, tValue in pairs( tChatRooms ) do
-		Core.RegBot( sIndex, tValue.BOT.sDescription, tValue.BOT.sEmail, true )
-	end
-	
-	for iIterate = 0, tChatRooms["#[ModzChat]"].iMaxProfile do
-		local tProfUsers = Core.GetOnlineUsers( iIterate )
-		if tProfUsers then
-			if iIterate == tChatRooms["#[ModzChat]"].iMaxProfile then
+	for sRoom, tRoom in pairs( tChatRooms ) do
+		Core.RegBot( sRoom, tRoom.BOT.sDescription, tRoom.BOT.sEmail, true )
+		for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
+			local tProfUsers = Core.GetOnlineUsers( iIterate )
+			if tProfUsers then
 				for tProfUser in tProfUsers do
-					table.insert( tChatRooms["#[ModzChat]"].tUsers, tProfUser.sNick )
-				end
-			else
-				for tProfUser in tProfUsers do
-					table.insert( tChatRooms["VIPChat"].tUsers, tProfUser.sNick )
+					table.insert( tChatRooms[sRoom].tUsers, tProfUser.sNick )
 				end
 			end
 		end
@@ -95,20 +88,21 @@ function UserConnected( tUser )
 end
 
 function RegConnected( tUser )
-	if tUser.iProfile == tChatRooms["#[ModzChat]"].iMaxProfile then
-		table.insert( tChatRooms["#[ModzChat]"].tUsers, tUser.sNick )
-	elseif tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
-		table.insert( tChatRooms["#[VIPChat]"], tUser.sNick )
-	else
-		Hide( tUser )
-	end
+    local bIsSubscribed = false
+    for sRoom, tRoom in pairs( tChatRooms ) do
+        if tRoom.iMaxProfile >= tUser.iProfile then
+            table.insert( tRoom.tUsers, tUser.sNick )
+            bIsSubscribed = true
+        end
+    end
+    if not bIsSubscribed then Hide( tUser ) end
 end
 
 function RegDisconnected( tUser )
-	if tUser.iProfile == tChatRooms["#[ModzChat]"].iMaxProfile then
-		DelNick( tChatRooms["#[ModzChat]"].tUsers, tUser.sNick:lower() )
-	elseif tUser.iProfile <= tChatRooms["#[VIPChat]"].iMaxProfile then
-		DelNick( tChatRooms["#[VIPChat]"].tUsers, tUser.sNick:lower() )
+	for sRoom, tRoom in pairs( tChatRooms ) do
+		if tRoom.iMaxProfile >= tUser.iProfile then
+			DeleteNick( tChatRooms[sRoom], tUser.sNick:lower() )
+		end
 	end
 end
 
@@ -132,9 +126,9 @@ function Hide( tUser )
 	end
 end
 
-function DelNick( tTable, sDelNick )
+function DeleteNick( tTable, sDeleteNick )
 	for iIndex, sNick in ipairs( tTable ) do
-		if sNick:lower() == sDelNick then
+		if sNick:lower() == sDeleteNick then
 			table.remove( tTable, iIndex )
 			break
 		end
