@@ -12,14 +12,11 @@ function OnStartup()
 		sBotName = SetMan.GetString( 21 ),
 		sAsBot = "<"..( SetMan.GetString(21) or "PtokaX" ).."> ",
 		sPath = Core.GetPtokaXPath().."scripts/",
-		sTextPath = "texts/",
-		sFunctionsPath = "dependency/",
-		sExternalPath = "external/",
 		sFunctionsFile = "functions.lua",
 		sGeneralMenu = "clickMenu.txt",
 		sPickleFile = "pickle.lua",
 		sNotifyFunctionFile = "notify.lua",
-		sAllowedProfiles = "0237",
+		sAllowedProfiles = "01237",
 		tIndividualMenu = {
 			["[BOT]Offliner"] = "offlinerMenu.txt",
 			["[BOT]Info"] = "infoMenu.txt",
@@ -32,10 +29,15 @@ function OnStartup()
 			trainplace = "tnp.txt",
 		}
 	}
-	local sTextPath, sFunctionsPath = tConfig.sPath..tConfig.sTextPath, tConfig.sPath..tConfig.sFunctionsPath
+	tPaths = {
+		sTextPath = tConfig.sPath.."texts/",
+		sFunctionsPath = tConfig.sPath.."dependency/",
+		sExternalPath = tConfig.sPath.."external/",
+	}
+	local sTextPath, sFunctionsPath = tPaths.sTextPath, tPaths.sFunctionsPath
 	dofile( sFunctionsPath..tConfig.sFunctionsFile )
 	dofile( sFunctionsPath..tConfig.sPickleFile )
-	dofile( tConfig.sPath..tConfig.sExternalPath..tConfig.sNotifyFunctionFile )
+	dofile( tPaths.sExternalPath..tConfig.sNotifyFunctionFile )
 	local tFileHandles = {
 		fGeneral = io.open( sTextPath..tConfig.sGeneralMenu, "r+" ),
 		fOffliner = io.open( sTextPath..tConfig.tIndividualMenu["[BOT]Offliner"], "r+" ),
@@ -49,7 +51,7 @@ function OnStartup()
 		["[BOT]GameServer"] = tFileHandles.fGameServer:read("*a"),
 		["#[ChatRoom]"] = tFileHandles.fChatrooms:read("*a"),
 	}
-	for _, fHandle in pairs(tFileHandles) do
+	for _, fHandle in pairs( tFileHandles ) do
 		fHandle:close()
 	end
 	tFileHandles, tConfig.tIndividualMenu, sTempPath = nil, nil, nil
@@ -61,9 +63,9 @@ end
 
 function UserConnected( tUser )
 	for sName, sFile in pairs( tConfig.tFiles ) do
-		local fHandle = io.open( tConfig.sPath..tConfig.sTextPath..sFile, "r+" )
+		local fHandle = io.open( tPaths.sTextPath..sFile, "r+" )
 		if fHandle then
-			dofile(tConfig.sPath..tConfig.sTextPath..tConfig.tFiles[sName])
+			dofile( tPaths.sTextPath..tConfig.tFiles[sName] )
 			fHandle:close()
 			Core.SendPmToUser( tUser, tConfig.sBotName, CreateMessage(tTemp) )
 			tTemp = nil
@@ -78,7 +80,7 @@ end
 OpConnected, RegConnected = UserConnected, UserConnected
 
 function ChatArrival( tUser, sMessage )
-	local sCommand, sData = sMessage:match( "%b<> [%!%#%?%.%+%-%/%*](%w+)%s?(.*)|" )
+	local sCommand, sData = sMessage:match "%b<> [%!%#%?%.%+%-%/%*](%w+)%s?(.*)|"
 	if not sCommand or not ( sCommand == "check" or sCommand == "addto" or sCommand == "removefrom" ) then
 		return false
 	end
@@ -139,9 +141,9 @@ function ChatArrival( tUser, sMessage )
 end
 
 function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match( "^$To: (%S+) From:" )
+	local sTo = sMessage:match "^$To: (%S+) From:"
 	if sTo ~= tConfig.sBotName or not tConfig.sAllowedProfiles:find( tUser.iProfile ) then
 		return false
 	end
-	return ChatArrival( tUser, sMessage:match("%b$$(.*)") )
+	return ChatArrival( tUser, sMessage:match "%b$$(.*)" )
 end

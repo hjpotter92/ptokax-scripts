@@ -7,18 +7,21 @@
 
 --]]
 
-local tConfig, tChatHistory, tTopics = {
+local tConfig, tChatHistory, tTickers= {
 	sBotName = SetMan.GetString( 21 ) or "PtokaX",
 	sProfiles = "012",		-- No history for commands from users with profiles
 	sLogsPath = "/www/ChatLogs/",
 	sTimeFormat = "[%I:%M:%S %p] ",
 	sPath = Core.GetPtokaXPath().."scripts/texts/",
-	sTickersList = "tickers.txt",
 	iMaxLines = 100,
+}, { "Hi!" }, {
+	tTopics = {},
+	sTickersList = "tickers.txt",
+	sUpdated = ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName ),
 	iTickerDelay = 6 * 60 * 60 * 10^3,		-- 6 hours to milliseconds
 	iTickerID = false,
 	iTopicIndex = 0,
-}, { "Hi!" }, {}
+}
 
 function OnStartup()
 	ExecuteCommand.reloadtickers()
@@ -27,6 +30,13 @@ end
 function ChatArrival( tUser, sMessage )
 	LogMessage( sMessage:sub(1, -2) )
 	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s?(.*)|"
+	if not sCmd then
+		return false
+	end
+	sCmd = sCmd:lower()
+	if ExecuteCommand[sCmd] then
+		return ExecuteCommand[sCmd]( tUser, sData, false )
+	end
 	local sTime = os.date( tConfig.sTimeFormat )
 	local sChatLine = sTime..sMessage:sub( 1, -2 )
 	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
@@ -34,13 +44,6 @@ function ChatArrival( tUser, sMessage )
 		if tChatHistory[ tConfig.iMaxLines + 1 ] then
 			table.remove( tChatHistory, 1 )
 		end
-	end
-	if not sCmd then
-		return false
-	end
-	sCmd = sCmd:lower()
-	if ExecuteCommand[sCmd] then
-		return ExecuteCommand[sCmd]( tUser, sData, false )
 	end
 	return false
 end
@@ -59,25 +62,26 @@ function ToArrival( tUser, sMessage )
 	return false
 end
 
-function UserConnected( tUser )
+function RegConnected( tUser )
 	if tUser.iProfile == -1 then return end
 	local sLastLines = "<"..tConfig.sBotName.."> Here is what was happening a few moments ago:\n\t"
 	sLastLines = sLastLines..History( 15 )
 	Core.SendToUser( tUser, sLastLines )
 end
 
+OpConnected = RegConnected
+
 function OnTimer( iTimerID )
-	if tConfig.iTickerID ~= iTimerID then
+	if tTickers.iTickerID ~= iTimerID then
 		return false
 	end
-	tConfig.iTopicIndex = ( tConfig.iTopicIndex % #tTopics ) + 1
-	local tCurrentTopic, sUpdated = tTopics[ tConfig.iTopicIndex ], ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName )
+	local tTopics = tTickers.tTopics
+	tTickers.iTopicIndex = ( tTickers.iTopicIndex % #tTopics ) + 1
+	local tCurrentTopic = tTopics[ tTickers.iTopicIndex ]
 	SetMan.SetString( 10, tCurrentTopic.sTopic )
-	Core.SendToAll( sUpdated:format(tCurrentTopic.sNick, tCurrentTopic.sTopic) )
+	Core.SendToAll( tTickers.sUpdated:format(tCurrentTopic.sNick, tCurrentTopic.sTopic) )
 	return true
 end
-
-RegConnected, OpConnected = UserConnected, UserConnected
 
 function History( iNumLines )
 	local iStartIndex, iTotalLines = ( #tChatHistory - iNumLines ) + 1, #tChatHistory
@@ -144,9 +148,9 @@ ExecuteCommand = {
 				Core.SendToAll( sErased:format(tUser.sNick) )
 				return ExecuteCommand.ticker( tUser, sData, bIsPM )
 			end
-			if tConfig.iTickerID then
-				TmrMan.RemoveTimer( tConfig.iTickerID )
-				tConfig.iTickerID = false
+			if tTickers.iTickerID then
+				TmrMan.RemoveTimer( tTickers.iTickerID )
+				tTickers.iTickerID = false
 			end
 			SetMan.SetString( 10, sData )
 			Core.SendToAll( sUpdated:format(tUser.sNick, sData) )
@@ -158,30 +162,30 @@ ExecuteCommand = {
 		local sReply = ( "<%s> Topics ticker has been activated." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
-			if tConfig.iTickerID then return false end
-			tConfig.iTickerDelay = ( tonumber(sData) or tConfig.iTickerDelay ) * 60 * 60 * 10^3
-			tConfig.iTickerID = TmrMan.AddTimer( tConfig.iTickerDelay )
-			OnTimer( tConfig.iTickerID )
+			if tTickers.iTickerID then return false end
+			tTickers.iTickerDelay = ( tonumber(sData) or tTickers.iTickerDelay ) * 60 * 60 * 10^3
+			tTickers.iTickerID = TmrMan.AddTimer( tTickers.iTickerDelay )
+			OnTimer( tTickers.iTickerID )
 			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
 
 	tickeradd = ( function()
-		local sFilePath, sReply, sTemplate = tConfig.sPath..tConfig.sTickersList, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s"
+		local sFilePath, sReply, sTemplate = tConfig.sPath..tTickers.sTickersList, ( "<%s> The topic has been added to tickers list." ):format( tConfig.sBotName ), "%s %s"
 		return function( tUser, sData, bIsPM )
 			if not CheckPermission( tUser.iProfile ) then return false end
 			local sNick, sTopic = sData:match "%-u (%S+) (.+)"
 			if not sNick then
 				sNick, sTopic = tUser.sNick, sData
 			end
-			table.insert( tTopics, {sNick = sNick, sTopic = sTopic} )
+			table.insert( tTickers.tTopics, {sNick = sNick, sTopic = sTopic} )
 			WriteFile( sFilePath, sTemplate:format(sNick, sTopic) )
 			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
 
 	reloadtickers = ( function()
-		local sFilePath, sReply = tConfig.sPath..tConfig.sTickersList, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
+		local sFilePath, sReply = tConfig.sPath..tTickers.sTickersList, ( "<%s> Tickers list reloaded." ):format( tConfig.sBotName )
 		return function( tUser, sData, bIsPM )
 			local fTickerHandle, tList = io.open( sFilePath, "r" ), {}
 			if not fTickerHandle then
@@ -192,7 +196,7 @@ ExecuteCommand = {
 				table.insert( tList, {sNick = sNick, sTopic = sTopic} )
 			end
 			fTickerHandle:close()
-			tTopics = tList
+			tTickers.tTopics = tList
 			if tUser then
 				return Reply( tUser, sReply, bIsPM )
 			end
