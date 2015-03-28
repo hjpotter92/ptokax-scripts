@@ -7,14 +7,15 @@
 
 --]]
 
-local tConfig, tChatHistory, tTickers= {
+local tConfig, tChatHistory = {
 	sBotName = SetMan.GetString( 21 ) or "PtokaX",
 	sProfiles = "012",		-- No history for commands from users with profiles
 	sLogsPath = "/www/ChatLogs/",
 	sTimeFormat = "[%I:%M:%S %p] ",
 	sPath = Core.GetPtokaXPath().."scripts/texts/",
 	iMaxLines = 100,
-}, { "Hi!" }, {
+}, { "Hi!" }
+local tTickers = {
 	tTopics = {},
 	sTickerPrefix = "",
 	sTickersList = "tickers.txt",
@@ -218,7 +219,7 @@ ExecuteCommand = {
 				tTickers.sTickerPrefix = sData
 			end
 			OnTimer( tTickers.iTickerID )
-			return Reply( tUser, sReply, bIsPM )
+			return Reply( tUser, sReply:format(sData), bIsPM )
 		end
 	end )(),
 }

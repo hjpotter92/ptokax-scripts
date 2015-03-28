@@ -13,7 +13,7 @@ local tFiles, tSettings = {
 	trainplace = "tnp.txt",
 }, {
 	sBotName = SetMan.GetString( 21 ) or "PtokaX",
-	sTextPath = tConfig.sPath..tConfig.sTextPath,
+	sTextPath = tPaths.sTextPath,
 }
 
 function CreateMessage( tInput )
@@ -33,13 +33,13 @@ function RemoveMessage( sName, iMessageID )
 	end
 	local fHandle = io.open( tSettings.sTextPath..tFiles[sName], "r+" )
 	if fHandle then
-		local sReply = "Message removed from ID #%02d"
+		local sReply = "Message removed from [ %s ] at ID #%02d"
 		dofile( tSettings.sTextPath..tFiles[sName] )
 		fHandle:close()
 		table.remove( tTemp.tMain, iMessageID )
 		pickle.store( tSettings.sTextPath..tFiles[sName], { tTemp = tTemp } )
 		tTemp = nil
-		return sReply:format( iMessageID )
+		return sReply:format( sName, iMessageID )
 	end
 	return false, "Removal error"
 end
@@ -68,7 +68,7 @@ function StoreMessage( sName, sMessage )
 		fHandle:close()
 		table.insert( tTemp.tMain, {sDate = os.date("%Y-%m-%d"), sBody = sMessage } )
 		pickle.store( tSettings.sTextPath..tFiles[sName], { tTemp = tTemp } )
-		sReply = ("Message stored at ID #%02d"):format( #(tTemp.tMain) )
+		sReply = ( "Message stored at ID #%02d of [ %s ]"):format( #(tTemp.tMain), sName )
 		tTemp = nil
 		return sReply
 	end
