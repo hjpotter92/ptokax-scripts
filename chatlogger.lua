@@ -33,21 +33,13 @@ function ChatArrival( tUser, sMessage )
 	LogMessage( sMessage:sub(1, -2) )
 	local sCmd, sData = sMessage:match "%b<> [-+*/?!#](%w+)%s?(.*)|"
 	if not sCmd then
-		return false
+		return AddHistory( tUser, sMessage:sub(1, -2) )
 	end
 	sCmd = sCmd:lower()
 	if ExecuteCommand[sCmd] then
 		return ExecuteCommand[sCmd]( tUser, sData, false )
 	end
-	local sTime = os.date( tConfig.sTimeFormat )
-	local sChatLine = sTime..sMessage:sub( 1, -2 )
-	if not( sCmd and tConfig.sProfiles:find(tUser.iProfile) ) then
-		table.insert( tChatHistory, sChatLine )
-		if tChatHistory[ tConfig.iMaxLines + 1 ] then
-			table.remove( tChatHistory, 1 )
-		end
-	end
-	return false
+	return AddHistory( tUser, sMessage:sub(1, -2), true )
 end
 
 function ToArrival( tUser, sMessage )
@@ -85,6 +77,17 @@ function OnTimer( iTimerID )
 	SetMan.SetString( 10, sTopic )
 	Core.SendToAll( tTickers.sUpdated:format(tCurrentTopic.sNick, sTopic) )
 	return true
+end
+
+function AddHistory( tUser, sInput, bIsCommand )
+	local sChatLine = os.date( tConfig.sTimeFormat )..sInput
+	if not( bIsCommand and tConfig.sProfiles:find(tUser.iProfile) ) then
+		table.insert( tChatHistory, sChatLine )
+		if tChatHistory[ tConfig.iMaxLines + 1 ] then
+			table.remove( tChatHistory, 1 )
+		end
+	end
+	return false
 end
 
 function History( iNumLines )
