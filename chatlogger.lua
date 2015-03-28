@@ -16,6 +16,7 @@ local tConfig, tChatHistory, tTickers= {
 	iMaxLines = 100,
 }, { "Hi!" }, {
 	tTopics = {},
+	sTickerPrefix = "",
 	sTickersList = "tickers.txt",
 	sUpdated = ( "<%s> Hub topic was updated by [ %%s ] to %%s." ):format( tConfig.sBotName ),
 	iTickerDelay = 6 * 60 * 60 * 10^3,		-- 6 hours to milliseconds
@@ -78,8 +79,10 @@ function OnTimer( iTimerID )
 	local tTopics = tTickers.tTopics
 	tTickers.iTopicIndex = ( tTickers.iTopicIndex % #tTopics ) + 1
 	local tCurrentTopic = tTopics[ tTickers.iTopicIndex ]
-	SetMan.SetString( 10, tCurrentTopic.sTopic )
-	Core.SendToAll( tTickers.sUpdated:format(tCurrentTopic.sNick, tCurrentTopic.sTopic) )
+	local sTopic, bHasPrefix = tCurrentTopic.sTopic, tTickers.sTickerPrefix:len() > 0
+	if bHasPrefix then sTopic = tTickers.sTickerPrefix.." &#124; "..sTopic end
+	SetMan.SetString( 10, sTopic )
+	Core.SendToAll( tTickers.sUpdated:format(tCurrentTopic.sNick, sTopic) )
 	return true
 end
 
@@ -201,6 +204,21 @@ ExecuteCommand = {
 				return Reply( tUser, sReply, bIsPM )
 			end
 			return true
+		end
+	end )(),
+
+	tickerprefix = ( function()
+		local sReply = ( "<%s> The ticker prefix has been updated to [ %%s ]." ):format( tConfig.sBotName )
+		return function( tUser, sData, bIsPM )
+			if not CheckPermission( tUser.iProfile ) then return false end
+			if not sData then return false end
+			if sData == "" or sData:lower() == "off" then
+				tTickers.sTickerPrefix = ""
+			else
+				tTickers.sTickerPrefix = sData
+			end
+			OnTimer( tTickers.iTickerID )
+			return Reply( tUser, sReply, bIsPM )
 		end
 	end )(),
 }
