@@ -9,45 +9,45 @@
 
 function OnStartup()
 	tConfig = {
-		iMaxHistory = 35,
 		sPath = Core.GetPtokaXPath().."scripts/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
-		sLogPath = "/www/ChatLogs/"..os.date( "%Y/" ),
+		sLogPath = "/www/ChatLogs/",
+		iMaxHistory = 35,
 	}
 	tRooms = {
 		["#[Gamers]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Gamers' lounge...",
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."gameSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[QuizRoom]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
 			sLogFile = nil,
 			sSubscribersFile = tConfig.sPath.."texts/".."quizSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[Anime]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."animSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[NSFW]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."nsfwSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
-		}
+		},
 	}
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sPickleFile )
 	for sBotName, tInfo in pairs( tRooms ) do
@@ -123,7 +123,7 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "The following users were kicked from this chatroom: "..table.concat(tKicked, ", ") )
 		return false
 	elseif sCmd == "invite" and FindSubscription( tRooms[sTo].tSubscribers, tUser.sNick ) then
-		local sGuest = sData and sData:match( "^(%S+)" )
+		local sGuest = sData and sData:match "^(%S+)"
 		if not sGuest then
 			Core.SendPmToUser( tUser, sTo, "No nickname was provided." )
 			return false
@@ -149,8 +149,8 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite, kick, police and leave" )
 			return true
 		end
-	elseif sCmd == "mod" or sCmd == "police" and ('01'):find( tostring(tUser.iProfile) ) then
-		local sNewMod = sData and sData:match( "^(%S+)" )
+	elseif (sCmd == "mod" or sCmd == "police") and Core.GetUserData( tUser, 11 ) then
+		local sNewMod = sData and sData:match "^(%S+)"
 		local IsInRoom = FindSubscription( tRooms[sTo].tSubscribers, sNewMod )
 		if sNewMod and IsInRoom and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, sNewMod ) then
 			table.insert( tRooms[sTo].tSubscribers.tModerators, sNewMod )
@@ -181,7 +181,7 @@ function SaveToFile( sRoomName, sChatMessage )
 	if not tCurrentRoom.sLogFile then
 		return false
 	end
-	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
+	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%Y/%m/")..tCurrentRoom.sLogFile, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
@@ -191,7 +191,7 @@ end
 function SendToSubscribers( sSelfNick, sRoomName, sIncoming, bNotice )
 	local tCurrentHistory, sIncoming, sRawString = tRooms[sRoomName].tChatHistory, sIncoming:match "%b$$(.*)|", "$To: %s From: %s $%s|"
 	if sRoomName == "#[NSFW]" and not bNotice then
-		sIncoming = "<Anonymous>"..sIncoming:match( "%b<>(.*)" )
+		sIncoming = "<Anonymous>"..sIncoming:match "%b<>(.*)"
 	end
 	for iIndex, sNick in ipairs( tRooms[sRoomName].tSubscribers ) do
 		if sNick:lower() ~= sSelfNick:lower() then
