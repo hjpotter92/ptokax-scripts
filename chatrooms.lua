@@ -9,12 +9,16 @@
 
 function OnStartup()
 	tConfig = {
-		iMaxHistory = 35,
+		tTemplates = {
+			sHistory = "Past %d messages: \n\n\t%s\n\n",
+			sList = "There are %d current users allowed here:\n\n\t",
+		},
 		sGlobalPath = "/www/ChatLogs/",
+		sTimeFormat = "[%Y-%m-%d %H:%M:%S] ",
+		iMaxHistory = 35,
 		iTotalProfiles = #ProfMan.GetProfiles(),
 		iTimerID = 0,					-- This will store the ID of timer set by PtokaX
 		iRefreshRate = 20 * 1000,			-- Time in ms when the MyINFO will be refreshed. Right now, 20 seconds.
-		sTimeFormat = "[%Y-%m-%d %H:%M:%S] ",
 	}
 	tChatRooms = {
 		["#[ModzChat]"] = {
@@ -71,11 +75,9 @@ function SendToRoom( tSelfUser, sRoom, sIncoming )
 		table.remove( tCurrentHistory, 1 )
 	end
 	local tUsers = tChatRooms[sRoom].tUsers
-	if tUsers then
-		for iIndex, sNick in ipairs( tUsers ) do
-			if sNick:lower() ~= tSelfUser.sNick:lower() then
-				Core.SendToNick( sNick, "$To: "..tRecipient.sNick.." From: "..sRoom.." $"..sIncoming.."|" )
-			end
+	for iIndex, sNick in ipairs( tUsers ) do
+		if sNick:lower() ~= tSelfUser.sNick:lower() then
+			Core.SendToNick( sNick, "$To: "..tRecipient.sNick.." From: "..sRoom.." $"..sIncoming.."|" )
 		end
 	end
 	return true
@@ -101,7 +103,7 @@ end
 function RegDisconnected( tUser )
 	for sRoom, tRoom in pairs( tChatRooms ) do
 		if tRoom.iMaxProfile >= tUser.iProfile then
-			DeleteNick( tChatRooms[sRoom], tUser.sNick:lower() )
+			DeleteNick( tChatRooms[sRoom], tUser.sNick )
 		end
 	end
 end
@@ -116,7 +118,7 @@ function Hide( tUser )
 	for sRoom, tRoom in pairs( tChatRooms ) do
 		local sQuitINFO = "$Quit "..sRoom.."|"
 		if tUser then
-			Core.SendPmToUser( tUser, sQuitINFO )
+			Core.SendToUser( tUser, sQuitINFO )
 		else
 			Core.SendToProfile( -1, sQuitINFO )
 			for iIterate = (tRoom.iMaxProfile + 1), (tConfig.iTotalProfiles - 1) do
@@ -127,6 +129,7 @@ function Hide( tUser )
 end
 
 function DeleteNick( tTable, sDeleteNick )
+	sDeleteNick = sDeleteNick:lower()
 	for iIndex, sNick in ipairs( tTable ) do
 		if sNick:lower() == sDeleteNick then
 			table.remove( tTable, iIndex )
@@ -149,14 +152,16 @@ function ToArrival( tUser, sMessage )
 		local sCmd, sData = sMessage:match "%b$$%b<>%s+[-+*/?!#](%w+)%s?(.*)|"
 		if not sCmd then
 			SendToRoom( tUser, sTo, sChat )
-		elseif sCmd:lower() == "history" then
-			local sReply, iLimit = "Past %d messages: \n\n\t%s\n\n", tonumber( sData )
+		end
+		sCmd = sCmd:lower()
+		if sCmd == "h" or sCmd == "history" then
+			local sReply, iLimit = tConfig.tTemplates.sHistory, tonumber( sData )
 			if (not iLimit) or iLimit > 35 or iLimit < 0 then iLimit = 15 end
 			sReply = sReply:format( iLimit, History(iLimit, sTo) )
 			Core.SendPmToUser( tUser, sTo, sReply )
-		elseif sCmd:lower() == "l" or sCmd:lower == "list" then
-			local sTemplate = ("There are %d current users allowed here:\n\n\t"):format( #(tChatRooms[sTo].tUsers) )
-			Core.SendPmToUser( tUser, sTo, sTemplate..table.concat(tChatRooms[sTo].tUsers, ", ") )
+		elseif sCmd == "l" or sCmd == "list" then
+			local sList = tConfig.tTemplates.sList:format( #(tChatRooms[sTo].tUsers) )
+			Core.SendPmToUser( tUser, sTo, sList..table.concat(tChatRooms[sTo].tUsers, ", ") )
 		else
 			SendToRoom( tUser, sTo, sChat )
 		end

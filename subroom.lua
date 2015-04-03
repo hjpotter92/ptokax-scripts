@@ -149,7 +149,7 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite, kick, police and leave" )
 			return true
 		end
-	elseif sCmd == "mod" or sCmd == "police" and ('01'):find( tostring(tUser.iProfile) ) then
+	elseif (sCmd == "mod" or sCmd == "police") and tUser.bOperator then
 		local sNewMod = sData and sData:match "^(%S+)"
 		local IsInRoom = FindSubscription( tRooms[sTo].tSubscribers, sNewMod )
 		if sNewMod and IsInRoom and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, sNewMod ) then
@@ -181,7 +181,7 @@ function SaveToFile( sRoomName, sChatMessage )
 	if not tCurrentRoom.sLogFile then
 		return false
 	end
-	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%m/")..tCurrentRoom.sLogFile, "a" )
+	local sStoreMessage, fWrite = os.date("[%Y-%m-%d %H:%M:%S] ")..sChatMessage, io.open( tConfig.sLogPath..os.date("%Y/%m/")..tCurrentRoom.sLogFile, "a" )
 	fWrite:write( sStoreMessage.."\n" )
 	fWrite:flush()
 	fWrite:close()
