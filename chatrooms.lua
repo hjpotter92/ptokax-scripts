@@ -11,7 +11,7 @@ function OnStartup()
 	tConfig = {
 		tTemplates = {
 			sHistory = "Past %d messages: \n\n\t%s\n\n",
-			sList = "There are %d current users allowed here:\n\n\t",
+			sList = "There are currently %d users in { %s }:\n\n\t",
 		},
 		sGlobalPath = "/www/ChatLogs/",
 		sTimeFormat = "[%Y-%m-%d %H:%M:%S] ",
@@ -44,11 +44,11 @@ function OnStartup()
 	}
 	for sRoom, tRoom in pairs( tChatRooms ) do
 		Core.RegBot( sRoom, tRoom.BOT.sDescription, tRoom.BOT.sEmail, true )
-		for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
+		for iIterate = 0, tRoom.iMaxProfile do
 			local tRoomUsers = Core.GetOnlineUsers( iIterate )
 			if tRoomUsers then
 				for iIndex, tUser in pairs( tRoomUsers ) do
-					table.insert( tChatRooms[sRoom].tUsers, tUser.sNick )
+					table.insert( tRoom.tUsers, tUser.sNick )
 				end
 			end
 		end
@@ -57,30 +57,6 @@ function OnStartup()
 		tConfig.iTimerID = TmrMan.AddTimer( tConfig.iRefreshRate )
 	end
 	Hide()
-end
-
-function SaveToFile( sChatMessage, sRoom )
-	local sStoreMessage = os.date( tConfig.sTimeFormat )..sChatMessage
-	local fWrite = io.open( tConfig.sGlobalPath..os.date("%Y/%m/")..tChatRooms[sRoom].sFileName, "a" )
-	fWrite:write( sStoreMessage.."\n" )
-	fWrite:flush()
-	fWrite:close()
-	return true
-end
-
-function SendToRoom( tSelfUser, sRoom, sIncoming )
-	local tCurrentHistory = tChatRooms[sRoom].tChatHistory
-	table.insert( tCurrentHistory, os.date(tConfig.sTimeFormat)..sIncoming )
-	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] then
-		table.remove( tCurrentHistory, 1 )
-	end
-	local tUsers = tChatRooms[sRoom].tUsers
-	for iIndex, sNick in ipairs( tUsers ) do
-		if sNick:lower() ~= tSelfUser.sNick:lower() then
-			Core.SendToNick( sNick, "$To: "..sNick.." From: "..sRoom.." $"..sIncoming.."|" )
-		end
-	end
-	return true
 end
 
 function UserConnected( tUser )
@@ -95,8 +71,8 @@ function RegConnected( tUser )
 			bIsSubscribed = true
 		end
 	end
-	if not bIsSubscribed then 
-		Hide( tUser ) 
+	if not bIsSubscribed then
+		Hide( tUser )
 	end
 end
 
@@ -112,6 +88,48 @@ OpConnected, OpDisconnected = RegConnected, RegDisconnected
 
 function OnTimer( iID )
 	Hide()
+end
+
+function ToArrival( tUser, sMessage )
+	local sTo = sMessage:match "%$To: (%S+)"
+	if not tChatRooms[sTo] or tUser.iProfile == -1 then
+		return false
+	end
+	local tRoom = tChatRooms[sTo]
+	if tUser.iProfile > tRoom.iMaxProfile then
+		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
+		return true
+	end
+	local sChat, sCmd, sData = sMessage:match "%b$$(%b<>%s+[-+*/?!#](%w+)%s?(.*))|"
+	SaveToFile( sChat, sTo )
+	if not sCmd then
+		return SendToRoom( tUser, sTo, sChat )
+	end
+	local sCmd = sCmd:lower()
+	if sCmd == "h" or sCmd == "history" then
+		local sReply, iLimit = tConfig.tTemplates.sHistory, tonumber( sData )
+		if (not iLimit) or iLimit > tConfig.iMaxHistory or iLimit < 0 then iLimit = 15 end
+		sReply = sReply:format( iLimit, History(iLimit, sTo) )
+		Core.SendPmToUser( tUser, sTo, sReply )
+	elseif sCmd == "l" or sCmd == "list" then
+		local sList = tConfig.tTemplates.sList:format( #tRoom.tUsers, sTo )
+		Core.SendPmToUser( tUser, sTo, sList..table.concat(tRoom.tUsers, ", ") )
+	else
+		return SendToRoom( tUser, sTo, sChat )
+	end
+	return true
+end
+
+function History( iNumLines, sBotName )
+	local tChatHistory = tChatRooms[sBotName].tChatHistory
+	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
+	if #tChatHistory < iNumLines then
+		iStartIndex = 1
+	end
+	if iStartIndex > #tChatHistory then
+		iStartIndex = #tChatHistory
+	end
+	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
 end
 
 function Hide( tUser )
@@ -138,47 +156,28 @@ function DeleteNick( tTable, sDeleteNick )
 	end
 end
 
-function ToArrival( tUser, sMessage )
-	local sTo = sMessage:match "%$To: (%S+)"
-	if not tChatRooms[sTo] or tUser.iProfile == -1 then
-		return false
-	end
-	if tUser.iProfile > tChatRooms[sTo].iMaxProfile then
-		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
-		return true
-	else
-		local sChat = sMessage:match "%b$$(.*)|"
-		SaveToFile( sChat, sTo )
-		local sCmd, sData = sMessage:match "%b$$%b<>%s+[-+*/?!#](%w+)%s?(.*)|"
-		if not sCmd then
-			SendToRoom( tUser, sTo, sChat )
-		end
-		sCmd = sCmd:lower()
-		if sCmd == "h" or sCmd == "history" then
-			local sReply, iLimit = tConfig.tTemplates.sHistory, tonumber( sData )
-			if (not iLimit) or iLimit > 35 or iLimit < 0 then iLimit = 15 end
-			sReply = sReply:format( iLimit, History(iLimit, sTo) )
-			Core.SendPmToUser( tUser, sTo, sReply )
-		elseif sCmd == "l" or sCmd == "list" then
-			local sList = tConfig.tTemplates.sList:format( #(tChatRooms[sTo].tUsers) )
-			Core.SendPmToUser( tUser, sTo, sList..table.concat(tChatRooms[sTo].tUsers, ", ") )
-		else
-			SendToRoom( tUser, sTo, sChat )
-		end
-		return true
-	end
+function SaveToFile( sChatMessage, sRoom )
+	local sChatMessage = sChatMessage:gsub( "&#(%d+);", string.char ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
+	local sStoreMessage = os.date( tConfig.sTimeFormat )..sChatMessage
+	local fWrite = io.open( tConfig.sGlobalPath..os.date("%Y/%m/")..tChatRooms[sRoom].sFileName, "a" )
+	fWrite:write( sStoreMessage.."\n" )
+	fWrite:flush()
+	fWrite:close()
+	return true
 end
 
-function History( iNumLines, sBotName )
-	local tChatHistory = tChatRooms[sBotName].tChatHistory
-	local iStartIndex = ( #tChatHistory - iNumLines ) + 1
-	if #tChatHistory < iNumLines then
-		iStartIndex = 1
+function SendToRoom( tSelfUser, sRoom, sIncoming )
+	local tCurrentHistory, tUsers, sSelfNick = tChatRooms[sRoom].tChatHistory, tChatRooms[sRoom].tUsers, tSelfUser.sNick:lower()
+	table.insert( tCurrentHistory, os.date(tConfig.sTimeFormat)..sIncoming )
+	if #tCurrentHistory > tConfig.iMaxHistory then
+		table.remove( tCurrentHistory, 1 )
 	end
-	if iStartIndex > #tChatHistory then
-		iStartIndex = #tChatHistory
+	for iIndex, sNick in ipairs( tUsers ) do
+		if sNick:lower() ~= sSelfNick then
+			Core.SendToNick( sNick, "$To: "..sNick.." From: "..sRoom.." $"..sIncoming.."|" )
+		end
 	end
-	return table.concat( tChatHistory, "\n\t", iStartIndex, #tChatHistory )
+	return true
 end
 
 function OnExit()
