@@ -26,7 +26,7 @@ function OnStartup()
 				sDescription = "Chatroom for moderators.",
 				sEmail = "donot@mail.me"
 			},
-			tChatHistory = {},
+			tChatHistory = { "Hi" },
 			tUsers = {},
 			sFileName = "ModsChat.txt",
 			iMaxProfile = 4,			-- The maximum profile number allowed to access this chatroom.
@@ -36,7 +36,7 @@ function OnStartup()
 				sDescription = "Chatroom for usage by VIPs.",
 				sEmail = "donot@mail.me"
 			},
-			tChatHistory = {},
+			tChatHistory = { "Hi" },
 			tUsers = {},
 			sFileName = "VIPChat.txt",
 			iMaxProfile = 3,
@@ -100,7 +100,8 @@ function ToArrival( tUser, sMessage )
 		Core.SendPmToUser( tUser, sTo, "Sorry! You don't have access to the chatroom.|" )
 		return true
 	end
-	local sChat, sCmd, sData = sMessage:match "%b$$(%b<>%s+[-+*/?!#](%w+)%s?(.*))|"
+	local sChat = sMessage:match "%b$$(.*)|"
+	local sCmd, sData = sChat:match "%b<>%s+[-+*/?!#](%w+)%s?(.*)"
 	SaveToFile( sChat, sTo )
 	if not sCmd then
 		return SendToRoom( tUser, sTo, sChat )
