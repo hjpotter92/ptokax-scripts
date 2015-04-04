@@ -47,7 +47,7 @@ function OnStartup()
 		for iIterate = 0, tChatRooms[sRoom].iMaxProfile do
 			local tRoomUsers = Core.GetOnlineUsers( iIterate )
 			if tRoomUsers then
-				for tUser in tRoomUsers do
+				for iIndex, tUser in pairs( tRoomUsers ) do
 					table.insert( tChatRooms[sRoom].tUsers, tUser.sNick )
 				end
 			end
@@ -77,7 +77,7 @@ function SendToRoom( tSelfUser, sRoom, sIncoming )
 	local tUsers = tChatRooms[sRoom].tUsers
 	for iIndex, sNick in ipairs( tUsers ) do
 		if sNick:lower() ~= tSelfUser.sNick:lower() then
-			Core.SendToNick( sNick, "$To: "..tRecipient.sNick.." From: "..sRoom.." $"..sIncoming.."|" )
+			Core.SendToNick( sNick, "$To: "..sNick.." From: "..sRoom.." $"..sIncoming.."|" )
 		end
 	end
 	return true
