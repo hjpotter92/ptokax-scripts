@@ -149,7 +149,7 @@ function ToArrival( tUser, sMessage )
 			Core.SendPmToUser( tUser, sTo, "The commands available are: help, list, join, invite, kick, police and leave" )
 			return true
 		end
-	elseif (sCmd == "mod" or sCmd == "police") and tUser.bOperator then
+	elseif (sCmd == "mod" or sCmd == "police") and Core.GetUserData( tUser, 11 ) then
 		local sNewMod = sData and sData:match "^(%S+)"
 		local IsInRoom = FindSubscription( tRooms[sTo].tSubscribers, sNewMod )
 		if sNewMod and IsInRoom and not FindSubscription( tRooms[sTo].tSubscribers.tModerators, sNewMod ) then
