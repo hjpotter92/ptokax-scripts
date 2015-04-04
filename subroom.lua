@@ -9,44 +9,44 @@
 
 function OnStartup()
 	tConfig = {
-		iMaxHistory = 35,
 		sPath = Core.GetPtokaXPath().."scripts/",
 		sDepPath = "dependency/",
 		sPickleFile = "pickle.lua",
 		sLogPath = "/www/ChatLogs/",
+		iMaxHistory = 35,
 	}
 	tRooms = {
 		["#[Gamers]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Gamers' lounge...",
 			sBotEmail = "donot@mail.me",
 			sLogFile = "games.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."gameSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[QuizRoom]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Chatroom where quizzes are hosted.",
 			sBotEmail = "do-not@mail.me",
 			sLogFile = nil,
 			sSubscribersFile = tConfig.sPath.."texts/".."quizSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[Anime]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Discusssing anime and manga",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "anime.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."animSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 		["#[NSFW]"] = {
+			tSubscribers = { tModerators = {} },
+			tChatHistory = {},
 			sBotDescription = "Chatroom for NSFW.",
 			sBotEmail = "do.not@mail.me",
 			sLogFile = "nsfw.txt",
 			sSubscribersFile = tConfig.sPath.."texts/".."nsfwSub.txt",
-			tSubscribers = { tModerators = {} },
-			tChatHistory = {},
 		},
 	}
 	dofile( tConfig.sPath..tConfig.sDepPath..tConfig.sPickleFile )

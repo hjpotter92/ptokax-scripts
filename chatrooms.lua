@@ -22,24 +22,24 @@ function OnStartup()
 	}
 	tChatRooms = {
 		["#[ModzChat]"] = {
-			iMaxProfile = 4,			-- The maximum profile number allowed to access this chatroom.
 			BOT = {
 				sDescription = "Chatroom for moderators.",
 				sEmail = "donot@mail.me"
 			},
-			sFileName = "ModsChat.txt",
 			tChatHistory = {},
 			tUsers = {},
+			sFileName = "ModsChat.txt",
+			iMaxProfile = 4,			-- The maximum profile number allowed to access this chatroom.
 		},
 		["#[VIPChat]"] = {
-			iMaxProfile = 3,
 			BOT = {
 				sDescription = "Chatroom for usage by VIPs.",
 				sEmail = "donot@mail.me"
 			},
-			sFileName = "VIPChat.txt",
 			tChatHistory = {},
 			tUsers = {},
+			sFileName = "VIPChat.txt",
+			iMaxProfile = 3,
 		},
 	}
 	for sRoom, tRoom in pairs( tChatRooms ) do
@@ -71,7 +71,7 @@ end
 function SendToRoom( tSelfUser, sRoom, sIncoming )
 	local tCurrentHistory = tChatRooms[sRoom].tChatHistory
 	table.insert( tCurrentHistory, os.date(tConfig.sTimeFormat)..sIncoming )
-	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] do
+	if tCurrentHistory[ tConfig.iMaxHistory + 1 ] then
 		table.remove( tCurrentHistory, 1 )
 	end
 	local tUsers = tChatRooms[sRoom].tUsers
