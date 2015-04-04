@@ -1,3 +1,9 @@
+2015-04-04
+----------
+
+- Add `+history` and `+list` command to `#[ModzChat]` and `#[VIPChat]`.
+- Fix `sLogPath` for `subroom.lua`
+
 2015-03-07
 ----------
 
