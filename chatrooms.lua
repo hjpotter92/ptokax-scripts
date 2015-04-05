@@ -79,7 +79,7 @@ end
 function RegDisconnected( tUser )
 	for sRoom, tRoom in pairs( tChatRooms ) do
 		if tRoom.iMaxProfile >= tUser.iProfile then
-			DeleteNick( tChatRooms[sRoom], tUser.sNick )
+			DeleteNick( tRoom.tUsers, tUser.sNick )
 		end
 	end
 end
@@ -148,7 +148,7 @@ function Hide( tUser )
 end
 
 function DeleteNick( tTable, sDeleteNick )
-	sDeleteNick = sDeleteNick:lower()
+	local sDeleteNick = sDeleteNick:lower()
 	for iIndex, sNick in ipairs( tTable ) do
 		if sNick:lower() == sDeleteNick then
 			table.remove( tTable, iIndex )
@@ -161,7 +161,7 @@ function SaveToFile( sChatMessage, sRoom )
 	local sChatMessage = sChatMessage:gsub( "&#(%d+);", string.char ):gsub( "[\n\r]+", "\n\t" ):gsub( "&amp;", "&" )
 	local sStoreMessage = os.date( tConfig.sTimeFormat )..sChatMessage
 	local fWrite = io.open( tConfig.sGlobalPath..os.date("%Y/%m/")..tChatRooms[sRoom].sFileName, "a" )
-	fWrite:write( sStoreMessage.."\n" )
+	fWrite:write( sStoreMessage, '\n' )
 	fWrite:flush()
 	fWrite:close()
 	return true
@@ -182,7 +182,8 @@ function SendToRoom( tSelfUser, sRoom, sIncoming )
 end
 
 function OnExit()
-	for sRoom, tRoom in pairs( tChatRooms ) do
+	for sRoom in pairs( tChatRooms ) do
 		Core.UnregBot( sRoom )
 	end
+	TmrMan.RemoveTimer( tConfig.iTimerID )
 end
