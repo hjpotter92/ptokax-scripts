@@ -7,21 +7,23 @@
 
 --]]
 
-modifiers = function(user, data)
-	if isthere(user.sNick, muted) then
+modifiers = function( user, data )
+	if isthere( user.sNick, muted ) then
 		if user.sNick ~= "IRC" then
-			Core.SendToUser(user, "<PtokaX> You are muted.|")
+			Core.SendToUser( user, "<PtokaX> You are muted.|" )
 		end
 		return false
 	end
-	 if isthere_key(user.sNick, unsubbed) then
-		Core.SendToUser(user, "<PtokaX> You have unsubscribed from mainchat. To subscribe again enter !sub|")
+	 if isthere_key( user.sNick, unsubbed ) then
+		Core.SendToUser( user, "<PtokaX> You have unsubscribed from mainchat. To subscribe again enter !sub|" )
 		return false
 	end
 	local msg, nick = data:match "%b<>(.*)", user.sNick
-	if isthere(user.sNick, nickc) then
+	if isthere( user.sNick, nickc ) then
 		nick = nickc[user.sNick]
 	end
+	if isthere( user.sNick:lower(), lunarized ) then
+		msg = GarbleMessage( msg )
 	if desu then
 		msg = msg.." desu"
 	end
@@ -33,9 +35,16 @@ modifiers = function(user, data)
 		nick = nick.."-chan"
 	end
 	local finalmsg = "<"..nick..">"..msg
-	if isthere(user.sNick, falone) then
-		Core.SendToUser(user, finalmsg)
+	if isthere( user.sNick, falone ) then
+		Core.SendToUser( user, finalmsg )
 		return false
 	end
 	return finalmsg
+end
+
+function GarbleMessage( sLine )
+	for cIndex, sLeet in pairs( tGarble ) do
+		sLine = sLine:gsub( cIndex, sLeet )
+	end
+	return sLine
 end

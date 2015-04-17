@@ -15,6 +15,7 @@ nickc = {}
 falone = {}
 muted = {}
 blocked = {}
+lunarized = {}
 dofile( path.."texts/blocks.txt" )
 desu, san, chan, inPM = false, false, false, false
 local temp = {					 -- built in commands ,bypass these commands if typed in mainchat
@@ -24,6 +25,44 @@ local temp = {					 -- built in commands ,bypass these commands if typed in main
 "getrangetempbans", "clrrangepermbans", "clrrangetempbans", "checknickban", "checkipban", "checkrangeban", "getinfo", "op",
 "gag", "ungag", "restart", "startscript", "stopscript", "restartscript", "restartscripts", "getscripts", "reloadtxt", "addreguser", "delreguser",
 "topic", "massmsg", "opmassmsg", "myip", "help"
+}
+local tGarble = {
+	a = "4",
+	e = "3",
+	l = "1",
+	o = "0",
+	s = "5",
+	t = "+",
+	v = "\\/",
+	w = "\\/\\/",
+	x = "><",
+	y = "j",
+	A = "/-\\",
+	B = "|3",
+	C = "\(",
+	D = "|\)",
+	E = "3",
+	F = "|=",
+	G = "6",
+	H = "|-|",
+	I = "|",
+	J = "_|",
+	K = "|<",
+	L = "|_",
+	M = "|\\/|",
+	N = "|\\|",
+	O = "0",
+	P = "|>",
+	Q = "(,)",
+	R = "|2",
+	S = "$",
+	T = "7`",
+	U = "|_|",
+	V = "\\/",
+	W = "\\/\\/",
+	X = "}{",
+	Y = "`/",
+	Z = "2",
 }
 PtokaxCommands = {}
 for k,v in ipairs(temp) do
