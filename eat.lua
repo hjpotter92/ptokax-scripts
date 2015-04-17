@@ -89,7 +89,7 @@ end
 
 ChatArrival = function(user,data)
 	local tempdata = data:gsub( "|", " " )			--remove terminating |
-	local cmd = tempdata:match( "%b<> [!/+](%S+)%s")
+	local cmd = tempdata:match( "%b<> [-+*/!#?](%S+)%s")
 	local isCmd, irc = false, false
 	if not cmd then
 		isCmd = false
@@ -126,7 +126,7 @@ ToArrival = function( user, data )
 	--Remove the To and From parts 
 	tempdata=tempdata:match("$.*$(.*)")
 	
-	local cmd= tempdata:match( "%b<> [!/+](%S+)%s")
+	local cmd= tempdata:match( "%b<> [-+*/!#?](%S+)%s")
 	if  not cmd then
 		return
 	end
