@@ -44,8 +44,5 @@ modifiers = function( user, data )
 end
 
 function GarbleMessage( sLine )
-	for cIndex, sLeet in pairs( tGarble ) do
-		sLine = sLine:gsub( cIndex, sLeet )
-	end
-	return sLine
+	return sLine:gsub( '.', tGarble )
 end

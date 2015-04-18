@@ -371,6 +371,7 @@ CustomCommands = {
 		else
 			notify( user, "Sorry, the user has not been lunarized." )
 			return true
+		end
 	end,
 	["custhelp"] = function( user, tokens )
 		-- To get a list of additional help commands available to a given profile
