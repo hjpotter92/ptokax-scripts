@@ -43,6 +43,47 @@ modifiers = function( user, data )
 	return finalmsg
 end
 
-function GarbleMessage( sLine )
-	return sLine:gsub( '.', tGarble )
-end
+GarbleMessage = (function()
+	local tGarble = {
+		a = "4",
+		e = "3",
+		l = "1",
+		o = "0",
+		s = "5",
+		t = "+",
+		v = "\\/",
+		w = "\\/\\/",
+		x = "><",
+		y = "j",
+		z = "2",
+		A = "/-\\",
+		B = "|3",
+		C = "\(",
+		D = "|\)",
+		E = "3",
+		F = "|=",
+		G = "6",
+		H = "|-|",
+		I = "|",
+		J = "_|",
+		K = "|<",
+		L = "|_",
+		M = "|\\/|",
+		N = "|\\|",
+		O = "0",
+		P = "|>",
+		Q = "(,)",
+		R = "|2",
+		S = "$",
+		T = "7`",
+		U = "|_|",
+		V = "\\/",
+		W = "\\/\\/",
+		X = "}{",
+		Y = "`/",
+		Z = "2",
+	}	-- if & is present in tGarble, use gsub( '&', '&amp;' ) for GarbleMessage
+	return function( sLine )
+		return sLine:gsub( '.', tGarble )
+	end
+end)()
