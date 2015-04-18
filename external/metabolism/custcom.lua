@@ -36,8 +36,7 @@ end
 function isthere_key( key, tTable )
 	local q = key:lower()
 	for k, v in ipairs( tabl ) do
-	w = v:lower()
-		if w == q then
+		if v:lower() == q then
 			return k
 		end
 	end
