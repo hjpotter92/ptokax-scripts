@@ -23,7 +23,7 @@ modifiers = function( user, data )
 		nick = nickc[user.sNick]
 	end
 	if isthere( user.sNick:lower(), lunarised ) then
-		msg = GarbleMessage( msg ):gsub( '$', '&#36;' ):gsub( '|', '&#124;' )
+		msg = GarbleMessage( msg ):gsub( '[$]', '&#36;' ):gsub( '|', '&#124;' )
 	end
 	if desu then
 		msg = msg.." desu"
@@ -50,7 +50,7 @@ GarbleMessage = (function()
 		l = "1",
 		o = "0",
 		s = "5",
-		t = "+",
+		t = "7",
 		v = "\\/",
 		w = "\\/\\/",
 		x = "><",
@@ -74,7 +74,7 @@ GarbleMessage = (function()
 		P = "|>",
 		Q = "(,)",
 		R = "|2",
-		S = "$",
+		S = "5",
 		T = "7`",
 		U = "|_|",
 		V = "\\/",

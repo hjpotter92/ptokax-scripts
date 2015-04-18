@@ -43,7 +43,7 @@ UserConnected = function (tUser)
 	end
 end
 
-UserDisConnected = function (tUser)
+UserDisconnected = function (tUser)
 	key = isthere_key(tUser.sNick,subbed)
 	while key do
 		table.remove( subbed, key)
@@ -52,4 +52,4 @@ UserDisConnected = function (tUser)
 end
 
 RegConnected, OpConnected = UserConnected, UserConnected
-RegDisConnected, OpDisConnected = UserDisConnected, UserDisConnected
+RegDisconnected, OpDisconnected = UserDisconnected, UserDisconnected
