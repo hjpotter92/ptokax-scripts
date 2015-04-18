@@ -351,7 +351,7 @@ CustomCommands = {
 		if not check(user, 3, tokens, 3, 3, true) then return false end
 		lunarised[tokens[3]:lower()] = true
 		SendToRoom( bot, user.sNick.." lunarised "..tokens[3].." .", "#[Hub-Feed]", 3 )
-		return true
+		return false
 	end,
 	unlunarise = function( user, tokens )
 		if not user then return 4, "!unlunarise <nick>", "Unlunarise a lunarised user." end
@@ -359,10 +359,10 @@ CustomCommands = {
 		if isthere( tokens[3], lunarised ) then
 			lunarised[tokens[3]:lower()] = nil
 			SendToRoom( bot, user.sNick.." unlunarised "..tokens[3].." .", "#[Hub-Feed]", 3 )
-			return true
+			return false
 		else
 			notify( user, "Sorry, the user was not lunarised." )
-			return true
+			return false
 		end
 	end,
 	custhelp = function( user, tokens )
