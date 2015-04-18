@@ -15,7 +15,7 @@ nickc = {}
 falone = {}
 muted = {}
 blocked = {}
-lunarized = {}
+lunarised = {}
 dofile( path.."texts/blocks.txt" )
 desu, san, chan, inPM = false, false, false, false
 local temp = {					 -- built in commands ,bypass these commands if typed in mainchat
@@ -64,7 +64,7 @@ local tGarble = {
 	X = "}{",
 	Y = "`/",
 	Z = "2",
-}
+}	-- if & is present in tGarble, use gsub( '&', '&amp;' ) for GarbleMessage
 PtokaxCommands = {}
 for k,v in ipairs(temp) do
 	PtokaxCommands[v] = true

@@ -22,8 +22,8 @@ modifiers = function( user, data )
 	if isthere( user.sNick, nickc ) then
 		nick = nickc[user.sNick]
 	end
-	if isthere( user.sNick:lower(), lunarized ) then
-		msg = GarbleMessage( msg ):gsub( '&', '&amp;' ):gsub( '$', '&#36;' ):gsub( '|', '&#124;' )
+	if isthere( user.sNick:lower(), lunarised ) then
+		msg = GarbleMessage( msg ):gsub( '$', '&#36;' ):gsub( '|', '&#124;' )
 	end
 	if desu then
 		msg = msg.." desu"

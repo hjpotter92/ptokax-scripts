@@ -25,7 +25,7 @@ function isHigherRanked( tUser, tVictim )
 	local userprofile = tUser.iProfile
 	local victimprofile = tVictim.iProfile
 	if victimprofile == -1 and userprofile ~= -1  then return true end
-	if userprofile < victimprofile then return true end
+	if ( userprofile < victimprofile or tUser.sNick == tVictim.sNick ) then return true end
 	return false
 end
 
@@ -349,15 +349,15 @@ CustomCommands = {
 	lunarise = function( user, tokens )
 		if not user then return 3, "!lunarise <nick>", "Lunarise a user." end
 		if not check(user, 3, tokens, 3, 3, true) then return false end
-		lunarized[tokens[3]:lower()] = true
+		lunarised[tokens[3]:lower()] = true
 		SendToRoom( bot, user.sNick.." lunarised "..tokens[3].." .", "#[Hub-Feed]", 3 )
 		return true
 	end,
 	unlunarise = function( user, tokens )
 		if not user then return 4, "!unlunarise <nick>", "Unlunarise a lunarised user." end
 		if not check(user, 4, tokens, 3, 3, true) then return false end
-		if isthere( tokens[3], lunarized ) then
-			lunarized[tokens[3]:lower()] = nil
+		if isthere( tokens[3], lunarised ) then
+			lunarised[tokens[3]:lower()] = nil
 			SendToRoom( bot, user.sNick.." unlunarised "..tokens[3].." .", "#[Hub-Feed]", 3 )
 			return true
 		else
