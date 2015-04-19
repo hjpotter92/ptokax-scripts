@@ -47,7 +47,7 @@ UserDisconnected = function (tUser)
 	key = isthere_key(tUser.sNick,subbed)
 	while key do
 		table.remove( subbed, key)
-		key = isthere_key(user.sNick,subbed)
+		key = isthere_key(tUser.sNick,subbed)
 	end
 end
 
