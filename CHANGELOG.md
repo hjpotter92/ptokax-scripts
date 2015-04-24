@@ -1,5 +1,6 @@
 2015-04-19
 ----------
+
 - Add `lunarise` and `unlunarise` custom commands, which display messages in leet.
 - Fix `RegDisconnected`, `OpDisconnected` and `UserDisconnected` in `external/metabolism/expel.lua`.
 - Allowed profiles can lunarise themselves.
