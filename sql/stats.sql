@@ -35,6 +35,25 @@ CREATE TABLE IF NOT EXISTS `hubtopics` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Historical archive of all hub topics';
 
+-- Dumping structure for table stats.options
+CREATE TABLE IF NOT EXISTS `options` (
+  `option_id` tinyint(4) unsigned NOT NULL,
+  `poll_id` mediumint(8) unsigned NOT NULL,
+  `option` tinytext NOT NULL,
+  UNIQUE KEY `option_id_poll_id` (`option_id`,`poll_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Storing poll options/choices';
+
+-- Dumping structure for table stats.questions
+CREATE TABLE IF NOT EXISTS `questions` (
+  `poll_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `deleted` bit(1) NOT NULL DEFAULT b'0',
+  `question` tinytext NOT NULL,
+  `nick` varchar(32) NOT NULL,
+  `dated` datetime NOT NULL,
+  PRIMARY KEY (`poll_id`),
+  KEY `deleted` (`deleted`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Table to store poll questions/titles';
+
 -- Dumping structure for table stats.scores
 CREATE TABLE IF NOT EXISTS `scores` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -59,6 +78,15 @@ CREATE TABLE IF NOT EXISTS `toks` (
   `allowance` float unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping structure for table stats.votes
+CREATE TABLE IF NOT EXISTS `votes` (
+  `poll_id` mediumint(8) unsigned NOT NULL,
+  `option_id` tinyint(4) unsigned NOT NULL,
+  `nick` varchar(32) NOT NULL,
+  `dated` datetime NOT NULL,
+  UNIQUE KEY `poll_id_nick` (`poll_id`,`nick`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- Dumping structure for trigger stats.MAXTOKS
