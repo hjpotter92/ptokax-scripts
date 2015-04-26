@@ -69,3 +69,16 @@ DeletePoll = ( function()
 		return "Poll with ID #"..iID.." has been deleted."
 	end
 end )()
+
+Vote = ( function()
+	local sQuery = [[INSERT INTO votes (poll_id, option_id, nick, dated) VALUES( %d, %d, '%s', NOW() )]]
+	return function ( tUser, iPollID, iChoiceID )
+		local sNick = sqlCon:escape( tUser.sNick )
+		local iPollID, iChoiceID = tonumber( iPollID ), tonumber( iPollID )
+		if not ( iPollID and iChoiceID ) then
+			return "The provided argument was not a number."
+		end
+		assert( sqlCon:execute(sQuery:format( iPollID, iChoiceID, sNick )) )
+		return "Your vote has been cast. Thank you!"
+	end
+end )()

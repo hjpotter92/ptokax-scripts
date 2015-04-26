@@ -157,6 +157,12 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 			sReply = AddPoll( tUser, table.concat(tTokens, 2) )
 		elseif tTokens[1] == "remove" then
 			sReply = DeletePoll( tUser, tTokens[2] )
+		elseif tTokens[1] == "vote" then
+			sReply = Vote( tUser, tTokens[2], tTokens[3] )
+		elseif tTokens[1] == "view" then
+			sReply = View( tUser, tTokens[2] )
+		elseif tTokens[1] == "list" then
+			sReply = List( tUser, tTokens[2] )
 		end
 	end
 	if sReply then
