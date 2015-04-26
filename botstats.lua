@@ -98,6 +98,7 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
 	if sCmd == "h" or sCmd == "help" then
 		sReply = sHelp
+
 	elseif sCmd == "see" or sCmd == "score" then
 		local sNick = tTokens[1] or tUser.sNick
 		if not bIsRegUser then
@@ -105,17 +106,20 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = NickStats(sNick)
 		end
+
 	elseif sCmd == "top" then
 		local iLimit=tonumber( tTokens[1] )
 		if not iLimit then
 			iLimit, tTokens[2] = 0, tTokens[1]
 		end
 		if iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		sReply = DailyTop(iLimit, tTokens[2])
+		sReply = DailyTop( iLimit, tTokens[2] )
+
 	elseif sCmd == "topall" then
 		local iLimit=tonumber(tTokens[1])
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
 		sReply = AllTimeTop(iLimit)
+
 	elseif sCmd == "toks" then
 		local sNick = tTokens[1] or tUser.sNick
 		if not bIsRegUser then
@@ -123,16 +127,19 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = NickToks( tUser, sNick )
 		end
+
 	elseif sCmd == "rich" then
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then iLimit = 15 end
 		if iLimit > 100 then iLimit = 100 end
 		sReply = CurrentTopToks( iLimit )
+
 	elseif sCmd == "richest" then
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then iLimit =15 end
 		if iLimit > 100 then iLimit = 100 end
 		sReply = AllTimeTopToks( iLimit )
+
 	elseif sCmd == "gift" then
 		local sToNick, fAmount = tTokens[1], tonumber(tTokens[2]) or 0
 		if sToNick and fAmount then
@@ -140,9 +147,13 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = "Incomplete parameters"
 		end
+
 	elseif sCmd == "transactions" then
 		local sNick = tTokens[1] or tUser.sNick
-		sReply = Transactions(tUser,sNick)
+		sReply = Transactions( tUser, sNick )
+
+	elseif sCmd == "poll" then
+		sReply = AddPoll( tUser, sMessage )
 	end
 	if sReply then
 		Reply( tUser, sReply )
