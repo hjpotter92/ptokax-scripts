@@ -153,7 +153,11 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		sReply = Transactions( tUser, sNick )
 
 	elseif sCmd == "poll" then
-		sReply = AddPoll( tUser, sMessage )
+		if tTokens[1] == "add" then
+			sReply = AddPoll( tUser, table.concat(tTokens, 2) )
+		elseif tTokens[1] == "remove" then
+			sReply = DeletePoll( tUser, tTokens[2] )
+		end
 	end
 	if sReply then
 		Reply( tUser, sReply )

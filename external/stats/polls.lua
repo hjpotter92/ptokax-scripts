@@ -56,3 +56,16 @@ AddPoll = ( function()
 		return "New poll created with poll ID #"..iID
 	end
 end )()
+
+DeletePoll = ( function()
+	local sQuery = [[UPDATE questions SET deleted = 1 WHERE poll_id = %d AND nick = '%s']]
+	local sNotNumber = "The provided argument was not a number."
+	return function ( tUser, sData )
+		local sNick, iID = sqlCon:escape( tUser.sNick ), tonumber( sData )
+		if not iID then
+			return sNotNumber
+		end
+		assert( sqlCon:execute(sQuery:format( iID, sNick )) )
+		return "Poll with ID #"..iID.." has been deleted."
+	end
+end )()
