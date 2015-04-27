@@ -82,3 +82,26 @@ Vote = ( function()
 		return "Your vote has been cast. Thank you!"
 	end
 end )()
+
+List = ( function()
+	local sQuery = [[SELECT poll_id, question, nick, dated
+		FROM questions
+		WHERE deleted = 0
+		ORDER BY poll_id DESC
+		LIMIT %d]]
+	local function Format( tInput )
+		return ("%d. %s (Created by %s on %s)"):format( tInput.poll_id, tInput.question, tInput.nick, tInput.dated )
+	end
+	return function ( tUser, iLimit )
+		local iLimit = tonumber( iLimit ) or 15
+		if iLimit > 35 then iLimit = 35 end
+		if iLimit < 5 then iLimit = 5 end
+		local sqlCur = assert( sqlCon:execute(sQuery:format( iLimit )) )
+		local tResult, tRow = {}, sqlCur:fetch( {}, 'a' )
+		while tRow do
+			table.insert( tResult, 1, Format(tRow) )
+			tRow = sqlCur:fetch( tRow, 'a' )
+		end
+		return ("List with recent %d polls follows:\n\n%s"):format( iLimit, table.concat(tResult, "\n") )
+	end
+end )()
