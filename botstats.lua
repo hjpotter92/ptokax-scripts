@@ -39,6 +39,7 @@ function OnStartup()
 	dofile( tPaths.sExtPath.."stats/chat.lua" )
 	dofile( tPaths.sExtPath.."stats/toks.lua" )
 	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )
+	dofile( tPaths.sExtPath.."stats/polls.lua" )
 
 	tUserStats, tBotStats = {}, {}
 	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )							-- Every 90 seconds
