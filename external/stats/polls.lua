@@ -102,6 +102,43 @@ List = ( function()
 			table.insert( tResult, 1, Format(tRow) )
 			tRow = sqlCur:fetch( tRow, 'a' )
 		end
-		return ("List with recent %d polls follows:\n\n%s"):format( iLimit, table.concat(tResult, "\n") )
+		return ( "List with recent %d polls follows:\n\n%s\n" ):format( iLimit, table.concat(tResult, "\n") )
+	end
+end )()
+
+View = ( function()
+	local tQuery = {
+		sList = [[SELECT o.option_id AS option_id, o.option AS option, COUNT(v.nick) AS total FROM options o LEFT JOIN votes v USING (poll_id) WHERE o.poll_id = %d ORDER BY total DESC, o.option_id ASC]]
+		sQuestion = [[SELECT question, nick, dated FROM questions WHERE poll_id = %d AND deleted = 0]],
+	}
+	local function CopyTable( tInput )
+		local tReturn = {}
+		for Key, Value in pairs( tInput ) do
+			tReturn[ Key ] = Value
+		end
+		return tReturn
+	end
+	local function Format( tInput )
+		return ( "%d. [ %-30s ] (%d) %s" ):format( tRow.option_id, ('='):rep(tRow.total)..'>', tRow.total, tRow.option )
+	end
+	return function ( tUser, iPollID )
+		local iPollID = tonumber( iPollID )
+		if not iPollID then
+			return "The provided argument was not a number."
+		end
+		local sList, sQuestion = tQuery.sList:format( iPollID ), tQuery.sQuestion:format( iPollID )
+		local sqlCur = assert( sqlCon:execute(sQuestion) )
+		local tList, tRow = {}, sqlCur:fetch( {}, 'a' )
+		if not tRow then
+			return "No poll with the given ID exists."
+		end
+		local tQuestion = CopyTable( tRow )
+		sqlCur = assert( sqlCon:execute(sList) )
+		tRow = sqlCur:fetch( tRow, 'a' )
+		repeat
+			table.insert( tList, Format(tRow) )
+			tRow = sqlCur:fetch( tRow, 'a' )
+		until tRow
+		return ( "\n\t%d. %s\n\t\t - by %s (%s)\n\n%s\n" ):format( iPollID, tQuestion.question, tQuestion.nick, tQuestion.dated, table.concat(tList, '\n') )
 	end
 end )()
