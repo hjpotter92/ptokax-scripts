@@ -7,8 +7,8 @@
 
 --]]
 
-package.path = Core.GetPtokaXPath().."scripts/?.lua;"..package.path
-local Connection = require 'dependency.config'
+package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
+local Connection = require 'config'
 local tConfig = {
 	sBotName = "[BOT]Offliner",
 	sHub = SetMan.GetString( 2 ) or "localhost"
@@ -17,7 +17,7 @@ tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
 tConfig.sLatestPage = "http://"..tConfig.sHub.."/latest/"
 
 function OnError( sError )
-	Core.SendPmToNick( "hjpotter92", "lol", "OFF: "..sError )
+	Core.SendToOpChat( sError )
 end
 
 _G.tFunction = {

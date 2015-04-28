@@ -8,15 +8,15 @@
 --]]
 
 package.path = Core.GetPtokaXPath().."scripts/dependency/?.lua;"..package.path
-local Connection = require 'config'
+local Connection = require "config", require "functions"
 local tConfig = {
 	sBotName = "[BOT]Info",
 	sHub = SetMan.GetString( 2 ) or "localhost",
 }
 tConfig.sHubFAQ = "http://"..tConfig.sHub.."/faq/%s/%04d"
 
-function OnError( sErrorCode )
-	Core.SendPmToNick( "hjpotter92", "lol", "INFO: "..sErrorCode )
+function OnError( sError )
+	Core.SendToOpChat( sError )
 end
 
 _G.tFunction = {
@@ -30,17 +30,6 @@ _G.tFunction = {
 			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
 		end
 		return tFunction.CheckCategory()
-	end,
-
-	Explode = function( sData )
-		if not sData then
-			return {}
-		end
-		local tReturn = {}
-		string.gsub( sData, "(%S+)", function( sGrab )
-			table.insert( tReturn, sGrab )
-		end )
-		return tReturn
 	end,
 
 	Report = function( sErrorCode, iErrorNumber )
