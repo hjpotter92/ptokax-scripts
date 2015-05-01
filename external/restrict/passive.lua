@@ -17,7 +17,9 @@ function RestrictUser( sBotName, Error )
 			Core.SendToUser( tUser, sError )
 			BanMan.TempBan( tUser, iBanTime, sError, sBotName, true )
 			Core.Disconnect( tUser )
+			return true
 		end
+		return false
 	end
 end
 

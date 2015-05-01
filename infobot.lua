@@ -194,7 +194,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report('gen', 2) )
 			return false
 		end
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if tFunction.CheckCategory( tBreak[1] ) then
 			tInsertData.sCtg = tBreak[1]:lower()
 		else
@@ -215,7 +215,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "asug" or sCommand == "asg" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if tFunction.CheckCategory( tBreak[1] ) then
 			tInsertData.sCtg = tBreak[1]:lower()
 		else
@@ -286,7 +286,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report('gen', 2) )
 			return false
 		end
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		local _, sError = tFunction.CheckBnS( string.lower(tBreak[1]) )
 		if _ then
 			tInsertData.sType = _
@@ -308,7 +308,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "addreply" or sCommand == "amsg" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -330,7 +330,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "fill" or sCommand == "freq" then
-		local tBreak, sReply = tFunction.Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\n"
+		local tBreak, sReply = Explode( sData ), "You filled the request \n\tID#%d. [%s] - %s (Added by %s)\n\n"
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -352,7 +352,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif tProfiles.AllowMods[tUser.iProfile] and ( sCommand == "close" or sCommand == "creq" ) then
-		local tBreak, sReply = tFunction.Explode( sData ), "You closed the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
+		local tBreak, sReply = Explode( sData ), "You closed the request \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -373,7 +373,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "switch" then
-		local tBreak, sReply = tFunction.Explode( sData ), "You switched the status of thread \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
+		local tBreak, sReply = Explode( sData ), "You switched the status of thread \n\tID#%d. [%s] - %s (Added by %s)\n\nThe requesting user will be notified with message ID#%d when they connect."
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -407,7 +407,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		end
 
 	elseif sCommand == "delreq" or sCommand == "dr" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -428,7 +428,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "delsug" or sCommand == "dsg" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -450,7 +450,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "delnws" or sCommand == "dn" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 		end
@@ -471,7 +471,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "delbns" or sCommand == "dbsell" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false
@@ -492,7 +492,7 @@ function ExecuteCommand( tUser, sCommand, sData )
 		return true
 
 	elseif sCommand == "delmsg" or sCommand == "dmsg" then
-		local tBreak = tFunction.Explode( sData )
+		local tBreak = Explode( sData )
 		if not tonumber( tBreak[1], 10 ) then
 			Core.SendPmToUser( tUser, tCfg.sBotName, tFunction.Report("gen", 5) )
 			return false

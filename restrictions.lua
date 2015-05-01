@@ -15,7 +15,10 @@ function OnStartup()
 		sHubAddress = SetMan.GetString( 2 ) or "localhost",
 		sProtocol = "http://",
 	}
-	tList = {
+	tFlags, tList = {
+		bChat = true,
+		bShare = true,
+	}, {
 		"chat",
 		"share",
 		"nicks",
@@ -33,7 +36,8 @@ function OnStartup()
 end
 
 function ChatArrival( tUser, sMessage )
-	return tList.chat( tUser, sMessage )
+	local sCmd, sData = sMessage:match "%b<> [-+/*?#](%a+) (%a+)|"
+	return ExecuteCommand( tUser, sCmd, sData ) and tList.chat( tUser, sMessage, tFlags.bChat )
 end
 
 function UserConnected( tUser )
@@ -42,8 +46,37 @@ function UserConnected( tUser )
 end
 
 function SearchArrival( tUser, sQuery )
-	return tList.share( tUser, sQuery ) or tList.search( tUser, sQuery )
+	return tList.passive( tUser ) or tList.share( tUser, sQuery, tFlags.bShare ) or tList.search( tUser, sQuery )
 end
 
 RegConnected, OpConnected = UserConnected, UserConnected
 ConnectToMeArrival, MultiConnectToMeArrival, RevConnectToMeArrival = SearchArrival, SearchArrival, SearchArrival
+
+ExecuteCommand = ( function()
+	local sReply = ( "<%s> { %%s } status updated to: %%s" ):format( SetMan.GetString(21) )
+	return function ( tUser, sCmd, sState )
+		if tUser.iProfile == -1 then return tFlags.bChat end
+		if not ProfMan.GetProfilePermission( tUser.iProfile, 0 ) then return false end
+		if not ( sCmd and sState ) then return false end
+		local sCmd, sState, bState = sCmd:lower(), sState:lower()
+		if sCmd == "mainchat" then
+			if sState == "on" then
+				tFlags.bChat = false
+			elseif sState == "off" then
+				tFlags.bChat = true
+			end
+			bState = tFlags.bChat
+		elseif sCmd == "minshare" then
+			if sState == "on" then
+				tFlags.bShare = true
+			elseif sState == "off" then
+				tFlags.bShare = false
+			end
+			bState = tFlags.bShare
+		else
+			return false
+		end
+		Core.SendToUser( tUser, sReply:format(sCmd:upper(), bState) )
+		return false
+	end
+end )()
