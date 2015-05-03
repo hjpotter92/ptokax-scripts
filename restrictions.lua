@@ -37,7 +37,11 @@ end
 
 function ChatArrival( tUser, sMessage )
 	local sCmd, sData = sMessage:match "%b<> [-+/*?#](%a+) (%a+)|"
-	return ExecuteCommand( tUser, sCmd, sData ) and tList.chat( tUser, sMessage, tFlags.bChat )
+	if ExecuteCommand( tUser, sCmd, sData ) then
+		return true
+	else
+		return tList.chat( tUser, sMessage, tFlags.bChat )
+	end
 end
 
 function UserConnected( tUser )
@@ -55,7 +59,6 @@ ConnectToMeArrival, MultiConnectToMeArrival, RevConnectToMeArrival = SearchArriv
 ExecuteCommand = ( function()
 	local sReply = ( "<%s> { %%s } status updated to: %%s" ):format( SetMan.GetString(21) )
 	return function ( tUser, sCmd, sState )
-		if tUser.iProfile == -1 then return tFlags.bChat end
 		if not ProfMan.GetProfilePermission( tUser.iProfile, 0 ) then return false end
 		if not ( sCmd and sState ) then return false end
 		local sCmd, sState, bState = sCmd:lower(), sState:lower()
@@ -76,7 +79,7 @@ ExecuteCommand = ( function()
 		else
 			return false
 		end
-		Core.SendToUser( tUser, sReply:format(sCmd:upper(), bState) )
-		return false
+		Core.SendToUser( tUser, sReply:format(sCmd:upper(), tostring( bState )) )
+		return true
 	end
 end )()

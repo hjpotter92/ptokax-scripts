@@ -1,3 +1,10 @@
+2015-05-03
+----------
+
+- Operators can enable/disable mainchat for unregistered users by using `!mainchat on/off`.
+- Errors are sent to `OpChat` instead of PM to **'`hjpotter92`'**.
+- Operators can set the minimum share requirement flag on/off with `!minshare on/off`.
+
 2015-04-19
 ----------
 
