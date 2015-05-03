@@ -108,7 +108,7 @@ end )()
 
 View = ( function()
 	local tQuery = {
-		sList = [[SELECT o.option_id AS option_id, o.option AS option, COUNT(v.nick) AS total FROM options o LEFT JOIN votes v USING (poll_id) WHERE o.poll_id = %d ORDER BY total DESC, o.option_id ASC]]
+		sList = [[SELECT o.option_id AS option_id, o.option AS option, COUNT(v.nick) AS total FROM options o LEFT JOIN votes v USING (poll_id) WHERE o.poll_id = %d ORDER BY total DESC, o.option_id ASC]],
 		sQuestion = [[SELECT question, nick, dated FROM questions WHERE poll_id = %d AND deleted = 0]],
 	}
 	local function CopyTable( tInput )

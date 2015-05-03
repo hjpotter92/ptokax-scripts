@@ -79,9 +79,9 @@ function ChatArrival( tUser, sMessage )
 end
 
 function ToArrival( tUser, sMessage )
-	local sMessage = sMessage:gsub( "|", "" )
+	local sMessage = sMessage:sub( 1, -2 )
 	local sTo = sMessage:match "$To: (%S+)"
-	local bIsRegUser, bIsBot = (tUser.iProfile ~= -1), VerifyBots( sTo )
+	local bIsRegUser, bIsBot = ( tUser.iProfile ~= -1 ), VerifyBots( sTo )
 	if bIsRegUser then
 		IncreasePMCount( tUser )
 	end
@@ -113,17 +113,17 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		end
 
 	elseif sCmd == "top" then
-		local iLimit=tonumber( tTokens[1] )
+		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then
-			iLimit, tTokens[2] = 0, tTokens[1]
+			iLimit, tTokens[2] = tonumber( tTokens[2] ) or 0, tTokens[1]
 		end
 		if iLimit < 3 or iLimit > 100 then iLimit = 10 end
 		sReply = DailyTop( iLimit, tTokens[2] )
 
 	elseif sCmd == "topall" then
-		local iLimit=tonumber(tTokens[1])
+		local iLimit = tonumber( tTokens[1] )
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		sReply = AllTimeTop(iLimit)
+		sReply = AllTimeTop( iLimit )
 
 	elseif sCmd == "toks" then
 		local sNick = tTokens[1] or tUser.sNick
