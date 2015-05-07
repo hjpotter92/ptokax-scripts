@@ -14,10 +14,10 @@ function OnStartup()
 			sDescription = "Statistics collection and fetching tasks.",
 			sEmail = "do-not@mail.me",
 		},
-		sPath = Core.GetPtokaXPath().."scripts/",
-		sFuncFile = "functions.lua",
 		sHelpFile = "statsHelp.txt",
 		sHubBot = SetMan.GetString(21),
+		sPath = Core.GetPtokaXPath().."scripts/",
+		sPollHelp = "pollHelp.txt",
 	}
 	tPaths = {
 		sTxtPath = tConfig.sPath.."texts/",
@@ -26,7 +26,7 @@ function OnStartup()
 	}
 	package.path = tPaths.sDepPath.."?.lua;"..package.path
 	local Connection = require 'config'
-	tToksConfig = {
+	tHelp, tToksConfig = {}, {
 		iMinShareLimit = 64,
 		fInflationConstant=0.99,
 		fRegUserAllowanceFactor=0.005,
@@ -35,10 +35,11 @@ function OnStartup()
 		fOpAllowance=800,
 	}
 
-	dofile( tPaths.sDepPath..tConfig.sFuncFile )
+	require "dependency.functions"
 	dofile( tPaths.sExtPath.."stats/chat.lua" )
 	dofile( tPaths.sExtPath.."stats/toks.lua" )
 	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )
+	dofile( tPaths.sExtPath.."stats/polls.lua" )
 
 	tUserStats, tBotStats = {}, {}
 	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )							-- Every 90 seconds
@@ -46,8 +47,12 @@ function OnStartup()
 	tConfig.iTimerID3 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "Inflation" )					-- Once every day
 	tConfig.iTimerID4 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "GrantAllowance" )		-- Once every day
 	local fHelp = io.open( tPaths.sTxtPath..tConfig.sHelpFile, "r" )
-	sHelp = fHelp:read( "*a" )
+	tHelp.sHelp = fHelp:read( "*a" )
 	fHelp:close()
+	local fPollHelp = io.open( tPaths.sTxtPath..tConfig.sPollHelp, "r" )
+	tHelp.sPollHelp = fPollHelp:read "*a"
+	fPollHelp:close()
+	tHelp.sHelp = tHelp.sHelp..tHelp.sPollHelp
 
 	Core.RegBot( tConfig.tBot.sName, tConfig.tBot.sDescription, tConfig.tBot.sEmail, true )
 
@@ -74,9 +79,9 @@ function ChatArrival( tUser, sMessage )
 end
 
 function ToArrival( tUser, sMessage )
-	local sMessage = sMessage:gsub( "|", "" )
+	local sMessage = sMessage:sub( 1, -2 )
 	local sTo = sMessage:match "$To: (%S+)"
-	local bIsRegUser, bIsBot = (tUser.iProfile ~= -1), VerifyBots( sTo )
+	local bIsRegUser, bIsBot = ( tUser.iProfile ~= -1 ), VerifyBots( sTo )
 	if bIsRegUser then
 		IncreasePMCount( tUser )
 	end
@@ -97,7 +102,8 @@ end
 function ExecuteCommand( tUser, sCmd, sMessage )
 	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
 	if sCmd == "h" or sCmd == "help" then
-		sReply = sHelp
+		sReply = tHelp.sHelp
+
 	elseif sCmd == "see" or sCmd == "score" then
 		local sNick = tTokens[1] or tUser.sNick
 		if not bIsRegUser then
@@ -105,17 +111,20 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = NickStats(sNick)
 		end
+
 	elseif sCmd == "top" then
-		local iLimit=tonumber( tTokens[1] )
+		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then
-			iLimit, tTokens[2] = 0, tTokens[1]
+			iLimit, tTokens[2] = tonumber( tTokens[2] ) or 0, tTokens[1]
 		end
 		if iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		sReply = DailyTop(iLimit, tTokens[2])
+		sReply = DailyTop( iLimit, tTokens[2] )
+
 	elseif sCmd == "topall" then
-		local iLimit=tonumber(tTokens[1])
+		local iLimit = tonumber( tTokens[1] )
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
-		sReply = AllTimeTop(iLimit)
+		sReply = AllTimeTop( iLimit )
+
 	elseif sCmd == "toks" then
 		local sNick = tTokens[1] or tUser.sNick
 		if not bIsRegUser then
@@ -123,16 +132,19 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = NickToks( tUser, sNick )
 		end
+
 	elseif sCmd == "rich" then
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then iLimit = 15 end
 		if iLimit > 100 then iLimit = 100 end
 		sReply = CurrentTopToks( iLimit )
+
 	elseif sCmd == "richest" then
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then iLimit =15 end
 		if iLimit > 100 then iLimit = 100 end
 		sReply = AllTimeTopToks( iLimit )
+
 	elseif sCmd == "gift" then
 		local sToNick, fAmount = tTokens[1], tonumber(tTokens[2]) or 0
 		if sToNick and fAmount then
@@ -140,9 +152,25 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		else
 			sReply = "Incomplete parameters"
 		end
+
 	elseif sCmd == "transactions" then
 		local sNick = tTokens[1] or tUser.sNick
-		sReply = Transactions(tUser,sNick)
+		sReply = Transactions( tUser, sNick )
+
+	elseif sCmd == "poll" then
+		if tTokens[1] == "add" then
+			sReply = AddPoll( tUser, table.concat(tTokens, 2) )
+		elseif tTokens[1] == "remove" then
+			sReply = DeletePoll( tUser, tTokens[2] )
+		elseif tTokens[1] == "vote" then
+			sReply = Vote( tUser, tTokens[2], tTokens[3] )
+		elseif tTokens[1] == "view" then
+			sReply = View( tUser, tTokens[2] )
+		elseif tTokens[1] == "list" then
+			sReply = List( tUser, tTokens[2] )
+		elseif tTokens[1] == "help" then
+			sReply = tHelp.sPollHelp
+		end
 	end
 	if sReply then
 		Reply( tUser, sReply )
