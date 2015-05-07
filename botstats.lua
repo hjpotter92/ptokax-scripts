@@ -35,7 +35,7 @@ function OnStartup()
 		fOpAllowance=800,
 	}
 
-	require "dependency.functions"
+	require "functions"
 	dofile( tPaths.sExtPath.."stats/chat.lua" )
 	dofile( tPaths.sExtPath.."stats/toks.lua" )
 	dofile( tPaths.sExtPath.."stats/hubtopic.lua" )

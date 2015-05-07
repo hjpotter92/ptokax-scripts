@@ -25,12 +25,12 @@ AddPoll = ( function()
 		local tChoices = {}
 		local iStart, iEnd, iTemp = sInput:find "%[%]"
 		while iEnd do
-			iStart, iTemp = sData:find( "%[%]", iEnd )
+			iStart, iTemp = sInput:find( "%[%]", iEnd )
 			if not iStart then break end
-			Insert( tChoices, sData, iEnd + 1, iStart - 1 )
+			Insert( tChoices, sInput, iEnd + 1, iStart - 1 )
 			iEnd = iTemp
 		end
-		Insert( tChoices, sData, iEnd + 1 )
+		Insert( tChoices, sInput, iEnd + 1 )
 		return tChoices
 	end
 	return function ( tUser, sData )

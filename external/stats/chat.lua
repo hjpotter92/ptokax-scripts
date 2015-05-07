@@ -51,7 +51,7 @@ local function List( sqlCur )
 	return tTemp
 end
 
-function IncreaseBotCount(sBot,bIsRegUser)
+function IncreaseBotCount( sBot, bIsRegUser )
 	local sDate = os.date( "%Y-%m-%d" )
 	if type( tBotStats[sDate] ) ~= "table" then
 		tBotStats[sDate] = {}
@@ -64,7 +64,7 @@ function IncreaseBotCount(sBot,bIsRegUser)
 	end
 end
 
-function IncreasePMCount(tUser)
+function IncreasePMCount( tUser )
 	local sDate = os.date( "%Y-%m-%d" )
 	if type( tUserStats[sDate] ) ~= "table" then
 		tUserStats[sDate] = {}
@@ -73,7 +73,7 @@ function IncreasePMCount(tUser)
 	tUserStats[sDate][tUser.sNick].msg = ( tUserStats[sDate][tUser.sNick].msg or 0 ) + 1
 end
 
-function IncreaseChatCount(tUser)
+function IncreaseChatCount( tUser )
 	local sDate = os.date( "%Y-%m-%d" )
 	if type( tUserStats[sDate] ) ~= "table" then
 		tUserStats[sDate] = {}
