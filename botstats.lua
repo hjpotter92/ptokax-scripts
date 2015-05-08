@@ -146,7 +146,7 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		sReply = AllTimeTopToks( iLimit )
 
 	elseif sCmd == "gift" then
-		local sToNick, fAmount = tTokens[1], tonumber(tTokens[2]) or 0
+		local sToNick, fAmount = tTokens[1], tonumber( tTokens[2] ) or 0
 		if sToNick and fAmount then
 			sReply = gift( tUser.sNick, sToNick, fAmount, sData )
 		else
@@ -159,7 +159,7 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 
 	elseif sCmd == "poll" then
 		if tTokens[1] == "add" then
-			sReply = AddPoll( tUser, table.concat(tTokens, 2) )
+			sReply = AddPoll( tUser, table.concat(tTokens, ' ', 2) )
 		elseif tTokens[1] == "remove" then
 			sReply = DeletePoll( tUser, tTokens[2] )
 		elseif tTokens[1] == "vote" then
