@@ -100,7 +100,7 @@ function ToArrival( tUser, sMessage )
 end
 
 function ExecuteCommand( tUser, sCmd, sMessage )
-	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, (tUser.iProfile ~= -1)
+	local tTokens, sReply, bIsRegUser = Explode( sMessage ), false, ( tUser.iProfile ~= -1 )
 	if sCmd == "h" or sCmd == "help" then
 		sReply = tHelp.sHelp
 
@@ -191,4 +191,8 @@ function OnExit()
 	TmrMan.RemoveTimer( tConfig.iTimerID4 )
 	sqlCon:close()
 	sqlEnv:close()
+end
+
+function OnError( sMessage )
+	Core.SendToOpChat( sMessage )
 end

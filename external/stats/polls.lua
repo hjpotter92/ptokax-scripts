@@ -13,7 +13,7 @@ AddPoll = ( function()
 		sFewChoices = "A poll should have at least 2 valid options. At most 10 choices are allowed.",
 	}, {
 		sQuestion = [[INSERT INTO questions (question, nick, dated) VALUES ( '%s', '%s', NOW() )]],
-		sChoice = [[INSERT INTO options (option_id, poll_id, option) VALUES ( %d, %d, '%s' )]],
+		sChoice = [[INSERT INTO options (option_id, poll_id, `option`) VALUES ( %d, %d, '%s' )]],
 	}
 	local function Insert( tInput, sInput, iBegin, iEnd )
 		if not iEnd then iEnd = #sInput end
@@ -35,7 +35,7 @@ AddPoll = ( function()
 	end
 	return function ( tUser, sData )
 		local sNick = sqlCon:escape( tUser.sNick )
-		local sTitle, sData = sData:match "^(.-)(%[%].*)"
+		local sTitle, sData = sData:match "^%a+%s+(.-)(%[%].*)"
 		if not ( sTitle and sData ) then
 			return tErrors.sNoTitle
 		end
@@ -108,7 +108,7 @@ end )()
 
 View = ( function()
 	local tQuery = {
-		sList = [[SELECT o.option_id AS option_id, o.option AS option, COUNT(v.nick) AS total FROM options o LEFT JOIN votes v USING (poll_id) WHERE o.poll_id = %d ORDER BY total DESC, o.option_id ASC]],
+		sList = [[SELECT o.option_id AS option_id, o.`option` AS `option`, COUNT(v.nick) AS total FROM options o LEFT JOIN votes v USING (poll_id) WHERE o.poll_id = %d ORDER BY total DESC, o.option_id ASC]],
 		sQuestion = [[SELECT question, nick, dated FROM questions WHERE poll_id = %d AND deleted = 0]],
 	}
 	local function CopyTable( tInput )
@@ -119,7 +119,7 @@ View = ( function()
 		return tReturn
 	end
 	local function Format( tInput )
-		return ( "%d. [ %-30s ] (%d) %s" ):format( tRow.option_id, ('='):rep(tRow.total)..'>', tRow.total, tRow.option )
+		return ( "%d. [ %-30s ] (%d) %s" ):format( tInput.option_id, ('='):rep(tInput.total)..'>', tInput.total, tInput.option )
 	end
 	return function ( tUser, iPollID )
 		local iPollID = tonumber( iPollID )
