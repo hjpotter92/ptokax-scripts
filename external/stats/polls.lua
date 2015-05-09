@@ -33,13 +33,17 @@ AddPoll = ( function()
 		Insert( tChoices, sInput, iEnd + 1 )
 		return tChoices
 	end
-	return function ( tUser, sData )
-		local sNick = sqlCon:escape( tUser.sNick )
-		local sTitle, sData = sData:match "^%a+%s+(.-)(%[%].*)"
-		if not ( sTitle and sData ) then
+	local function ParseTitle( sInput )
+		local iStart, iEnd = sInput:find "%[%]"
+		if not iStart or iStart == 1 then return end
+		return sInput:sub( 1, iStart ), FindChoices( sInput:sub(iStart) )
+	end
+	return function ( sNick, sData )
+		local sNick = sqlCon:escape( sNick )
+		local sTitle, tChoices = ParseTitle( sData )
+		if not sTitle then
 			return tErrors.sNoTitle
 		end
-		local tChoices = FindChoices( sData )
 		if #tChoices < 2 or #tChoices > 10 then
 			return tErrors.sFewChoices
 		end
@@ -60,8 +64,8 @@ end )()
 DeletePoll = ( function()
 	local sQuery = [[UPDATE questions SET deleted = 1 WHERE poll_id = %d AND nick = '%s']]
 	local sNotNumber = "The provided argument was not a number."
-	return function ( tUser, sData )
-		local sNick, iID = sqlCon:escape( tUser.sNick ), tonumber( sData )
+	return function ( sNick, sData )
+		local sNick, iID = sqlCon:escape( sNick ), tonumber( sData )
 		if not iID then
 			return sNotNumber
 		end
@@ -72,9 +76,9 @@ end )()
 
 Vote = ( function()
 	local sQuery = [[INSERT INTO votes (poll_id, option_id, nick, dated) VALUES( %d, %d, '%s', NOW() )]]
-	return function ( tUser, iPollID, iChoiceID )
-		local sNick = sqlCon:escape( tUser.sNick )
-		local iPollID, iChoiceID = tonumber( iPollID ), tonumber( iPollID )
+	return function ( sNick, iPollID, iChoiceID )
+		local sNick = sqlCon:escape( sNick )
+		local iPollID, iChoiceID = tonumber( iPollID ), tonumber( iChoiceID )
 		if not ( iPollID and iChoiceID ) then
 			return "The provided argument was not a number."
 		end
@@ -84,15 +88,23 @@ Vote = ( function()
 end )()
 
 List = ( function()
-	local sQuery = [[SELECT poll_id, question, nick, dated
-		FROM questions
+	local sQuery = [[SELECT
+			q.poll_id AS poll_id,
+			q.question AS question,
+			q.nick AS nick,
+			q.dated AS dated,
+			COUNT(v.poll_id) AS total
+		FROM questions q
+		LEFT JOIN votes v
+			USING (poll_id)
 		WHERE deleted = 0
-		ORDER BY poll_id DESC
+		GROUP BY q.poll_id
+		ORDER BY q.poll_id DESC
 		LIMIT %d]]
 	local function Format( tInput )
-		return ("%d. %s (Created by %s on %s)"):format( tInput.poll_id, tInput.question, tInput.nick, tInput.dated )
+		return ("%03d. [%03d] %s (Created by %s on %s)"):format( tInput.poll_id, tInput.total, tInput.question, tInput.nick, tInput.dated )
 	end
-	return function ( tUser, iLimit )
+	return function ( iLimit )
 		local iLimit = tonumber( iLimit ) or 15
 		if iLimit > 35 then iLimit = 35 end
 		if iLimit < 5 then iLimit = 5 end
@@ -114,9 +126,10 @@ View = ( function()
 			COUNT(v.nick) AS total
 		FROM options o
 		LEFT JOIN votes v
-			USING (poll_id)
-		WHERE o.poll_id = %d
+			ON o.poll_id = v.poll_id
 			AND v.option_id = o.option_id
+		WHERE o.poll_id = %d
+		GROUP BY o.option_id
 		ORDER BY total DESC, o.option_id ASC]],
 		sQuestion = [[SELECT question, nick, dated FROM questions WHERE poll_id = %d AND deleted = 0]],
 	}
@@ -130,7 +143,7 @@ View = ( function()
 	local function Format( tInput )
 		return ( "%d. [ %-30s ] (%d) %s" ):format( tInput.option_id, ('='):rep(tInput.total)..'>', tInput.total, tInput.option )
 	end
-	return function ( tUser, iPollID )
+	return function ( iPollID )
 		local iPollID = tonumber( iPollID )
 		if not iPollID then
 			return "The provided argument was not a number."
@@ -144,10 +157,10 @@ View = ( function()
 		local tQuestion = CopyTable( tRow )
 		sqlCur = assert( sqlCon:execute(sList) )
 		tRow = sqlCur:fetch( {}, 'a' )
-		repeat
+		while tRow do
 			table.insert( tList, Format(tRow) )
 			tRow = sqlCur:fetch( tRow, 'a' )
-		until tRow
+		end
 		return ( "\n\t%d. %s\n\t\t - by %s (%s)\n\n%s\n" ):format( iPollID, tQuestion.question, tQuestion.nick, tQuestion.dated, table.concat(tList, '\n') )
 	end
 end )()

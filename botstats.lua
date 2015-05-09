@@ -42,12 +42,12 @@ function OnStartup()
 	dofile( tPaths.sExtPath.."stats/polls.lua" )
 
 	tUserStats, tBotStats = {}, {}
-	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )							-- Every 90 seconds
+	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )						-- Every 90 seconds
 	tConfig.iTimerID2 = TmrMan.AddTimer( 5 * 60 * 10^3, "UpdateToks" )					-- Every 5 minutes
 	tConfig.iTimerID3 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "Inflation" )					-- Once every day
 	tConfig.iTimerID4 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "GrantAllowance" )		-- Once every day
 	local fHelp = io.open( tPaths.sTxtPath..tConfig.sHelpFile, "r" )
-	tHelp.sHelp = fHelp:read( "*a" )
+	tHelp.sHelp = fHelp:read "*a"
 	fHelp:close()
 	local fPollHelp = io.open( tPaths.sTxtPath..tConfig.sPollHelp, "r" )
 	tHelp.sPollHelp = fPollHelp:read "*a"
@@ -104,14 +104,6 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 	if sCmd == "h" or sCmd == "help" then
 		sReply = tHelp.sHelp
 
-	elseif sCmd == "see" or sCmd == "score" then
-		local sNick = tTokens[1] or tUser.sNick
-		if not bIsRegUser then
-			sReply = "Available only for registered users."
-		else
-			sReply = NickStats(sNick)
-		end
-
 	elseif sCmd == "top" then
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit then
@@ -124,14 +116,6 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		local iLimit = tonumber( tTokens[1] )
 		if not iLimit or iLimit < 3 or iLimit > 100 then iLimit = 10 end
 		sReply = AllTimeTop( iLimit )
-
-	elseif sCmd == "toks" then
-		local sNick = tTokens[1] or tUser.sNick
-		if not bIsRegUser then
-			sReply = "Available only for registered nicks."
-		else
-			sReply = NickToks( tUser, sNick )
-		end
 
 	elseif sCmd == "rich" then
 		local iLimit = tonumber( tTokens[1] )
@@ -156,31 +140,46 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 	elseif sCmd == "transactions" then
 		local sNick = tTokens[1] or tUser.sNick
 		sReply = Transactions( tUser, sNick )
+	end
+
+	if sReply then
+		return Reply( tUser, sReply )
+	end
+
+	if not bIsRegUser then
+		return Reply( tUser, "Available only for registered nicks." )
+	end
+
+	if sCmd == "see" or sCmd == "score" then
+		local sNick = tTokens[1] or tUser.sNick
+		sReply = NickStats( sNick )
+
+	elseif sCmd == "toks" then
+		local sNick = tTokens[1] or tUser.sNick
+		sReply = NickToks( tUser, sNick )
 
 	elseif sCmd == "poll" then
 		if tTokens[1] == "add" then
-			sReply = AddPoll( tUser, table.concat(tTokens, ' ', 2) )
+			sReply = AddPoll( tUser.sNick, table.concat(tTokens, ' ', 2) )
 		elseif tTokens[1] == "remove" then
-			sReply = DeletePoll( tUser, tTokens[2] )
+			sReply = DeletePoll( tUser.sNick, tTokens[2] )
 		elseif tTokens[1] == "vote" then
-			sReply = Vote( tUser, tTokens[2], tTokens[3] )
+			sReply = Vote( tUser.sNick, tTokens[2], tTokens[3] )
 		elseif tTokens[1] == "view" then
-			sReply = View( tUser, tTokens[2] )
+			sReply = View( tTokens[2] )
 		elseif tTokens[1] == "list" then
-			sReply = List( tUser, tTokens[2] )
+			sReply = List( tTokens[2] )
 		elseif tTokens[1] == "help" then
 			sReply = tHelp.sPollHelp
 		end
 	end
-	if sReply then
-		Reply( tUser, sReply )
-		return true
-	end
-	return false
+	return Reply( tUser, sReply )
 end
 
 function Reply( tUser, sMessage )
+	if not sMessage then return false end
 	Core.SendPmToUser( tUser, tConfig.tBot.sName, sMessage )
+	return true
 end
 
 function OnExit()
