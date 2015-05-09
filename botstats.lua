@@ -129,17 +129,20 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		if iLimit > 100 then iLimit = 100 end
 		sReply = AllTimeTopToks( iLimit )
 
-	elseif sCmd == "gift" then
-		local sToNick, fAmount = tTokens[1], tonumber( tTokens[2] ) or 0
-		if sToNick and fAmount then
-			sReply = gift( tUser.sNick, sToNick, fAmount, sData )
-		else
-			sReply = "Incomplete parameters"
-		end
-
 	elseif sCmd == "transactions" then
 		local sNick = tTokens[1] or tUser.sNick
 		sReply = Transactions( tUser, sNick )
+
+	elseif sCmd == "poll" then
+		if tTokens[1] == "vote" then
+			sReply = Vote( tUser.sNick, tTokens[2], tTokens[3] )
+		elseif tTokens[1] == "view" then
+			sReply = View( tTokens[2] )
+		elseif tTokens[1] == "list" then
+			sReply = List( tTokens[2] )
+		elseif tTokens[1] == "help" then
+			sReply = tHelp.sPollHelp
+		end
 	end
 
 	if sReply then
@@ -158,19 +161,19 @@ function ExecuteCommand( tUser, sCmd, sMessage )
 		local sNick = tTokens[1] or tUser.sNick
 		sReply = NickToks( tUser, sNick )
 
+	elseif sCmd == "gift" then
+		local sToNick, fAmount = tTokens[1], tonumber( tTokens[2] ) or 0
+		if sToNick and fAmount then
+			sReply = gift( tUser.sNick, sToNick, fAmount, sData )
+		else
+			sReply = "Incomplete parameters"
+		end
+
 	elseif sCmd == "poll" then
 		if tTokens[1] == "add" then
 			sReply = AddPoll( tUser.sNick, table.concat(tTokens, ' ', 2) )
 		elseif tTokens[1] == "remove" then
 			sReply = DeletePoll( tUser.sNick, tTokens[2] )
-		elseif tTokens[1] == "vote" then
-			sReply = Vote( tUser.sNick, tTokens[2], tTokens[3] )
-		elseif tTokens[1] == "view" then
-			sReply = View( tTokens[2] )
-		elseif tTokens[1] == "list" then
-			sReply = List( tTokens[2] )
-		elseif tTokens[1] == "help" then
-			sReply = tHelp.sPollHelp
 		end
 	end
 	return Reply( tUser, sReply )

@@ -12,8 +12,8 @@ AddPoll = ( function()
 		sNoTitle = "A poll should have a valid title.",
 		sFewChoices = "A poll should have at least 2 valid options. At most 10 choices are allowed.",
 	}, {
-		sQuestion = [[INSERT INTO questions (question, nick, dated) VALUES ( '%s', '%s', NOW() )]],
-		sChoice = [[INSERT INTO options (option_id, poll_id, `option`) VALUES ( %d, %d, '%s' )]],
+		sQuestion = [[INSERT INTO questions (question, nick, dated) VALUES ( TRIM('%s'), '%s', NOW() )]],
+		sChoice = [[INSERT INTO options (option_id, poll_id, `option`) VALUES ( %d, %d, TRIM('%s') )]],
 	}
 	local function Insert( tInput, sInput, iBegin, iEnd )
 		if not iEnd then iEnd = #sInput end
@@ -36,7 +36,7 @@ AddPoll = ( function()
 	local function ParseTitle( sInput )
 		local iStart, iEnd = sInput:find "%[%]"
 		if not iStart or iStart == 1 then return end
-		return sInput:sub( 1, iStart ), FindChoices( sInput:sub(iStart) )
+		return sInput:sub( 1, iStart - 1 ), FindChoices( sInput:sub(iStart) )
 	end
 	return function ( sNick, sData )
 		local sNick = sqlCon:escape( sNick )
@@ -75,14 +75,22 @@ DeletePoll = ( function()
 end )()
 
 Vote = ( function()
-	local sQuery = [[INSERT INTO votes (poll_id, option_id, nick, dated) VALUES( %d, %d, '%s', NOW() )]]
+	local sQuery = [[INSERT INTO votes (poll_id, option_id, nick, dated)
+		SELECT
+			o.poll_id,
+			o.option_id,
+			'%s',
+			NOW()
+		FROM options o
+		WHERE o.poll_id = %d
+			AND o.option_id = %d]]
 	return function ( sNick, iPollID, iChoiceID )
 		local sNick = sqlCon:escape( sNick )
 		local iPollID, iChoiceID = tonumber( iPollID ), tonumber( iChoiceID )
 		if not ( iPollID and iChoiceID ) then
 			return "The provided argument was not a number."
 		end
-		assert( sqlCon:execute(sQuery:format( iPollID, iChoiceID, sNick )) )
+		assert( sqlCon:execute(sQuery:format( sNick, iPollID, iChoiceID )) )
 		return "Your vote has been cast. Thank you!"
 	end
 end )()
@@ -102,7 +110,7 @@ List = ( function()
 		ORDER BY q.poll_id DESC
 		LIMIT %d]]
 	local function Format( tInput )
-		return ("%03d. [%03d] %s (Created by %s on %s)"):format( tInput.poll_id, tInput.total, tInput.question, tInput.nick, tInput.dated )
+		return ( "%03d. [%03d] %s (Created by %s on %s)" ):format( tInput.poll_id, tInput.total, tInput.question, tInput.nick, tInput.dated )
 	end
 	return function ( iLimit )
 		local iLimit = tonumber( iLimit ) or 15
@@ -114,7 +122,7 @@ List = ( function()
 			table.insert( tResult, 1, Format(tRow) )
 			tRow = sqlCur:fetch( tRow, 'a' )
 		end
-		return ( "List with recent %d polls follows:\n\n%s\n" ):format( iLimit, table.concat(tResult, "\n") )
+		return ( "List with recent %02d polls follows:\n\n%s\n" ):format( iLimit, table.concat(tResult, "\n") )
 	end
 end )()
 
@@ -141,7 +149,7 @@ View = ( function()
 		return tReturn
 	end
 	local function Format( tInput )
-		return ( "%d. [ %-30s ] (%d) %s" ):format( tInput.option_id, ('='):rep(tInput.total)..'>', tInput.total, tInput.option )
+		return ( "%02d. [ %-30s ] (%02d) %s" ):format( tInput.option_id, ('='):rep(tInput.total)..'>', tInput.total, tInput.option )
 	end
 	return function ( iPollID )
 		local iPollID = tonumber( iPollID )
@@ -161,6 +169,6 @@ View = ( function()
 			table.insert( tList, Format(tRow) )
 			tRow = sqlCur:fetch( tRow, 'a' )
 		end
-		return ( "\n\t%d. %s\n\t\t - by %s (%s)\n\n%s\n" ):format( iPollID, tQuestion.question, tQuestion.nick, tQuestion.dated, table.concat(tList, '\n') )
+		return ( "\n\t%03d. %s\n\t\t - by %s (%s)\n\n%s\n" ):format( iPollID, tQuestion.question, tQuestion.nick, tQuestion.dated, table.concat(tList, '\n') )
 	end
 end )()
