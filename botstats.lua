@@ -42,10 +42,12 @@ function OnStartup()
 	dofile( tPaths.sExtPath.."stats/polls.lua" )
 
 	tUserStats, tBotStats = {}, {}
-	tConfig.iTimerID1 = TmrMan.AddTimer( 90 * 10^3, "UpdateStats" )						-- Every 90 seconds
-	tConfig.iTimerID2 = TmrMan.AddTimer( 5 * 60 * 10^3, "UpdateToks" )					-- Every 5 minutes
-	tConfig.iTimerID3 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "Inflation" )					-- Once every day
-	tConfig.iTimerID4 = TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "GrantAllowance" )		-- Once every day
+	tConfig.tTimers = {
+		TmrMan.AddTimer( 90 * 10^3, "UpdateStats" ),					-- Every 90 seconds
+		TmrMan.AddTimer( 5 * 60 * 10^3, "UpdateToks" ),					-- Every 5 minutes
+		TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "Inflation" ),				-- Once every day
+		TmrMan.AddTimer( 24 * 60 * 60 * 10^3, "GrantAllowance" ),		-- Once every day
+	}
 	local fHelp = io.open( tPaths.sTxtPath..tConfig.sHelpFile, "r" )
 	tHelp.sHelp = fHelp:read "*a"
 	fHelp:close()
@@ -187,10 +189,9 @@ end
 
 function OnExit()
 	Core.UnregBot( tConfig.tBot.sName )
-	TmrMan.RemoveTimer( tConfig.iTimerID1 )
-	TmrMan.RemoveTimer( tConfig.iTimerID2 )
-	TmrMan.RemoveTimer( tConfig.iTimerID3 )
-	TmrMan.RemoveTimer( tConfig.iTimerID4 )
+	for _, iTimerID in ipairs( tConfig.tTimers ) do
+		TmrMan.RemoveTimer( iTimerID )
+	end
 	sqlCon:close()
 	sqlEnv:close()
 end

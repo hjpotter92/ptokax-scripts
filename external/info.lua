@@ -21,21 +21,29 @@ end
 
 _G.tFunction = {
 	Connect = function()
-		local luasql
-		if not luasql then
-			luasql = require "luasql.mysql"
-		end
-		if not SQLEnv then
+		local luasql = luasql or require "luasql.mysql"
+		if not ( SQLEnv and SQLCon ) then
 			_G.SQLEnv = assert( luasql.mysql() )
 			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
 		end
 		return tFunction.CheckCategory()
 	end,
 
-	Report = function( sErrorCode, iErrorNumber )
-		local sReturn, sErrorCode = "ERROR (%s#%04d): You should check "..tConfig.sHubFAQ.." for more information.", sErrorCode:upper()
-		return sReturn:format( sErrorCode, iErrorNumber, sErrorCode, iErrorNumber )
+	Execute = function( sQuery )
+		local luasql = luasql or require "luasql.mysql"
+		if not ( SQLEnv and SQLCon ) then
+			_G.SQLEnv = assert( luasql.mysql() )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
+		end
+		return assert( SQLCon:execute(sQuery) )
 	end,
+
+	Report = ( function()
+		local sReturn = ( "ERROR (%%s#%%04d): You should check %s for more information." ):format( tConfig.sHubFAQ )
+		return function( sErrorCode, iErrorNumber )
+			return sReturn:format( sErrorCode:upper(), iErrorNumber, sErrorCode:upper(), iErrorNumber )
+		end
+	end )(),
 
 	CheckBnS = function( sInput )
 		local tAvailable = { "buy", "sell", "loan", "hire" }
@@ -48,8 +56,8 @@ _G.tFunction = {
 	end,
 
 	GetCategories = function()
-		local tReturn, sCategoryQuery = {}, [[SELECT `name` FROM `ctgtable`]]
-		local SQLCur = assert( SQLCon:execute(sCategoryQuery) )
+           local tReturn, sCategoryQuery = {}, [[SELECT `name` FROM `ctgtable`]]
+		local SQLCur = tFunction.Execute( sCategoryQuery )
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
 			table.insert( tReturn, tRow.name )
@@ -61,13 +69,14 @@ _G.tFunction = {
 
 	FetchRow = function( sTable, iID )
 		local sFields, sQuery, tReturn = "msg, nick", "SELECT %s FROM `%s` WHERE id = %d LIMIT 1", {}
+
 		if sTable == "requests" or sTable == "suggestions" then
 			sFields = "`ctg`, "..sFields
 		elseif sTable == "buynsell" then
 			sFields = sFields..", CASE `type` WHEN 'B' THEN UPPER('buy') WHEN 'S' THEN UPPER('sell') WHEN 'H' THEN UPPER('hire') WHEN 'L' THEN UPPER('loan') WHEN 'T' THEN UPPER('bought') WHEN 'D' THEN UPPER('sold') END `type`"
 		end
 		sQuery = sQuery:format( sFields, sTable, iID )
-		local SQLCur = assert( SQLCon:execute(sQuery) )
+		local SQLCur = tFunction.Execute( sQuery )
 		tReturn = SQLCur:fetch( {}, "a" )
 		SQLCur:close()
 		return tReturn
@@ -75,7 +84,7 @@ _G.tFunction = {
 
 	FetchReplies = function( iID )
 		local sReturn, tTemporary, sQuery = "", {}, ([[SELECT id, nick, msg, dated FROM replies WHERE bns_id = %d ORDER BY id ASC]]):format( iID )
-		local SQLCur = assert( SQLCon:execute(sQuery) )
+		local SQLCur = tFunction.Execute( sQuery )
 		local tRow = SQLCur:fetch( {}, "a" )
 		if tRow then
 			while tRow do
@@ -86,6 +95,7 @@ _G.tFunction = {
 		else
 			sReturn = ""
 		end
+		SQLCur:close()
 		return sReturn
 	end,
 
@@ -154,7 +164,7 @@ _G.tInfobot = {
 		end
 		if sTable == "suggestions" then
 			sFields = "`ctg`, "..sFields
-			SQLCur = assert( SQLCon:execute(sReadQuery:format( sFields, sTable, iLimit )) )
+			SQLCur = tFunction.Execute( sReadQuery:format( sFields, sTable, iLimit ))
 			local tRow = SQLCur:fetch( {}, "a" )
 			while tRow do
 				table.insert( tTemporary, sEntry:format(tRow.id, ("[%s] - %s"):format(tRow.ctg, tRow.msg), tRow.nick, tRow.dated) )
@@ -164,7 +174,7 @@ _G.tInfobot = {
 		elseif sTable == "requests" then
 			sFields = sFields:gsub( "`msg`", "CASE `filled` WHEN 'Y' THEN CONCAT(`msg`, ' (Filled by ', `filledby`, ' on ', filldate, ')') WHEN 'C' THEN CONCAT(`msg`, ' (Closed by ', `filledby`, ' on ', filldate, ')') WHEN 'N' THEN `msg` END `msg`" )..", `ctg`, CASE `filled` WHEN 'Y' THEN UPPER('filled') WHEN 'N' THEN UPPER('empty') WHEN 'C' THEN UPPER('closed') END `filled`"
 			sReadQuery = sReadQuery:format( sFields, sTable, iLimit )
-			SQLCur = assert( SQLCon:execute(sReadQuery) )
+			SQLCur = tFunction.Execute( sReadQuery )
 			local tRow = SQLCur:fetch( {}, "a" )
 			while tRow do
 				table.insert( tTemporary, sEntry:format(tRow.id, ("[%s] [%s] - %s"):format(tRow.filled, tRow.ctg, tRow.msg), tRow.nick, tRow.dated) )
@@ -174,7 +184,7 @@ _G.tInfobot = {
 		elseif sTable == "buynsell" then
 			sFields = sFields..", CASE `type` WHEN 'B' THEN UPPER('buy') WHEN 'S' THEN UPPER('sell') WHEN 'H' THEN UPPER('hire') WHEN 'L' THEN UPPER('loan') WHEN 'T' THEN UPPER('bought') WHEN 'D' THEN UPPER('sold') END `type`"
 			sReadQuery = sReadQuery:format( sFields, sTable, iLimit )
-			SQLCur = assert( SQLCon:execute(sReadQuery) )
+			SQLCur = tFunction.Execute( sReadQuery )
 			local tRow = SQLCur:fetch( {}, "a" )
 			while tRow do
 				table.insert( tTemporary, sEntry:format(tRow.id, ("[%s] - %s"):format(tRow.type, tRow.msg), tRow.nick, tRow.dated)..tFunction.FetchReplies(tRow.id) )
@@ -182,14 +192,13 @@ _G.tInfobot = {
 			end
 
 		else
-			SQLCur = assert( SQLCon:execute(sReadQuery:format( sFields, sTable, iLimit )) )
+			SQLCur = tFunction.Execute( sReadQuery:format( sFields, sTable, iLimit ))
 			local tRow = SQLCur:fetch( {}, "a" )
 			while tRow do
 				table.insert( tTemporary, sEntry:format(tRow.id, tRow.msg, tRow.nick, tRow.dated) )
 				tRow = SQLCur:fetch( {}, "a" )
 			end
 		end
-
 		return ( sReturnList..table.concat(tTemporary, "\n") )
 	end,
 
@@ -209,8 +218,8 @@ _G.tInfobot = {
 		local sQuery = [[INSERT IGNORE INTO `%s`(%s)
 			VALUES (%s) ]]
 		sQuery = sQuery:format( tInput.sTable, sFields, sValues )
-		local SQLCur = assert( SQLCon:execute(sQuery) )
-		if type(SQLCur) ~= "number" then
+		local SQLCur = tFunction.Execute( sQuery )
+		if type( SQLCur ) ~= "number" then
 			SQLCur:close()
 		else
 			SQLCur = nil
@@ -225,21 +234,22 @@ _G.tInfobot = {
 		end
 		local sStorageQuery = [[INSERT INTO messages(message, `from`, `to`, dated)
 			VALUES ( '%s', '%s', '%s', NOW() ) ]]
+
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
-		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
+		local SQLCur = tFunction.Execute( sStorageQuery )
 		return SQLCon:getlastautoid()
 	end,
 
 	del = function( tUser, tInput )
 		if tInput.sTable == "buynsell" then
 			local sDeleteQuery = string.format( "DELETE b.*, r.* FROM `buynsell` b LEFT JOIN `replies` r ON r.`bns_id` = b.`id` WHERE b.`id` = %d", tInput.iID )
-			local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
-			if type(SQLCur) ~= "number" then SQLCur:close() end
+			local SQLCur = tFunction.Execute( sDeleteQuery )
+			if type( SQLCur ) ~= "number" then SQLCur:close() end
 			return true
 		end
 		local sDeleteQuery = string.format( "DELETE FROM `%s` WHERE `id` = %d", SQLCon:escape(tInput.sTable), tInput.iID )
-		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		local SQLCur = tFunction.Execute( sDeleteQuery )
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -251,8 +261,8 @@ _G.tInfobot = {
 			WHERE id = %d
 			LIMIT 1]]
 		sUpdateQuery = sUpdateQuery:format( (bClosure and 'C') or 'Y', SQLCon:escape(tUser.sNick), iID )
-		local SQLCur = assert( SQLCon:execute(sUpdateQuery) )
-		if type(SQLCur) ~= "number" then
+		local SQLCur = tFunction.Execute( sUpdateQuery )
+		if type( SQLCur ) ~= "number" then
 			SQLCur:close()
 		else
 			SQLCur = nil
@@ -266,8 +276,8 @@ _G.tInfobot = {
 			WHERE `id` = %d
 			LIMIT 1]]
 		sUpdateQuery = sUpdateQuery:format( iID )
-		local SQLCur = assert( SQLCon:execute(sUpdateQuery) )
-		if type(SQLCur) ~= "number" then
+		local SQLCur = tFunction.Execute( sUpdateQuery )
+		if type( SQLCur ) ~= "number" then
 			SQLCur:close()
 		else
 			SQLCur = nil

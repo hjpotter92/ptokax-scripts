@@ -22,21 +22,29 @@ end
 
 _G.tFunction = {
 	Connect = function()
-		local luasql
-		if not luasql then
-			luasql = require "luasql.mysql"
-		end
-		if not SQLEnv then
+		local luasql = luasql or require "luasql.mysql"
+		if not ( SQLEnv and SQLCon ) then
 			_G.SQLEnv = assert( luasql.mysql() )
 			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
 		end
 		return tFunction.CheckModerator(), tFunction.CheckCategory()
 	end,
 
-	Report = function( sErrorCode, iErrorNumber )
-		local sReturn = "ERROR (%s#%04d): You should check %s for more information."
-		return sReturn:format( sErrorCode:upper(), iErrorNumber, tConfig.sHubFAQ:format(sErrorCode:upper(), iErrorNumber) )
+	Execute = function( sQuery )
+		local luasql = luasql or require "luasql.mysql"
+		if not ( SQLEnv and SQLCon ) then
+			_G.SQLEnv = assert( luasql.mysql() )
+			_G.SQLCon = assert( SQLEnv:connect(Connection 'latest') )
+		end
+		return assert( SQLCon:execute(sQuery) )
 	end,
+
+	Report = ( function()
+		local sReturn = ( "ERROR (%%s#%%04d): You should check %s for more information." ):format( tConfig.sHubFAQ )
+		return function( sErrorCode, iErrorNumber )
+			return sReturn:format( sErrorCode:upper(), iErrorNumber, sErrorCode:upper(), iErrorNumber )
+		end
+	end )(),
 
 	FindMagnet = function( sInput, tUser )
 		local sTTH, sSize, sName = sInput:match "^.*magnet[:]%?xt=urn[:]tree[:]tiger[:](%w+)&xl=(%d+)&dn=(.+)$"
@@ -63,7 +71,7 @@ _G.tFunction = {
 
 	GetCategories = function()
 		local tReturn, sCategoryQuery = {}, [[SELECT name FROM ctgtable]]
-		local SQLCur = assert( SQLCon:execute(sCategoryQuery) )
+		local SQLCur = tFunction.Execute( sCategoryQuery )
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
 			table.insert( tReturn, tRow.name )
@@ -83,7 +91,7 @@ _G.tFunction = {
 
 	GetModerators = function()
 		local tReturn, sCategoryQuery = {}, "SELECT nick FROM modtable WHERE active = 'Y' AND deletions < 11 ORDER BY id ASC"
-		local SQLCur = assert( SQLCon:execute(sCategoryQuery) )
+		local SQLCur = tFunction.Execute( sCategoryQuery )
 		local tRow = SQLCur:fetch( {}, "a" )
 		while tRow do
 			table.insert( tReturn, tRow.nick )
@@ -102,8 +110,8 @@ _G.tFunction = {
 			sInsertQuery, sIDQuery = [[CALL NewEntry( '%s', '%s', '%s', '%s', '%s', '%s', @eid, @mgid )]], [[SELECT @eid AS entryID, @mgid AS magnetID]]
 			sInsertQuery = sInsertQuery:format( tInput.ctg, tInput.msg, tInput.nick, tInput.tth, tInput.name, tInput.size )
 		end
-		local SQLCur = assert( SQLCon:execute(sInsertQuery) )
-		SQLCur = assert( SQLCon:execute(sIDQuery) )
+		local SQLCur = tFunction.Execute( sInsertQuery )
+		SQLCur = tFunction.Execute( sIDQuery )
 		if type( SQLCur ) ~= "string" then
 			local tRow = SQLCur:fetch( {}, "a" )
 			SQLCur:close()
@@ -114,7 +122,7 @@ _G.tFunction = {
 
 	FetchRow = function( iID )
 		local tReturn, sQuery = {}, string.format( "SELECT e.id, c.name AS ctg, e.msg, m.nick AS nick, e.date FROM entries e INNER JOIN ctgtable c ON c.id = e.ctg INNER JOIN modtable m ON m.id = e.nick WHERE e.id = %d LIMIT 1", iID )
-		local SQLCur = assert( SQLCon:execute(sQuery) )
+		local SQLCur = tFunction.Execute( sQuery )
 		tReturn = SQLCur:fetch( {}, "a" )
 		SQLCur:close()
 		return tReturn
@@ -135,7 +143,7 @@ _G.tFunction = {
 			ON m2.id = m.nick
 		WHERE m.id = %d
 		LIMIT 1]], iMID )
-		local SQLCur = assert( SQLCon:execute(sQuery) )
+		local SQLCur = tFunction.Execute( sQuery )
 		tReturn = SQLCur:fetch( {}, "a" )
 		SQLCur:close()
 		return tReturn
@@ -156,7 +164,7 @@ _G.tFunction = {
 		WHERE eid = %d
 		ORDER BY date DESC
 		LIMIT 5]], "%s. [%s] magnet:?xt=urn:tree:tiger:%s&xl=%s (Added by %s on %s)"
-		local SQLCur = assert( SQLCon:execute(sQuery:format( iEID )) )
+		local SQLCur = tFunction.Execute(sQuery:format( iEID ))
 		if SQLCur:numrows() == 0 then
 			return nil
 		end
@@ -169,6 +177,7 @@ _G.tFunction = {
 			table.insert( tReturn, sTemplate:format(tRow.id, sSize, tRow.tth, tRow.size, tRow.nick, tRow.date) )
 			tRow = SQLCur:fetch( {}, "a" )
 		end
+		SQLCur:close()
 		return table.concat( tReturn, "\n\t" )
 	end,
 
@@ -247,7 +256,7 @@ _G.tOffliner = {
 		local sPMToUser = "Welcome to HiT Hi FiT Hai - The IIT Kgp's Official hub.\n\n\t[BOT]Offliner fetched following information:\n\n"
 		if not iLimit and not sCategory then
 			iLimit = 35
-                        sCategory = "<> 'sdmovie' OR (c.name = 'sdmovie' AND e.msg LIKE '%[DVDRIP]%')"
+			sCategory = "<> 'sdmovie' OR (c.name = 'sdmovie' AND e.msg LIKE '%[DVDRIP]%')"
 
 		else
 			if iLimit > 50 or iLimit < 5 then
@@ -268,7 +277,7 @@ _G.tOffliner = {
 		end
 		sSuffix = tConfig.sLatestPage..sSuffix
 		sLatestQuery = sLatestQuery:format( sCategory, iLimit )
-		local SQLCur = assert( SQLCon:execute(sLatestQuery) )
+		local SQLCur = tFunction.Execute( sLatestQuery )
 		if SQLCur:numrows() == 0 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, sPMToUser.."No result was obtained for your query.|" )
 			return
@@ -280,7 +289,7 @@ _G.tOffliner = {
 		end
 		sPMToUser = sPMToUser..table.concat( tTemporary, "\n\n" )
 		Core.SendPmToUser( tUser, tConfig.sBotName, sPMToUser.."\n\nThese results are displayed on the hub-webpage: "..sSuffix.."|" )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -316,13 +325,14 @@ _G.tOffliner = {
 			ORDER BY e.id DESC
 			LIMIT 20 ) AS temp
 		ORDER BY id ASC]]
+
 		if #tTemporary == 0 then
 			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString) )
 		else
 			sSearchQuery = sSearchQuery:format( SQLCon:escape(sSearchString), "'"..table.concat(tTemporary, "', '").."'" )
 		end
 		tTemporary = {}
-		local SQLCur = assert( SQLCon:execute(sSearchQuery) )
+		local SQLCur = tFunction.Execute( sSearchQuery )
 		if SQLCur:numrows() == 0 then
 			Core.SendPmToUser( tUser, tConfig.sBotName, sPMToUser.."No result was obtained for your query.|" )
 			return true
@@ -335,7 +345,7 @@ _G.tOffliner = {
 		end
 		sPMToUser = sPMToUser..table.concat( tTemporary, "\n\n" )
 		Core.SendPmToUser( tUser, tConfig.sBotName, sPMToUser.."\n\nThese search results are linked to: "..sSuffix.."|" )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -366,17 +376,17 @@ _G.tOffliner = {
 
 	dl = function( tUser, iID, sModNick )
 		local sDeleteQuery = string.format( [[DELETE e.*, m.*, f.*
-		FROM entries e
-		LEFT JOIN magnets m
-			ON m.eid = e.id
-		LEFT JOIN filenames f
-			ON m.id = f.magnet_id
-		WHERE e.id = %d]], iID )
-		local SQLCur = assert( SQLCon:execute(sDeleteQuery) )
+			FROM entries e
+			LEFT JOIN magnets m
+				ON m.eid = e.id
+			LEFT JOIN filenames f
+				ON m.id = f.magnet_id
+			WHERE e.id = %d]], iID )
+		local SQLCur = tFunction.Execute( sDeleteQuery )
 		if sModNick:lower() ~= tUser.sNick:lower() then
-			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 2 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+			local SQLCur = tFunction.Execute( "UPDATE modtable SET deletions = deletions + 2 WHERE nick = '"..SQLCon:escape(sModNick).."'" )
 		end
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -386,8 +396,8 @@ _G.tOffliner = {
 		WHERE id = %d]]
 		sUpdateQuery = sUpdateQuery:format( SQLCon:escape(sContent), iID )
 		if not sContent:find( "magnet%:%?" ) then
-			local SQLCur = assert( SQLCon:execute(sUpdateQuery) )
-			if type(SQLCur) ~= "number" then SQLCur:close() end
+			local SQLCur = tFunction.Execute( sUpdateQuery )
+			if type( SQLCur ) ~= "number" then SQLCur:close() end
 			return true
 		else
 			Core.SendPmToUser( tUser, tConfig.sBotName, "Sorry! You must remove magnet when updating." )
@@ -405,8 +415,8 @@ _G.tOffliner = {
 			deletions = 0,
 			date = NOW() ]]
 		sAddModerator = sAddModerator:format( SQLCon:escape(sModNick), SQLCon:escape(tUser.sNick), SQLCon:escape(tUser.sNick) )
-		local SQLCur = assert( SQLCon:execute(sAddModerator) )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		local SQLCur = tFunction.Execute( sAddModerator )
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -417,21 +427,21 @@ _G.tOffliner = {
 			date = NOW()
 		WHERE nick = '%s' ]]
 		sRemoveModerator = sRemoveModerator:format( SQLCon:escape(sModNick) )
-		local SQLCur = assert( SQLCon:execute(sRemoveModerator) )
+		local SQLCur = tFunction.Execute( sRemoveModerator )
 		return true
 	end,
 
 	addctg = function( tUser, sCategory )
 		local sAddCategory = string.format( "INSERT INTO ctgtable (name) VALUES( '%s')", SQLCon:escape(sCategory) )
-		local SQLCur = assert( SQLCon:execute(sAddCategory))
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		local SQLCur = tFunction.Execute( sAddCategory )
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
 	delctg = function( tUser, sCategory )
 		local sRemoveCategory = "DELETE FROM ctgtable WHERE name = '"..sCategory.."'"
-		local SQLCur = assert( SQLCon:execute(sRemoveCategory))
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		local SQLCur = tFunction.Execute( sRemoveCategory )
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -467,9 +477,9 @@ _G.tOffliner = {
 			return false
 		end
 		sMagnetQuery, sNameQuery = sMagnetQuery:format( tMagnet.tth, tMagnet.size, iMID ), sNameQuery:format( iMID, tMagnet.name, tMagnet.name )
-		local SQLCur = assert( SQLCon:execute(sMagnetQuery) )
-		SQLCur = assert( SQLCon:execute(sNameQuery) )
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		local SQLCur = tFunction.Execute(sMagnetQuery)
+		SQLCur = tFunction.Execute(sNameQuery)
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -479,11 +489,11 @@ _G.tOffliner = {
 		LEFT JOIN filenames f
 			ON m.id = f.magnet_id
 		WHERE m.id = %d ]]
-		local SQLCur = assert( SQLCon:execute(sMagnetQuery:format(iMID)) )
+		local SQLCur = tFunction.Execute(sMagnetQuery:format(iMID))
 		if sModNick:lower() ~= tUser.sNick:lower() then
-			local SQLCur = assert( SQLCon:execute("UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'") )
+			local SQLCur = tFunction.Execute( "UPDATE modtable SET deletions = deletions + 1 WHERE nick = '"..SQLCon:escape(sModNick).."'" )
 		end
-		if type(SQLCur) ~= "number" then SQLCur:close() end
+		if type( SQLCur ) ~= "number" then SQLCur:close() end
 		return true
 	end,
 
@@ -497,7 +507,7 @@ _G.tOffliner = {
 		local sStorageQuery = [[INSERT INTO messages (message, `from`, `to`, dated)
 		VALUES ( '%s', '%s', '%s', NOW() ) ]]
 		sStorageQuery = sStorageQuery:format( SQLCon:escape(sMessage), SQLCon:escape(sSender), SQLCon:escape(sRecipient) )
-		local SQLCur = assert( SQLCon:execute(sStorageQuery) )
+		local SQLCur = tFunction.Execute( sStorageQuery )
 		local sReply = "The message has been stored with ID: #%d. It'll be delivered to %s when they connect to hub."
 		Core.SendPmToNick( sSender, tConfig.sBotName, sReply:format(SQLCon:getlastautoid(), sRecipient) )
 		return true
@@ -512,16 +522,17 @@ _G.tOffliner = {
 		WHERE `to` = '%s'
 			AND delivered = 'N' ]]
 		sSearchUserQuery = sSearchUserQuery:format( SQLCon:escape(sNick) )
-		local SQLCur = assert( SQLCon:execute(sSearchUserQuery) )
+		local SQLCur = tFunction.Execute(sSearchUserQuery)
 		if SQLCur:numrows() == 0 then
+			SQLCur:close()
 			return false
 		end
 		local tRow, sMessage, sEditMessage = SQLCur:fetch( {}, "a" ), "An offline message with ID #%04d was sent to you by %s on %s. The message is: \n\t%s\n\n\tThank you for using offline message services.", "UPDATE messages SET delivered = 'Y' WHERE id = %d"
 		while tRow do
-			local SQLTemp = assert( SQLCon:execute(sEditMessage:format(tRow.id)) )
+			local SQLTemp = tFunction.Execute( sEditMessage:format(tRow.id) )
 			Core.SendPmToNick( sNick, tConfig.sBotName, sMessage:format(tRow.id, tRow.from, tRow.dated, tRow.message) )
 			tRow = SQLCur:fetch( {}, "a" )
-			SQLTemp = nil
+			SQLTemp:close()
 		end
 		tRow = nil
 		SQLCur:close()

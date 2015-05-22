@@ -19,7 +19,7 @@ function UpdateUserToks( tUser )
 	if iSharesize < tToksConfig.iMinShareLimit then
 		return
 	end
-	iLogSharesize=math.log(iSharesize)
+	iLogSharesize = math.log(iSharesize)
 	local SQLCur = assert( sqlCon:execute(string.format(sQuery, sNick,iLogSharesize,iLogSharesize,iLogSharesize)) )
 end
 
