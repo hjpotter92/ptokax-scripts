@@ -14,6 +14,7 @@ local tConfig, tChatHistory = {
 	sTimeFormat = "[%I:%M:%S %p] ",
 	sPath = Core.GetPtokaXPath().."scripts/texts/",
 	iMaxLines = 100,
+    iTempProfile = 6,
 }, { "Hi!" }
 local tTickers = {
 	tTopics = {},
@@ -80,6 +81,7 @@ function OnTimer( iTimerID )
 end
 
 function AddHistory( tUser, sInput, bIsCommand )
+    if tUser.iProfile == tConfig.iTempProfile then return false end
 	local sChatLine = os.date( tConfig.sTimeFormat )..sInput
 	if not( bIsCommand and tConfig.sProfiles:find(tUser.iProfile) ) then
 		table.insert( tChatHistory, sChatLine )

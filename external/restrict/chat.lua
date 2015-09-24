@@ -11,7 +11,7 @@ function RestrictChat( sBotName, Error )
 	local sError = ( "<%s> %s" ):format( sBotName, Error("gen", 2) )
 	return function( tUser, sMessage, bFlag )
 		if not bFlag then return bFlag end
-		if tUser.iProfile == -1 then
+		if tUser.iProfile == -1 or tUser.iProfile == 6 then
 			Core.SendToUser( tUser, sError )
 			return true
 		end
